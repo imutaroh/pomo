@@ -121,18 +121,26 @@ struct PanelView: View {
             switch engine.phase {
             case .idle:
                 CircleButton(symbol: "play.fill", prominent: true) { engine.startWork() }
+                    .help("作業を開始（⌃⌥P）")
                 if hasPendingBreak {
                     CircleButton(symbol: "cup.and.saucer.fill") { engine.startBreak() }
+                        .help("貯めた休憩を開始")
                 }
             case .work:
                 CircleButton(symbol: "arrow.counterclockwise") { engine.reset() }
+                    .help("リセット")
                 CircleButton(symbol: engine.isPaused ? "play.fill" : "pause.fill", prominent: true) { engine.togglePause() }
+                    .help(engine.isPaused ? "再開（⌃⌥P）" : "一時停止（⌃⌥P）")
                 // フローの核: ここを押すと作業時間に応じた休憩が自動で始まる
                 CircleButton(symbol: "cup.and.saucer.fill") { engine.finishWork() }
+                    .help("作業を終えて休憩へ（貯めた分だけ休める）")
             case .breakTime:
                 CircleButton(symbol: "goforward.plus") { engine.extendFiveMinutes() } // +5分（M4）
+                    .help("休憩を5分延長")
                 CircleButton(symbol: engine.isPaused ? "play.fill" : "pause.fill", prominent: true) { engine.togglePause() }
+                    .help(engine.isPaused ? "再開" : "一時停止")
                 CircleButton(symbol: "forward.end.fill") { engine.skipBreak() }       // スキップ（M4）
+                    .help("休憩をスキップ")
             }
         }
     }
