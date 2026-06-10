@@ -47,6 +47,7 @@ final class TimerEngine: ObservableObject {
             Task { @MainActor in self?.handleWake() }
         }
         startTicker()
+        refresh() // 起動直後の待機表示（クラシックなら次の作業時間の予告）
     }
 
     // MARK: - 操作
@@ -110,7 +111,7 @@ final class TimerEngine: ObservableObject {
         let worked = currentWorkedSeconds()
         logWork(completed: true, interrupted: false)
         playSound()
-        justFinished = true
+        signalFinished()
         classicCompletedInSet += 1
 
         let breakDuration: TimeInterval
@@ -175,7 +176,7 @@ final class TimerEngine: ObservableObject {
         if playChime {
             logBreak(completed: true)
             playSound()
-            justFinished = true
+            signalFinished()
         }
         goIdle()
         if settings.autoStartWork { startWork() }
@@ -190,9 +191,8 @@ final class TimerEngine: ObservableObject {
         accumulated = 0
         endDate = nil
         countdownTotal = 0
-        displaySeconds = 0
-        progress = 0
         bankedBreakSeconds = 0
+        refresh()
     }
 
     // MARK: - tick / 計算
@@ -223,7 +223,8 @@ final class TimerEngine: ObservableObject {
     private func refresh() {
         switch phase {
         case .idle:
-            displaySeconds = 0
+            // クラシックの待機中 00:00 は壊れて見える → 次の作業時間を予告表示
+            displaySeconds = settings.mode == .classic ? settings.classicWorkMin * 60 : 0
             progress = 0
         case .work:
             if settings.mode == .flow {
@@ -290,8 +291,28 @@ final class TimerEngine: ObservableObject {
         NSSound(named: "Glass")?.play()
     }
 
+    /// 終了の合図は6秒で自動消灯する。点きっぱなしだと不透明度が 1.0 に固定され
+    /// 3段階存在感制御（このアプリの肝）が死ぬため。ホバーでの消灯は冗長系として残す
+    private var finishedClearTask: Task<Void, Never>?
+
+    private func signalFinished() {
+        justFinished = true
+        finishedClearTask?.cancel()
+        finishedClearTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(6))
+            guard !Task.isCancelled else { return }
+            self?.justFinished = false
+        }
+    }
+
     func clearFinishedFlag() {
+        finishedClearTask?.cancel()
         justFinished = false
+    }
+
+    /// モード/プリセット変更時に待機中の表示を更新（クラシックは次の作業時間を予告表示）
+    func settingsChanged() {
+        if phase == .idle { refresh() }
     }
 
     // MARK: - 表示ヘルパ

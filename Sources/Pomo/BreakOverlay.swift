@@ -94,6 +94,9 @@ struct BreakOverlayView: View {
     @ObservedObject var engine: TimerEngine
     let onCollapse: () -> Void
     @State private var breathe = false
+    // スキップだけ3秒の間を置く（反射クリックの習慣化を防ぐ・one sec の研究知見）。
+    // 「+5分」「小さく」は即時 = 延期と放棄を区別する
+    @State private var skipEnabled = false
 
     var body: some View {
         ZStack {
@@ -132,11 +135,20 @@ struct BreakOverlayView: View {
                     PillButton(label: "+5分") { engine.extendFiveMinutes() }
                     PillButton(label: "小さく", action: onCollapse)
                     PillButton(label: "スキップ") { engine.skipBreak() }
+                        .disabled(!skipEnabled)
+                        .opacity(skipEnabled ? 1 : 0.35)
+                        .animation(.easeOut(duration: 0.4), value: skipEnabled)
                 }
             }
         }
         .ignoresSafeArea()
-        .onAppear { breathe = true }
+        .onAppear {
+            breathe = true
+            Task {
+                try? await Task.sleep(for: .seconds(3))
+                skipEnabled = true
+            }
+        }
     }
 }
 

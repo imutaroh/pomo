@@ -86,53 +86,55 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         // モード
         let modeMenu = NSMenu()
-        let flowItem = item("フロー（作業時間に応じて休憩が決まる）", #selector(setModeFlow))
+        let flowItem = item("フロー（作業した時間の 1/\(settings.flowRatio) が休憩になる）", #selector(setModeFlow))
         flowItem.state = settings.mode == .flow ? .on : .off
         modeMenu.addItem(flowItem)
-        let classicItem = item("クラシック（固定 \(settings.classicWorkMin)/\(settings.classicShortBreakMin)）", #selector(setModeClassic))
+        let classicItem = item("クラシック（\(settings.classicWorkMin)分作業 → \(settings.classicShortBreakMin)分休憩）", #selector(setModeClassic))
         classicItem.state = settings.mode == .classic ? .on : .off
         modeMenu.addItem(classicItem)
         let modeRoot = NSMenuItem(title: "モード", action: nil, keyEquivalent: "")
         menu.addItem(modeRoot)
         menu.setSubmenu(modeMenu, for: modeRoot)
 
-        // フロー比率
-        let ratioMenu = NSMenu()
-        for r in [3, 4, 5, 6] {
-            let sample = 45 / r
-            let i = NSMenuItem(title: "1:\(r)（45分 → 約\(sample)分）", action: #selector(setRatio(_:)), keyEquivalent: "")
-            i.target = self
-            i.tag = r
-            i.state = settings.flowRatio == r ? .on : .off
-            ratioMenu.addItem(i)
+        // 使用中モードの設定だけ見せる（両方並べるとメニューが長くなり読まれない）
+        if settings.mode == .flow {
+            let ratioMenu = NSMenu()
+            for r in [3, 4, 5, 6] {
+                let sample = 45 / r
+                let i = NSMenuItem(title: "作業の 1/\(r) を休憩に（45分なら約\(sample)分）", action: #selector(setRatio(_:)), keyEquivalent: "")
+                i.target = self
+                i.tag = r
+                i.state = settings.flowRatio == r ? .on : .off
+                ratioMenu.addItem(i)
+            }
+            let ratioRoot = NSMenuItem(title: "休憩の長さ", action: nil, keyEquivalent: "")
+            menu.addItem(ratioRoot)
+            menu.setSubmenu(ratioMenu, for: ratioRoot)
+        } else {
+            let presetMenu = NSMenu()
+            for (w, b, l) in [(25, 5, 15), (50, 10, 20), (90, 15, 30)] {
+                let i = NSMenuItem(title: "\(w)分作業 / \(b)分休憩 / 長休憩\(l)分", action: #selector(setPreset(_:)), keyEquivalent: "")
+                i.target = self
+                i.tag = w * 10000 + b * 100 + l
+                i.state = (settings.classicWorkMin == w && settings.classicShortBreakMin == b) ? .on : .off
+                presetMenu.addItem(i)
+            }
+            let presetRoot = NSMenuItem(title: "時間プリセット", action: nil, keyEquivalent: "")
+            menu.addItem(presetRoot)
+            menu.setSubmenu(presetMenu, for: presetRoot)
         }
-        let ratioRoot = NSMenuItem(title: "休憩の比率（フロー）", action: nil, keyEquivalent: "")
-        menu.addItem(ratioRoot)
-        menu.setSubmenu(ratioMenu, for: ratioRoot)
 
-        // クラシック プリセット
-        let presetMenu = NSMenu()
-        for (w, b, l) in [(25, 5, 15), (50, 10, 20), (90, 15, 30)] {
-            let i = NSMenuItem(title: "\(w)分作業 / \(b)分休憩 / 長休憩\(l)分", action: #selector(setPreset(_:)), keyEquivalent: "")
-            i.target = self
-            i.tag = w * 10000 + b * 100 + l
-            i.state = (settings.classicWorkMin == w && settings.classicShortBreakMin == b) ? .on : .off
-            presetMenu.addItem(i)
-        }
-        let presetRoot = NSMenuItem(title: "時間プリセット（クラシック）", action: nil, keyEquivalent: "")
-        menu.addItem(presetRoot)
-        menu.setSubmenu(presetMenu, for: presetRoot)
-
-        // 集中時の透明度
+        // 集中時の濃さ（「透明度15%」は逆に読めるので「濃さ」で統一）
         let opacityMenu = NSMenu()
         for pct in [15, 30, 50, 70, 100] {
-            let i = NSMenuItem(title: "\(pct)%", action: #selector(setOpacity(_:)), keyEquivalent: "")
+            let label = pct == 15 ? "15%（ほぼ消える）" : pct == 100 ? "100%（透けない）" : "\(pct)%"
+            let i = NSMenuItem(title: label, action: #selector(setOpacity(_:)), keyEquivalent: "")
             i.target = self
             i.tag = pct
             i.state = Int(settings.focusOpacity * 100) == pct ? .on : .off
             opacityMenu.addItem(i)
         }
-        let opacityRoot = NSMenuItem(title: "集中時の見え方（透明度）", action: nil, keyEquivalent: "")
+        let opacityRoot = NSMenuItem(title: "集中時の濃さ", action: nil, keyEquivalent: "")
         menu.addItem(opacityRoot)
         menu.setSubmenu(opacityMenu, for: opacityRoot)
 
@@ -200,13 +202,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func extendBreak() { engine.extendFiveMinutes() }
     @objc private func skipBreak() { engine.skipBreak() }
     @objc private func togglePanel() { panelController.toggleVisibility() }
-    @objc private func setModeFlow() { settings.mode = .flow }
-    @objc private func setModeClassic() { settings.mode = .classic }
+    @objc private func setModeFlow() { settings.mode = .flow; engine.settingsChanged() }
+    @objc private func setModeClassic() { settings.mode = .classic; engine.settingsChanged() }
     @objc private func setRatio(_ sender: NSMenuItem) { settings.flowRatio = sender.tag }
     @objc private func setPreset(_ sender: NSMenuItem) {
         settings.classicWorkMin = sender.tag / 10000
         settings.classicShortBreakMin = (sender.tag / 100) % 100
         settings.classicLongBreakMin = sender.tag % 100
+        engine.settingsChanged()
     }
     @objc private func setOpacity(_ sender: NSMenuItem) { settings.focusOpacity = Double(sender.tag) / 100 }
     @objc private func toggleSound() { settings.soundEnabled.toggle() }

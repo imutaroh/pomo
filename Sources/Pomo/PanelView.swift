@@ -15,6 +15,7 @@ struct PanelView: View {
     @ObservedObject var engine: TimerEngine
     @ObservedObject var settings = Settings.shared
     @State private var hovering = false
+    @State private var pillHovered = false
 
     // 存在感の3段階制御（§7-B）: 操作=1.0 / 待機=1.0(要素少) / 集中=focusOpacity
     private var panelOpacity: Double {
@@ -36,7 +37,7 @@ struct PanelView: View {
                     return "今日 \(logger.todayWorkCount)回 · \(h > 0 ? "\(h)時間" : "")\(m)分"
                 }
             }
-            return "開始待ち"
+            return "いつでもどうぞ"
         case .work: return engine.isPaused ? "一時停止" : "集中"
         case .breakTime: return engine.isPaused ? "一時停止" : "休憩"
         }
@@ -51,18 +52,16 @@ struct PanelView: View {
             RoundedRectangle(cornerRadius: Tokens.cornerRadius)
                 .strokeBorder(Tokens.washi.opacity(0.14), lineWidth: 1)
 
-            // 終了の合図: 琥珀のグロー（通知 OFF・集中モードでも気づける第1の合図 M5）
-            if engine.justFinished {
-                RoundedRectangle(cornerRadius: Tokens.cornerRadius)
-                    .stroke(Tokens.kohaku, lineWidth: 3)
-                    .shadow(color: Tokens.kohaku.opacity(0.8), radius: 12)
-            }
-
             VStack(spacing: 0) {
                 // 上端中央の細い進捗インジケータ（P0-1）
-                ProgressBar(progress: engine.progress, active: engine.phase != .idle)
-                    .frame(width: 132, height: 3)
-                    .padding(.top, 14)
+                ProgressBar(
+                    progress: engine.progress,
+                    active: engine.phase != .idle,
+                    // フローで基準25分を超えたら薄くする（満タン静止だと「完了」に誤読される）
+                    saturated: engine.phase == .work && settings.mode == .flow && engine.progress >= 1
+                )
+                .frame(width: 132, height: 3)
+                .padding(.top, 14)
 
                 Spacer()
 
@@ -73,25 +72,35 @@ struct PanelView: View {
 
                 // 巨大な丸ゴシック数字（P0-1: ウィンドウ幅の約6割）
                 Text(engine.timeString)
-                    .font(.system(size: engine.displaySeconds >= 3600 ? 42 : 54, weight: .medium, design: .rounded))
+                    // サイズ分岐だと 1:00:00 到達の瞬間に数字がガクッと縮む → 固定+自動縮小
+                    .font(.system(size: 54, weight: .medium, design: .rounded))
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                    .frame(maxWidth: 170)
                     .monospacedDigit()
                     .foregroundStyle(Tokens.washi) // monora P0-1: 巨大な「白い」丸ゴシック数字
                     .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
                     .contentTransition(.numericText())
 
                 // フロー作業中: 貯まった休憩をライブ表示（動機づけ＝追加要件の核）
+                // 報酬（貯めた休憩）自体をボタンにする: 押せば受け取れる構造で核メカニクスを説明なしで伝える
                 if engine.phase == .work && settings.mode == .flow {
-                    HStack(spacing: 4) {
-                        Image(systemName: "cup.and.saucer.fill")
-                            .font(.system(size: 10))
-                        Text("休憩 +\(engine.bankedBreakString)")
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
+                    Button { engine.finishWork() } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "cup.and.saucer.fill")
+                                .font(.system(size: 10))
+                            Text("休憩 +\(engine.bankedBreakString)")
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .monospacedDigit()
+                        }
+                        .foregroundStyle(Tokens.kohaku)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(Tokens.kohaku.opacity(pillHovered ? 0.3 : 0.16)))
                     }
-                    .foregroundStyle(Tokens.kohaku)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(Tokens.kohaku.opacity(0.16)))
+                    .buttonStyle(.plain)
+                    .onHover { pillHovered = $0 }
+                    .help("作業を終えて、この長さの休憩を始める")
                 } else {
                     Color.clear.frame(height: 23)
                 }
@@ -99,12 +108,21 @@ struct PanelView: View {
                 Spacer()
 
                 // ホバー時のみ出現する操作列（P1-4）
+                // 待機中は常時表示（初見で操作がわかるように）。作業/休憩中はホバー時のみ
                 controls
-                    .opacity(hovering ? 1 : 0)
+                    .opacity(hovering || engine.phase == .idle ? 1 : 0)
                     .padding(.bottom, 14)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: Tokens.cornerRadius))
+        // 終了の合図: 琥珀のグロー（M5）。クリップの外に置かないとハロー光が削られる
+        .overlay {
+            if engine.justFinished {
+                RoundedRectangle(cornerRadius: Tokens.cornerRadius)
+                    .stroke(Tokens.kohaku, lineWidth: 3)
+                    .shadow(color: Tokens.kohaku.opacity(0.8), radius: 12)
+            }
+        }
         .opacity(panelOpacity)
         .animation(.easeOut(duration: Tokens.fadeDuration), value: panelOpacity)
         .animation(.easeOut(duration: Tokens.fadeDuration), value: hovering)
@@ -113,6 +131,7 @@ struct PanelView: View {
             hovering = h
             if h { engine.clearFinishedFlag() }
         }
+        .padding(12) // グローのハローが描ける余白（ウィンドウは 220、ガラスは 196）
     }
 
     @ViewBuilder
@@ -151,6 +170,7 @@ struct PanelView: View {
 struct ProgressBar: View {
     let progress: Double
     let active: Bool
+    var saturated = false
 
     var body: some View {
         GeometryReader { geo in
@@ -158,11 +178,12 @@ struct ProgressBar: View {
                 Capsule().fill(Tokens.washi.opacity(0.18))
                 Capsule()
                     .fill(Tokens.kohaku)
-                    .frame(width: max(0, geo.size.width * progress))
+                    .frame(width: max(0, geo.size.width * min(1, progress)))
             }
         }
-        .opacity(active ? 1 : 0.4)
+        .opacity(saturated ? 0.35 : (active ? 1 : 0.4))
         .animation(.linear(duration: 0.5), value: progress)
+        .animation(.easeOut(duration: Tokens.fadeDuration), value: saturated)
     }
 }
 
