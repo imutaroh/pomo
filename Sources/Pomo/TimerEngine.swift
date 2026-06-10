@@ -54,6 +54,7 @@ final class TimerEngine: ObservableObject {
         phase = .work
         isPaused = false
         justFinished = false
+        pendingBreakDuration = nil // 休憩せず次の作業へ進んだら破棄（罪悪感なし）
         phaseStart = Date()
         segmentStart = Date()
         accumulated = 0
@@ -126,7 +127,8 @@ final class TimerEngine: ObservableObject {
         onPhaseChange?()
     }
 
-    private var pendingBreakDuration: TimeInterval?
+    /// autoStartBreak=OFF 時、算出済みでまだ開始していない休憩（パネル/メニューから開始できる）
+    @Published private(set) var pendingBreakDuration: TimeInterval?
 
     func startBreak(duration: TimeInterval? = nil) {
         guard let dur = duration ?? pendingBreakDuration else { return }

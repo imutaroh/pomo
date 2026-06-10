@@ -61,6 +61,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         switch engine.phase {
         case .idle:
             menu.addItem(item("作業を開始", #selector(startWork), key: "s"))
+            if let pending = engine.pendingBreakDuration {
+                menu.addItem(item("休憩を開始（\(Int(pending) / 60)分\(Int(pending) % 60 > 0 ? "\(Int(pending) % 60)秒" : "")）", #selector(startPendingBreak)))
+            }
         case .work:
             menu.addItem(item(engine.isPaused ? "再開" : "一時停止", #selector(togglePause), key: "p"))
             menu.addItem(item(settings.mode == .flow ? "作業を終えて休憩へ" : "作業を終える", #selector(finishWork), key: "b"))
@@ -150,6 +153,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     // MARK: - Actions
 
     @objc private func startWork() { engine.startWork() }
+    @objc private func startPendingBreak() { engine.startBreak() }
     @objc private func togglePause() { engine.togglePause() }
     @objc private func finishWork() { engine.finishWork() }
     @objc private func resetTimer() { engine.reset() }

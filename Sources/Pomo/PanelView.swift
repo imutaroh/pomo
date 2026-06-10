@@ -118,7 +118,7 @@ struct PanelView: View {
         }
     }
 
-    private var hasPendingBreak: Bool { false } // autoStartBreak=OFF 時の将来拡張用
+    private var hasPendingBreak: Bool { engine.pendingBreakDuration != nil }
 }
 
 struct ProgressBar: View {
