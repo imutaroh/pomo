@@ -26,7 +26,17 @@ struct PanelView: View {
 
     private var phaseLabel: String {
         switch engine.phase {
-        case .idle: return "開始待ち"
+        case .idle:
+            // 待機中のホバーは「今日の積み上げ」を見せる場所として使う
+            if hovering {
+                let logger = SessionLogger.shared
+                if logger.todayWorkCount > 0 {
+                    let h = logger.todayWorkSeconds / 3600
+                    let m = (logger.todayWorkSeconds % 3600) / 60
+                    return "今日 \(logger.todayWorkCount)回 · \(h > 0 ? "\(h)時間" : "")\(m)分"
+                }
+            }
+            return "開始待ち"
         case .work: return engine.isPaused ? "一時停止" : "集中"
         case .breakTime: return engine.isPaused ? "一時停止" : "休憩"
         }

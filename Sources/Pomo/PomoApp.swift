@@ -6,12 +6,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panelController: PanelController!
     private var menuBar: MenuBarController!
     private var hotKeys: HotKeyManager!
+    private var breakOverlay: BreakOverlayController!
+    private var apiServer: APIServer!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         engine = TimerEngine()
         panelController = PanelController(engine: engine)
         menuBar = MenuBarController(engine: engine, panelController: panelController)
         hotKeys = HotKeyManager(engine: engine, panelController: panelController)
+        breakOverlay = BreakOverlayController(engine: engine)
+        apiServer = APIServer(engine: engine)
 
         // ディスプレイ構成変更で画面外に出たら主ディスプレイへ戻す（§7-C）
         NotificationCenter.default.addObserver(

@@ -44,6 +44,10 @@ final class Settings: ObservableObject {
     @Published var soundEnabled: Bool {
         didSet { d.set(soundEnabled, forKey: "soundEnabled") }
     }
+    /// 休憩を全画面オーバーレイで表示する（休憩モード）
+    @Published var breakFullscreen: Bool {
+        didSet { d.set(breakFullscreen, forKey: "breakFullscreen") }
+    }
 
     private init() {
         let d = UserDefaults.standard
@@ -63,5 +67,6 @@ final class Settings: ObservableObject {
         autoStartBreak = d.object(forKey: "autoStartBreak") as? Bool ?? true
         autoStartWork = d.object(forKey: "autoStartWork") as? Bool ?? false
         soundEnabled = d.object(forKey: "soundEnabled") as? Bool ?? true
+        breakFullscreen = d.object(forKey: "breakFullscreen") as? Bool ?? true
     }
 }

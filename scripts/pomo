@@ -1,0 +1,28 @@
+#!/bin/zsh
+# Pomo API の薄い CLI ラッパ。ターミナル・Claude Code・スクリプトから使う。
+# 例: pomo start / pomo memo "Go の学習" / pomo finish / pomo stats
+set -euo pipefail
+BASE="http://127.0.0.1:51766"
+
+cmd="${1:-status}"
+case "$cmd" in
+  status|stats|sessions)
+    curl -sf "$BASE/$cmd" ;;
+  start|pause|finish|reset)
+    curl -sf -X POST "$BASE/$cmd" ;;
+  skip)
+    curl -sf -X POST "$BASE/break/skip" ;;
+  extend)
+    curl -sf -X POST "$BASE/break/extend" ;;
+  memo)
+    shift
+    if command -v jq >/dev/null; then
+      jq -n --arg t "$*" '{text: $t}' | curl -sf -X POST "$BASE/memo" -H 'Content-Type: application/json' -d @-
+    else
+      curl -sf -X POST "$BASE/memo" -H 'Content-Type: application/json' -d "{\"text\": \"$*\"}"
+    fi ;;
+  *)
+    echo "usage: pomo [status|stats|sessions|start|pause|finish|skip|extend|reset|memo <text>]" >&2
+    exit 1 ;;
+esac
+echo

@@ -24,6 +24,8 @@ final class TimerEngine: ObservableObject {
     /// 終了直後の合図（パネルの視覚変化トリガー）
     @Published private(set) var justFinished = false
     @Published private(set) var classicCompletedInSet = 0
+    /// 進行中の作業セッションに付けるメモ（メニュー/API から設定、ログ記録時に保存）
+    @Published var currentMemo: String?
 
     private let settings = Settings.shared
     private var ticker: Timer?
@@ -55,6 +57,7 @@ final class TimerEngine: ObservableObject {
         isPaused = false
         justFinished = false
         pendingBreakDuration = nil // 休憩せず次の作業へ進んだら破棄（罪悪感なし）
+        currentMemo = nil
         phaseStart = Date()
         segmentStart = Date()
         accumulated = 0
@@ -272,7 +275,8 @@ final class TimerEngine: ObservableObject {
         guard let start = phaseStart else { return }
         let end = interrupted ? start.addingTimeInterval(currentWorkedSeconds()) : Date()
         SessionLogger.shared.log(start: start, end: end, kind: "work", mode: settings.mode,
-                                 completed: completed, interrupted: interrupted)
+                                 completed: completed, interrupted: interrupted, memo: currentMemo)
+        currentMemo = nil
     }
 
     private func logBreak(completed: Bool) {

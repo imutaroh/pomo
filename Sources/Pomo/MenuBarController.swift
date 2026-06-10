@@ -47,14 +47,19 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         // 状態表示
         let logger = SessionLogger.shared
-        let h = logger.todayWorkSeconds / 3600
-        let m = (logger.todayWorkSeconds % 3600) / 60
         let summary = NSMenuItem(
-            title: "今日: \(logger.todayWorkCount) セッション（\(h > 0 ? "\(h)時間" : "")\(m)分）",
+            title: "今日: \(logger.todayWorkCount) セッション（\(Self.hm(logger.todayWorkSeconds))）",
             action: nil, keyEquivalent: ""
         )
         summary.isEnabled = false
         menu.addItem(summary)
+        let week = logger.weekStats()
+        let weekItem = NSMenuItem(
+            title: "今週: \(week.count) セッション（\(Self.hm(week.seconds))）",
+            action: nil, keyEquivalent: ""
+        )
+        weekItem.isEnabled = false
+        menu.addItem(weekItem)
         menu.addItem(.separator())
 
         // 主操作
@@ -67,6 +72,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         case .work:
             menu.addItem(item(engine.isPaused ? "再開" : "一時停止", #selector(togglePause), key: "p"))
             menu.addItem(item(settings.mode == .flow ? "作業を終えて休憩へ" : "作業を終える", #selector(finishWork), key: "b"))
+            let memoTitle = engine.currentMemo.map { "メモ: \($0)" } ?? "この作業にメモを付ける…"
+            menu.addItem(item(memoTitle, #selector(editMemo), key: "m"))
             menu.addItem(item("リセット", #selector(resetTimer)))
         case .breakTime:
             menu.addItem(item("+5分延長", #selector(extendBreak)))
@@ -130,6 +137,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.setSubmenu(opacityMenu, for: opacityRoot)
 
         // トグル類
+        let breakFsItem = item("休憩は全画面で（休憩モード）", #selector(toggleBreakFullscreen))
+        breakFsItem.state = settings.breakFullscreen ? .on : .off
+        menu.addItem(breakFsItem)
         let soundItem = item("サウンド", #selector(toggleSound))
         soundItem.state = settings.soundEnabled ? .on : .off
         menu.addItem(soundItem)
@@ -141,7 +151,16 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(autoWorkItem)
 
         menu.addItem(.separator())
+        let apiItem = NSMenuItem(title: "API: http://127.0.0.1:\(APIServer.port)", action: nil, keyEquivalent: "")
+        apiItem.isEnabled = false
+        menu.addItem(apiItem)
         menu.addItem(item("Pomo を終了", #selector(quit), key: "q"))
+    }
+
+    private static func hm(_ seconds: Int) -> String {
+        let h = seconds / 3600
+        let m = (seconds % 3600) / 60
+        return h > 0 ? "\(h)時間\(m)分" : "\(m)分"
     }
 
     private func item(_ title: String, _ action: Selector, key: String = "") -> NSMenuItem {
@@ -154,6 +173,27 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc private func startWork() { engine.startWork() }
     @objc private func startPendingBreak() { engine.startBreak() }
+
+    /// メモはパネルではなくダイアログで入力する（パネルにテキスト入力を置かない原則 §8）
+    @objc private func editMemo() {
+        NSApp.activate(ignoringOtherApps: true)
+        let alert = NSAlert()
+        alert.messageText = "この作業、何をしてる？"
+        alert.informativeText = "セッション記録（JSONL）に保存されます"
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
+        field.stringValue = engine.currentMemo ?? ""
+        field.placeholderString = "例: Go の学習、ブログ執筆"
+        alert.accessoryView = field
+        alert.addButton(withTitle: "保存")
+        alert.addButton(withTitle: "キャンセル")
+        alert.window.initialFirstResponder = field
+        if alert.runModal() == .alertFirstButtonReturn {
+            let text = field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            engine.currentMemo = text.isEmpty ? nil : text
+        }
+    }
+
+    @objc private func toggleBreakFullscreen() { settings.breakFullscreen.toggle() }
     @objc private func togglePause() { engine.togglePause() }
     @objc private func finishWork() { engine.finishWork() }
     @objc private func resetTimer() { engine.reset() }
