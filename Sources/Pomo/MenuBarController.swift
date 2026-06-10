@@ -145,6 +145,11 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let breakFsItem = item("休憩は全画面で（休憩モード）", #selector(toggleBreakFullscreen))
         breakFsItem.state = settings.breakFullscreen ? .on : .off
         menu.addItem(breakFsItem)
+        if settings.breakFullscreen {
+            let deferItem = item("通話・会議中は全画面にしない", #selector(toggleDeferInCall))
+            deferItem.state = settings.deferOverlayInCall ? .on : .off
+            menu.addItem(deferItem)
+        }
         let soundItem = item("サウンド", #selector(toggleSound))
         soundItem.state = settings.soundEnabled ? .on : .off
         menu.addItem(soundItem)
@@ -203,6 +208,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     @objc private func toggleBreakFullscreen() { settings.breakFullscreen.toggle() }
+    @objc private func toggleDeferInCall() { settings.deferOverlayInCall.toggle() }
     @objc private func openDashboard() { dashboard.show() }
 
     @objc private func toggleLoginItem() {

@@ -37,7 +37,10 @@ final class BreakOverlayController {
 
     private func phaseChanged(_ phase: Phase) {
         if phase == .breakTime {
-            if settings.breakFullscreen && !collapsedThisBreak { show() }
+            guard settings.breakFullscreen, !collapsedThisBreak else { return }
+            // 通話・会議中は全画面で割り込まない（小パネルの休憩カウントダウンだけが残る）
+            if settings.deferOverlayInCall && MeetingGuard.isMicrophoneInUse() { return }
+            show()
         } else {
             collapsedThisBreak = false
             hide()

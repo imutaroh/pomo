@@ -48,6 +48,10 @@ final class Settings: ObservableObject {
     @Published var breakFullscreen: Bool {
         didSet { d.set(breakFullscreen, forKey: "breakFullscreen") }
     }
+    /// 通話・会議中（マイク使用中）は全画面オーバーレイを出さない（即アンインストール級クレームの予防）
+    @Published var deferOverlayInCall: Bool {
+        didSet { d.set(deferOverlayInCall, forKey: "deferOverlayInCall") }
+    }
 
     private init() {
         let d = UserDefaults.standard
@@ -68,5 +72,6 @@ final class Settings: ObservableObject {
         autoStartWork = d.object(forKey: "autoStartWork") as? Bool ?? false
         soundEnabled = d.object(forKey: "soundEnabled") as? Bool ?? true
         breakFullscreen = d.object(forKey: "breakFullscreen") as? Bool ?? true
+        deferOverlayInCall = d.object(forKey: "deferOverlayInCall") as? Bool ?? true
     }
 }
