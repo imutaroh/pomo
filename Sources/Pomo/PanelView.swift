@@ -35,6 +35,11 @@ struct PanelView: View {
     var body: some View {
         ZStack {
             VisualEffectBackground()
+            // スクリム: 壁紙が白でも黒でも白文字のコントラストを保証する薄い墨の被膜
+            Tokens.sumi.opacity(0.45)
+            // 黒背景でパネルの輪郭が消えないための極薄の縁取り
+            RoundedRectangle(cornerRadius: Tokens.cornerRadius)
+                .strokeBorder(Tokens.washi.opacity(0.14), lineWidth: 1)
 
             // 終了の合図: 琥珀のグロー（通知 OFF・集中モードでも気づける第1の合図 M5）
             if engine.justFinished {
@@ -53,28 +58,32 @@ struct PanelView: View {
 
                 Text(phaseLabel)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
-                    .foregroundStyle(Tokens.sumi.opacity(0.5)) // 墨50%（§6）
+                    .foregroundStyle(Tokens.washi.opacity(0.55)) // サブテキストは同色の半透過（§6 の原則を白基調に適用）
                     .opacity(hovering || engine.phase == .idle || engine.isPaused || engine.justFinished ? 1 : 0)
 
                 // 巨大な丸ゴシック数字（P0-1: ウィンドウ幅の約6割）
                 Text(engine.timeString)
                     .font(.system(size: engine.displaySeconds >= 3600 ? 42 : 54, weight: .medium, design: .rounded))
                     .monospacedDigit()
-                    .foregroundStyle(Tokens.sumi)
+                    .foregroundStyle(Tokens.washi) // monora P0-1: 巨大な「白い」丸ゴシック数字
+                    .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
                     .contentTransition(.numericText())
 
                 // フロー作業中: 貯まった休憩をライブ表示（動機づけ＝追加要件の核）
                 if engine.phase == .work && settings.mode == .flow {
-                    HStack(spacing: 3) {
+                    HStack(spacing: 4) {
                         Image(systemName: "cup.and.saucer.fill")
                             .font(.system(size: 10))
                         Text("休憩 +\(engine.bankedBreakString)")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
                             .monospacedDigit()
                     }
                     .foregroundStyle(Tokens.kohaku)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(Tokens.kohaku.opacity(0.16)))
                 } else {
-                    Color.clear.frame(height: 15)
+                    Color.clear.frame(height: 23)
                 }
 
                 Spacer()
@@ -128,7 +137,7 @@ struct ProgressBar: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                Capsule().fill(Tokens.sumi.opacity(0.12))
+                Capsule().fill(Tokens.washi.opacity(0.18))
                 Capsule()
                     .fill(Tokens.kohaku)
                     .frame(width: max(0, geo.size.width * progress))
@@ -149,10 +158,10 @@ struct CircleButton: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: prominent ? 15 : 12, weight: .semibold))
-                .foregroundStyle(prominent ? Tokens.washi : Tokens.sumi.opacity(0.7))
+                .foregroundStyle(prominent ? Tokens.sumi : Tokens.washi.opacity(0.85))
                 .frame(width: prominent ? 40 : 32, height: prominent ? 40 : 32)
                 .background(
-                    Circle().fill(prominent ? Tokens.sumi : Tokens.sumi.opacity(hovered ? 0.16 : 0.08))
+                    Circle().fill(prominent ? Tokens.washi : Tokens.washi.opacity(hovered ? 0.28 : 0.14))
                 )
         }
         .buttonStyle(.plain)
