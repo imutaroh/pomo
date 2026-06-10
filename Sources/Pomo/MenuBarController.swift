@@ -1,4 +1,5 @@
 import AppKit
+import ServiceManagement
 
 /// メニューバー常駐（M6）: 残り時間/経過時間テキスト＋今日の完了数。設定はすべてメニューで完結
 /// （テキスト入力 UI を持たない方針 §8 のため、選択肢はサブメニューで提供する）
@@ -9,6 +10,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private let panelController: PanelController
     private let settings = Settings.shared
     private var updateTimer: Timer?
+    private let dashboard = DashboardWindowController()
 
     init(engine: TimerEngine, panelController: PanelController) {
         self.engine = engine
@@ -81,6 +83,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             menu.addItem(item(engine.isPaused ? "再開" : "一時停止", #selector(togglePause), key: "p"))
         }
         menu.addItem(.separator())
+        menu.addItem(item("きろくを開く", #selector(openDashboard), key: "d"))
         menu.addItem(item(panelController.panel.isVisible ? "パネルを隠す" : "パネルを表示", #selector(togglePanel), key: "t"))
         menu.addItem(.separator())
 
@@ -151,9 +154,13 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let autoWorkItem = item("次の作業を自動開始", #selector(toggleAutoWork))
         autoWorkItem.state = settings.autoStartWork ? .on : .off
         menu.addItem(autoWorkItem)
+        let loginItem = item("ログイン時に起動", #selector(toggleLoginItem))
+        loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
+        menu.addItem(loginItem)
 
         menu.addItem(.separator())
-        let apiItem = NSMenuItem(title: "API: http://127.0.0.1:\(APIServer.port)", action: nil, keyEquivalent: "")
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
+        let apiItem = NSMenuItem(title: "Pomo v\(version) · API 127.0.0.1:\(APIServer.port)", action: nil, keyEquivalent: "")
         apiItem.isEnabled = false
         menu.addItem(apiItem)
         menu.addItem(item("Pomo を終了", #selector(quit), key: "q"))
@@ -196,6 +203,16 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     @objc private func toggleBreakFullscreen() { settings.breakFullscreen.toggle() }
+    @objc private func openDashboard() { dashboard.show() }
+
+    @objc private func toggleLoginItem() {
+        // ad-hoc 署名のローカルビルドではパス変更で登録が外れることがある（既知の制約）
+        if SMAppService.mainApp.status == .enabled {
+            try? SMAppService.mainApp.unregister()
+        } else {
+            try? SMAppService.mainApp.register()
+        }
+    }
     @objc private func togglePause() { engine.togglePause() }
     @objc private func finishWork() { engine.finishWork() }
     @objc private func resetTimer() { engine.reset() }

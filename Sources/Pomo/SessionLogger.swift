@@ -82,6 +82,33 @@ final class SessionLogger {
         (try? String(contentsOf: url, encoding: .utf8)) ?? ""
     }
 
+    /// 日付をパース済みのセッション（ダッシュボード用）
+    struct ParsedEntry: Identifiable {
+        let id = UUID()
+        let start: Date
+        let end: Date
+        let kind: String
+        let mode: String
+        let durationSec: Int
+        let completed: Bool
+        let interrupted: Bool
+        let memo: String?
+    }
+
+    func parsedEntries() -> [ParsedEntry] {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return [] }
+        let decoder = JSONDecoder()
+        return text.split(separator: "\n").compactMap { line in
+            guard let data = line.data(using: .utf8),
+                  let e = try? decoder.decode(Entry.self, from: data),
+                  let start = iso.date(from: e.start),
+                  let end = iso.date(from: e.end) else { return nil }
+            return ParsedEntry(start: start, end: end, kind: e.kind, mode: e.mode,
+                               durationSec: e.durationSec, completed: e.completed,
+                               interrupted: e.interrupted, memo: e.memo)
+        }
+    }
+
     private func loadToday() {
         guard let text = try? String(contentsOf: url, encoding: .utf8) else { return }
         let decoder = JSONDecoder()
