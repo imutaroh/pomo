@@ -15,7 +15,9 @@ GUI 挙動（フルスクリーン追従・透明化）は Claude Code から確
 
 ## ローカル API（Claude Code はこれでタイマーを操作する）
 
-Pomo 起動中は `http://127.0.0.1:51766` で HTTP API が立つ。認証なし・ループバック限定。
+Pomo 起動中は `http://127.0.0.1:51766` で HTTP API が立つ。ループバック限定・**トークン認証あり**。
+トークンは `~/Library/Application Support/Pomo/token`（初回起動時に自動生成、0600）。
+全リクエストに `Authorization: Bearer <token>` を付ける。**`./scripts/pomo` CLI は自動で付けるので、基本は CLI を使うこと。**
 
 | エンドポイント | 説明 |
 |---|---|
@@ -35,8 +37,11 @@ CLI ラッパ: `./scripts/pomo start`, `./scripts/pomo memo "作業内容"`, `./
 ユーザーが作業を始めるとき、Claude Code はタスク内容をメモに付けてタイマーを開始できる:
 
 ```sh
-curl -s -X POST http://127.0.0.1:51766/start
-curl -s -X POST http://127.0.0.1:51766/memo -d '{"text": "pomo の API 実装"}'
+./scripts/pomo start
+./scripts/pomo memo "pomo の API 実装"
+# curl 直叩きの場合:
+# TOKEN=$(cat ~/Library/Application\ Support/Pomo/token)
+# curl -s -X POST -H "Authorization: Bearer $TOKEN" http://127.0.0.1:51766/start
 ```
 
 ## アーキテクチャ（Sources/Pomo/）

@@ -3,6 +3,7 @@
 # 例: pomo start / pomo memo "Go の学習" / pomo finish / pomo stats
 set -uo pipefail
 BASE="http://127.0.0.1:51766"
+TOKEN_FILE="$HOME/Library/Application Support/Pomo/token"
 
 die_not_running() {
   echo "Pomo.app が起動していません（open build/Pomo.app で起動してください）" >&2
@@ -10,7 +11,9 @@ die_not_running() {
 }
 
 req() {
-  curl -sf "$@" || die_not_running
+  local token=""
+  [ -f "$TOKEN_FILE" ] && token=$(cat "$TOKEN_FILE")
+  curl -sf -H "Authorization: Bearer $token" "$@" || die_not_running
   echo
 }
 

@@ -1,18 +1,39 @@
 import Foundation
 import Network
+import Security
 
 /// localhost 限定の HTTP API。Claude Code・スクリプト・CLI からタイマーを操作・参照できる。
-/// 認証なし＝同一マシンの全プロセスから操作可能というトレードオフを受け入れている
-/// （個人用途。他人に配布する時はトークン認証を足すこと）。
+/// トークン認証つき: トークンはファイル（0600）に置き、同一ユーザーのプロセスだけが読める。
+/// これが信頼境界 — ブラウザ上の悪意あるページからの localhost への POST も遮断される。
 @MainActor
 final class APIServer {
     static let port: UInt16 = 51766
     private var listener: NWListener?
     private let engine: TimerEngine
+    private let token: String
 
     init(engine: TimerEngine) {
         self.engine = engine
+        token = Self.loadOrCreateToken()
         start()
+    }
+
+    /// 初回起動でランダムトークンを生成し ~/Library/Application Support/Pomo/token に保存（0600）
+    nonisolated private static func loadOrCreateToken() -> String {
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Pomo", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent("token")
+        if let t = try? String(contentsOf: url, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty {
+            return t
+        }
+        var bytes = [UInt8](repeating: 0, count: 24)
+        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        let t = bytes.map { String(format: "%02x", $0) }.joined()
+        try? t.write(to: url, atomically: true, encoding: .utf8)
+        try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+        return t
     }
 
     private func start() {
@@ -75,11 +96,33 @@ final class APIServer {
         let sections = text.components(separatedBy: "\r\n\r\n")
         let head = sections.first ?? ""
         let body = sections.dropFirst().joined(separator: "\r\n\r\n")
-        let reqLine = head.components(separatedBy: "\r\n").first ?? ""
+        let headLines = head.components(separatedBy: "\r\n")
+        let reqLine = headLines.first ?? ""
         let parts = reqLine.split(separator: " ")
         guard parts.count >= 2 else { return Self.resp(400, ["error": "bad request"]) }
         let method = String(parts[0])
         let path = String(parts[1].split(separator: "?").first ?? parts[1])
+
+        // トークン認証（全エンドポイント）。Authorization: Bearer <t> または X-Pomo-Token: <t>
+        var authorized = false
+        for line in headLines.dropFirst() {
+            let lower = line.lowercased()
+            if lower.hasPrefix("authorization:") {
+                let v = line.dropFirst("authorization:".count).trimmingCharacters(in: .whitespaces)
+                if v.lowercased().hasPrefix("bearer ") {
+                    authorized = v.dropFirst(7).trimmingCharacters(in: .whitespaces) == token
+                }
+            } else if lower.hasPrefix("x-pomo-token:") {
+                authorized = line.dropFirst("x-pomo-token:".count).trimmingCharacters(in: .whitespaces) == token
+            }
+            if authorized { break }
+        }
+        guard authorized else {
+            return Self.resp(401, [
+                "error": "unauthorized",
+                "hint": "token は ~/Library/Application Support/Pomo/token にあります。Authorization: Bearer <token> を付けてください",
+            ])
+        }
 
         switch (method, path) {
         case ("GET", "/status"):
@@ -167,7 +210,10 @@ final class APIServer {
     }
 
     nonisolated private static func respData(_ code: Int, _ body: Data, contentType: String) -> Data {
-        let status = code == 200 ? "200 OK" : code == 400 ? "400 Bad Request" : "404 Not Found"
+        let status = code == 200 ? "200 OK"
+            : code == 400 ? "400 Bad Request"
+            : code == 401 ? "401 Unauthorized"
+            : "404 Not Found"
         var head = "HTTP/1.1 \(status)\r\n"
         head += "Content-Type: \(contentType); charset=utf-8\r\n"
         head += "Content-Length: \(body.count)\r\n"
