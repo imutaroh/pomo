@@ -74,9 +74,14 @@ struct PanelView: View {
     private var glassCard: some View {
         if #available(macOS 26.0, *) {
             content
-                // ティントなしの素の .regular（透け感の最大値。可読性は .regular の自動減光のみで担保）
+                // 最透過の .clear。可読性の自動減光が無いバリアントなので、
+                // HIG の作法どおり薄い下敷き（和紙15%）をガラスの下に敷いて墨文字の足場を作る
                 .glassEffect(
-                    .regular,
+                    .clear,
+                    in: RoundedRectangle(cornerRadius: Tokens.cornerRadius)
+                )
+                .background(
+                    Tokens.washi.opacity(0.15),
                     in: RoundedRectangle(cornerRadius: Tokens.cornerRadius)
                 )
         } else {
