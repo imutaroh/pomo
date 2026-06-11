@@ -21,16 +21,16 @@ Pomo 起動中は `http://127.0.0.1:51766` で HTTP API が立つ。ループバ
 
 | エンドポイント | 説明 |
 |---|---|
-| `GET /status` | 現在の状態（phase: idle/work/break、seconds、banked_break_seconds、memo 等） |
+| `GET /status` | 現在の状態（phase: idle/work/break、seconds、mode、**active_mode**、banked_break_seconds、memo 等）。`mode` はユーザーの現選択値、`active_mode` は実行中セッションのスナップショット |
 | `GET /stats` | 今日・今週の完了セッション数と作業秒数 |
 | `GET /sessions` | 全セッション履歴（JSONL そのまま） |
-| `POST /start` | 作業開始 |
+| `POST /start` | 作業開始（simple モードの場合は設定分数のカウントダウンを開始） |
 | `POST /pause` | 一時停止 ⇄ 再開 |
-| `POST /finish` | 作業を終える（フローモード: 作業時間÷比率の休憩が自動開始） |
+| `POST /finish` | 作業を終える（フロー: 休憩自動開始、クラシック: 終了、**simple: 音＋idle 復帰・JSONL 記録なし**） |
 | `POST /memo` | 進行中の作業にメモを付ける。body: `{"text": "Go の学習"}` |
 | `POST /break/skip` | 休憩をスキップ |
 | `POST /break/extend` | 休憩を5分延長 |
-| `POST /reset` | リセット（idle へ） |
+| `POST /reset` | リセット（idle へ）。simple 実行中は無音・無記録 |
 
 CLI ラッパ: `./scripts/pomo start`, `./scripts/pomo memo "作業内容"`, `./scripts/pomo stats` など。
 
@@ -46,7 +46,7 @@ CLI ラッパ: `./scripts/pomo start`, `./scripts/pomo memo "作業内容"`, `./
 
 ## アーキテクチャ（Sources/Pomo/）
 
-- `TimerEngine.swift` — 心臓部。Date 差分ベース。フロー（カウントアップ→休憩自動算出）とクラシック（固定カウントダウン）の2モード
+- `TimerEngine.swift` — 心臓部。Date 差分ベース。フロー（カウントアップ→休憩自動算出）・クラシック（固定カウントダウン）・単純タイマー（任意分数カウントダウン、記録なし）の3モード
 - `FloatingPanel.swift` — NSPanel の検証済みレシピ（nonactivating + canJoinAllSpaces + fullScreenAuxiliary）。**このフラグ構成を崩さないこと**
 - `PanelView.swift` — パネルの SwiftUI。暗いガラス＋白文字＋琥珀。**テキスト入力を置かない**（フォーカス奪取の罠 §8）
 - `BreakOverlay.swift` — 全画面休憩モード（全ディスプレイ、クリック遮断、キーボードは奪わない）

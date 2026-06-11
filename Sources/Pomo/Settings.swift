@@ -3,6 +3,7 @@ import Foundation
 enum TimerMode: String, Codable, CaseIterable {
     case flow      // 作業カウントアップ → 停止で休憩を比率算出（主役）
     case classic   // 固定カウントダウン（従）
+    case simple    // 単純タイマー: 任意分数のカウントダウンのみ。記録なし
 }
 
 @MainActor
@@ -65,6 +66,10 @@ final class Settings: ObservableObject {
     @Published var soundVolume: Double {
         didSet { d.set(soundVolume, forKey: "soundVolume") }
     }
+    /// 単純タイマーの計測時間（分）。範囲: 5〜120
+    @Published var simpleTimerMinutes: Int {
+        didSet { d.set(simpleTimerMinutes, forKey: "simpleTimerMinutes") }
+    }
 
     private init() {
         let d = UserDefaults.standard
@@ -90,5 +95,8 @@ final class Settings: ObservableObject {
         workSound = d.string(forKey: "workSound") ?? "Glass"
         breakSound = d.string(forKey: "breakSound") ?? "Tink"
         soundVolume = d.object(forKey: "soundVolume") as? Double ?? 0.7
+        let stm = d.integer(forKey: "simpleTimerMinutes")
+        // 範囲外（0含む）は 10 分に倒す
+        simpleTimerMinutes = (5...120).contains(stm) ? stm : 10
     }
 }

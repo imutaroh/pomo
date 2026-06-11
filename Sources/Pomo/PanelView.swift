@@ -40,7 +40,7 @@ struct PanelView: View {
                 }
             }
             return "いつでもどうぞ"
-        case .work: return engine.isPaused ? "一時停止" : "集中"
+        case .work: return engine.isPaused ? "一時停止" : (engine.activeMode == .simple ? "タイマー" : "集中")
         case .breakTime: return engine.isPaused ? "一時停止" : "休憩"
         }
     }
@@ -108,8 +108,8 @@ struct PanelView: View {
                 ProgressBar(
                     progress: engine.progress,
                     active: engine.phase != .idle,
-                    // フローで基準25分を超えたら薄くする（満タン静止だと「完了」に誤読される）
-                    saturated: engine.phase == .work && settings.mode == .flow && engine.progress >= 1
+                    // フロー実行中かつ基準25分超えで薄くする（満タン静止だと「完了」に誤読される）
+                    saturated: engine.phase == .work && engine.activeMode == .flow && engine.progress >= 1
                 )
                 .frame(width: 132, height: 3)
                 .padding(.top, 14)
@@ -132,9 +132,9 @@ struct PanelView: View {
                     .foregroundStyle(Tokens.sumi) // 白ベース化に伴い数字は墨色（2026-06-11 の方針転換）
                     .contentTransition(.numericText())
 
-                // フロー作業中: 貯まった休憩をライブ表示（動機づけ＝追加要件の核）
+                // フロー実行中: 貯まった休憩をライブ表示（動機づけ＝追加要件の核）
                 // 報酬（貯めた休憩）自体をボタンにする: 押せば受け取れる構造で核メカニクスを説明なしで伝える
-                if engine.phase == .work && settings.mode == .flow {
+                if engine.phase == .work && engine.activeMode == .flow {
                     Button { engine.finishWork() } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "cup.and.saucer.fill")
@@ -171,20 +171,36 @@ struct PanelView: View {
         HStack(spacing: 14) {
             switch engine.phase {
             case .idle:
+                // simple 選択時はタイマー時間の ±5分ボタンを出す（テキスト入力なし原則を維持）
+                if settings.mode == .simple {
+                    CircleButton(symbol: "minus") {
+                        settings.simpleTimerMinutes = max(5, settings.simpleTimerMinutes - 5)
+                        engine.settingsChanged()
+                    }
+                    .help("5分減らす")
+                }
                 CircleButton(symbol: "play.fill", prominent: true) { engine.startWork() }
-                    .help("作業を開始（⌃⌥P）")
-                if hasPendingBreak {
+                    .help(settings.mode == .simple ? "タイマーを開始（⌃⌥P）" : "作業を開始（⌃⌥P）")
+                if settings.mode == .simple {
+                    CircleButton(symbol: "plus") {
+                        settings.simpleTimerMinutes = min(120, settings.simpleTimerMinutes + 5)
+                        engine.settingsChanged()
+                    }
+                    .help("5分増やす")
+                } else if hasPendingBreak {
                     CircleButton(symbol: "cup.and.saucer.fill") { engine.startBreak() }
                         .help("貯めた休憩を開始")
                 }
             case .work:
                 CircleButton(symbol: "arrow.counterclockwise") { engine.reset() }
-                    .help("リセット")
+                    .help(engine.activeMode == .simple ? "タイマーを止める" : "リセット")
                 CircleButton(symbol: engine.isPaused ? "play.fill" : "pause.fill", prominent: true) { engine.togglePause() }
                     .help(engine.isPaused ? "再開（⌃⌥P）" : "一時停止（⌃⌥P）")
-                // フローの核: ここを押すと作業時間に応じた休憩が自動で始まる
-                CircleButton(symbol: "cup.and.saucer.fill") { engine.finishWork() }
-                    .help("作業を終えて休憩へ（貯めた分だけ休める）")
+                // フローの核: ここを押すと作業時間に応じた休憩が自動で始まる（simple では表示しない）
+                if engine.activeMode != .simple {
+                    CircleButton(symbol: "cup.and.saucer.fill") { engine.finishWork() }
+                        .help("作業を終えて休憩へ（貯めた分だけ休める）")
+                }
             case .breakTime:
                 CircleButton(symbol: "goforward.plus") { engine.extendFiveMinutes() } // +5分（M4）
                     .help("休憩を5分延長")

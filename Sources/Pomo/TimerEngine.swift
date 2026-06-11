@@ -11,10 +11,13 @@ enum Phase: Equatable {
 /// タイマーの心臓部。tick 積算ではなく Date 差分で計算する（§2-5）。
 /// フローモード: 作業はカウントアップ、停止時に「作業時間 ÷ 比率」で休憩を自動算出。
 /// クラシックモード: 固定カウントダウン。
+/// 単純タイマーモード: 任意分数のカウントダウンのみ。JSONL に記録しない。
 @MainActor
 final class TimerEngine: ObservableObject {
     @Published private(set) var phase: Phase = .idle
     @Published private(set) var isPaused = false
+    /// startWork() 時点の settings.mode スナップショット。セッション内のロジック（表示・終了・ログ）はこちらを参照する
+    @Published private(set) var activeMode: TimerMode
     /// 表示用の秒数（フロー作業中=経過、その他=残り）
     @Published private(set) var displaySeconds = 0
     /// 0...1。クラシック作業・休憩の進捗。フロー作業中は基準25分に対する進捗（満タンで止まる）
@@ -36,11 +39,15 @@ final class TimerEngine: ObservableObject {
     private var accumulated: TimeInterval = 0 // pause までに積んだ作業時間（フロー/クラシック共通）
     private var endDate: Date?               // カウントダウンの終了予定時刻
     private var countdownTotal: TimeInterval = 0
+    /// 進捗バーの分母スナップショット。クラシック実行中に設定を変えても分母がズレないよう startWork() 時点で確定
+    private var workCountdownTotal: TimeInterval = 0
     private var lastTick = Date()
 
     var onPhaseChange: (() -> Void)?
 
     init() {
+        // activeMode は宣言時に Settings.shared を参照すると MainActor 初期化順の問題が起きるため init 内で代入する
+        activeMode = Settings.shared.mode
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
         ) { [weak self] _ in
@@ -54,6 +61,8 @@ final class TimerEngine: ObservableObject {
 
     func startWork() {
         guard phase != .work else { return }
+        // 開始時点のモードを確定。セッション内はこの値を参照する
+        activeMode = settings.mode
         phase = .work
         isPaused = false
         justFinished = false
@@ -62,11 +71,18 @@ final class TimerEngine: ObservableObject {
         phaseStart = Date()
         segmentStart = Date()
         accumulated = 0
-        if settings.mode == .classic {
-            countdownTotal = TimeInterval(settings.classicWorkMin * 60)
-            endDate = Date().addingTimeInterval(countdownTotal)
-        } else {
+        switch activeMode {
+        case .flow:
             endDate = nil
+            workCountdownTotal = 0
+        case .classic:
+            workCountdownTotal = TimeInterval(settings.classicWorkMin * 60)
+            countdownTotal = workCountdownTotal
+            endDate = Date().addingTimeInterval(countdownTotal)
+        case .simple:
+            workCountdownTotal = TimeInterval(settings.simpleTimerMinutes * 60)
+            countdownTotal = workCountdownTotal
+            endDate = Date().addingTimeInterval(countdownTotal)
         }
         refresh()
         onPhaseChange?()
@@ -99,7 +115,8 @@ final class TimerEngine: ObservableObject {
         guard isPaused else { return }
         isPaused = false
         segmentStart = Date()
-        if phase == .breakTime || settings.mode == .classic {
+        // simple もカウントダウンなので .classic と同じく endDate を再設定する
+        if phase == .breakTime || activeMode != .flow {
             endDate = Date().addingTimeInterval(countdownRemaining())
         }
         refresh()
@@ -108,6 +125,16 @@ final class TimerEngine: ObservableObject {
     /// フローの核: 作業を止める → 休憩を自動算出して開始
     func finishWork() {
         guard phase == .work else { return }
+
+        // simple: 音＋合図＋idle 復帰のみ。JSONL 記録なし・休憩算出なし
+        if activeMode == .simple {
+            playSound(named: settings.workSound)
+            signalFinished()
+            goIdle()
+            onPhaseChange?()
+            return
+        }
+
         let worked = currentWorkedSeconds()
         logWork(completed: true, interrupted: false)
         playSound(named: settings.workSound)
@@ -115,7 +142,7 @@ final class TimerEngine: ObservableObject {
         classicCompletedInSet += 1
 
         let breakDuration: TimeInterval
-        if settings.mode == .flow {
+        if activeMode == .flow {
             breakDuration = max(60, worked / Double(settings.flowRatio))
         } else {
             let isLong = classicCompletedInSet % settings.classicSetCount == 0
@@ -164,7 +191,8 @@ final class TimerEngine: ObservableObject {
     }
 
     func reset() {
-        if phase == .work { logWork(completed: false, interrupted: false) }
+        // simple は記録しない。手動停止は無音・無記録で idle へ
+        if phase == .work, activeMode != .simple { logWork(completed: false, interrupted: false) }
         if phase == .breakTime { logBreak(completed: false) }
         goIdle()
         onPhaseChange?()
@@ -210,11 +238,11 @@ final class TimerEngine: ObservableObject {
         lastTick = Date()
         guard phase != .idle, !isPaused else { return }
         refresh()
-        // カウントダウン終了判定
+        // カウントダウン終了判定（simple もカウントダウンなので flow 以外すべてが対象）
         if let end = endDate, Date() >= end {
             if phase == .breakTime {
                 finishBreak()
-            } else if phase == .work, settings.mode == .classic {
+            } else if phase == .work, activeMode != .flow {
                 finishWork()
             }
         }
@@ -223,11 +251,18 @@ final class TimerEngine: ObservableObject {
     private func refresh() {
         switch phase {
         case .idle:
-            // クラシックの待機中 00:00 は壊れて見える → 次の作業時間を予告表示
-            displaySeconds = settings.mode == .classic ? settings.classicWorkMin * 60 : 0
+            // 待機中は次のセッションを予告表示。settings.mode（ユーザーの現選択値）を参照する
+            switch settings.mode {
+            case .classic:
+                displaySeconds = settings.classicWorkMin * 60
+            case .simple:
+                displaySeconds = settings.simpleTimerMinutes * 60
+            case .flow:
+                displaySeconds = 0
+            }
             progress = 0
         case .work:
-            if settings.mode == .flow {
+            if activeMode == .flow {
                 let worked = currentWorkedSeconds()
                 displaySeconds = Int(worked)
                 bankedBreakSeconds = Int(max(60, worked / Double(settings.flowRatio)))
@@ -235,8 +270,8 @@ final class TimerEngine: ObservableObject {
             } else {
                 let remaining = countdownRemaining()
                 displaySeconds = Int(remaining.rounded(.up))
-                let total = TimeInterval(settings.classicWorkMin * 60)
-                progress = total > 0 ? 1 - remaining / total : 0
+                // 分母は startWork() 時点の workCountdownTotal を使う（設定変更による分母ズレを防ぐ）
+                progress = workCountdownTotal > 0 ? 1 - remaining / workCountdownTotal : 0
             }
         case .breakTime:
             let remaining = countdownRemaining()
@@ -262,7 +297,8 @@ final class TimerEngine: ObservableObject {
     private func handleWake() {
         let gap = Date().timeIntervalSince(lastTick)
         if phase == .work, gap > 5 * 60 {
-            logWork(completed: false, interrupted: true)
+            // simple は記録しない。スリープ5分超は無音キャンセル（20分後の誤報より良い）
+            if activeMode != .simple { logWork(completed: false, interrupted: true) }
             goIdle()
             onPhaseChange?()
         } else {
@@ -275,14 +311,15 @@ final class TimerEngine: ObservableObject {
     private func logWork(completed: Bool, interrupted: Bool) {
         guard let start = phaseStart else { return }
         let end = interrupted ? start.addingTimeInterval(currentWorkedSeconds()) : Date()
-        SessionLogger.shared.log(start: start, end: end, kind: "work", mode: settings.mode,
+        // activeMode: 実行開始時点のモードを記録する（セッション中のモード変更に影響されない）
+        SessionLogger.shared.log(start: start, end: end, kind: "work", mode: activeMode,
                                  completed: completed, interrupted: interrupted, memo: currentMemo)
         currentMemo = nil
     }
 
     private func logBreak(completed: Bool) {
         guard let start = phaseStart else { return }
-        SessionLogger.shared.log(start: start, end: Date(), kind: "break", mode: settings.mode,
+        SessionLogger.shared.log(start: start, end: Date(), kind: "break", mode: activeMode,
                                  completed: completed, interrupted: false)
     }
 

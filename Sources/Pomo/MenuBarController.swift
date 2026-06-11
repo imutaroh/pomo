@@ -67,16 +67,27 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         // 主操作
         switch engine.phase {
         case .idle:
-            menu.addItem(item("作業を開始", #selector(startWork), key: "s"))
+            let startLabel: String
+            if settings.mode == .simple {
+                startLabel = "タイマーを開始（\(settings.simpleTimerMinutes)分）"
+            } else {
+                startLabel = "作業を開始"
+            }
+            menu.addItem(item(startLabel, #selector(startWork), key: "s"))
             if let pending = engine.pendingBreakDuration {
                 menu.addItem(item("休憩を開始（\(Int(pending) / 60)分\(Int(pending) % 60 > 0 ? "\(Int(pending) % 60)秒" : "")）", #selector(startPendingBreak)))
             }
         case .work:
             menu.addItem(item(engine.isPaused ? "再開" : "一時停止", #selector(togglePause), key: "p"))
-            menu.addItem(item(settings.mode == .flow ? "作業を終えて休憩へ" : "作業を終える", #selector(finishWork), key: "b"))
-            let memoTitle = engine.currentMemo.map { "メモ: \($0)" } ?? "この作業にメモを付ける…"
-            menu.addItem(item(memoTitle, #selector(editMemo), key: "m"))
-            menu.addItem(item("リセット", #selector(resetTimer)))
+            if engine.activeMode == .simple {
+                // simple は記録しないのでメモ項目は出さない
+                menu.addItem(item("タイマーを止める", #selector(resetTimer)))
+            } else {
+                menu.addItem(item(engine.activeMode == .flow ? "作業を終えて休憩へ" : "作業を終える", #selector(finishWork), key: "b"))
+                let memoTitle = engine.currentMemo.map { "メモ: \($0)" } ?? "この作業にメモを付ける…"
+                menu.addItem(item(memoTitle, #selector(editMemo), key: "m"))
+                menu.addItem(item("リセット", #selector(resetTimer)))
+            }
         case .breakTime:
             menu.addItem(item("+5分延長", #selector(extendBreak)))
             menu.addItem(item("休憩をスキップ", #selector(skipBreak)))
@@ -95,6 +106,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let classicItem = item("クラシック（\(settings.classicWorkMin)分作業 → \(settings.classicShortBreakMin)分休憩）", #selector(setModeClassic))
         classicItem.state = settings.mode == .classic ? .on : .off
         modeMenu.addItem(classicItem)
+        let simpleItem = item("タイマー（好きな時間を測るだけ）", #selector(setModeSimple))
+        simpleItem.state = settings.mode == .simple ? .on : .off
+        modeMenu.addItem(simpleItem)
         let modeRoot = NSMenuItem(title: "モード", action: nil, keyEquivalent: "")
         menu.addItem(modeRoot)
         menu.setSubmenu(modeMenu, for: modeRoot)
@@ -113,7 +127,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             let ratioRoot = NSMenuItem(title: "休憩の長さ", action: nil, keyEquivalent: "")
             menu.addItem(ratioRoot)
             menu.setSubmenu(ratioMenu, for: ratioRoot)
-        } else {
+        } else if settings.mode == .classic {
             let presetMenu = NSMenu()
             for (w, b, l) in [(25, 5, 15), (50, 10, 20), (90, 15, 30)] {
                 let i = NSMenuItem(title: "\(w)分作業 / \(b)分休憩 / 長休憩\(l)分", action: #selector(setPreset(_:)), keyEquivalent: "")
@@ -125,6 +139,19 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             let presetRoot = NSMenuItem(title: "時間プリセット", action: nil, keyEquivalent: "")
             menu.addItem(presetRoot)
             menu.setSubmenu(presetMenu, for: presetRoot)
+        } else {
+            // simple 選択時: 計測時間を選ぶ submenu
+            let timeMenu = NSMenu()
+            for min in [5, 10, 15, 20, 25, 30, 45, 60] {
+                let i = NSMenuItem(title: "\(min)分", action: #selector(setSimpleMinutes(_:)), keyEquivalent: "")
+                i.target = self
+                i.tag = min
+                i.state = settings.simpleTimerMinutes == min ? .on : .off
+                timeMenu.addItem(i)
+            }
+            let timeRoot = NSMenuItem(title: "時間", action: nil, keyEquivalent: "")
+            menu.addItem(timeRoot)
+            menu.setSubmenu(timeMenu, for: timeRoot)
         }
 
         // 集中時の濃さ（「透明度15%」は逆に読めるので「濃さ」で統一）
@@ -272,6 +299,11 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func togglePanel() { panelController.toggleVisibility() }
     @objc private func setModeFlow() { settings.mode = .flow; engine.settingsChanged() }
     @objc private func setModeClassic() { settings.mode = .classic; engine.settingsChanged() }
+    @objc private func setModeSimple() { settings.mode = .simple; engine.settingsChanged() }
+    @objc private func setSimpleMinutes(_ sender: NSMenuItem) {
+        settings.simpleTimerMinutes = sender.tag
+        engine.settingsChanged()
+    }
     @objc private func setRatio(_ sender: NSMenuItem) { settings.flowRatio = sender.tag }
     @objc private func setPreset(_ sender: NSMenuItem) {
         settings.classicWorkMin = sender.tag / 10000

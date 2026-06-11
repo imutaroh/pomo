@@ -184,13 +184,17 @@ final class APIServer {
         var d: [String: Any] = [
             "phase": phaseName,
             "paused": engine.isPaused,
+            // mode: ユーザーの現選択値（後方互換のため維持）
             "mode": Settings.shared.mode.rawValue,
+            // active_mode: 実行中セッションのモードスナップショット（セッション内ロジックの参照値）
+            "active_mode": engine.activeMode.rawValue,
             "seconds": engine.displaySeconds, // work(flow)=経過, それ以外=残り
             "display": engine.timeString,
             "today_sessions": SessionLogger.shared.todayWorkCount,
             "today_work_seconds": SessionLogger.shared.todayWorkSeconds,
         ]
-        if engine.phase == .work, Settings.shared.mode == .flow {
+        // banked_break_seconds はフロー実行中のみ（activeMode 基準）
+        if engine.phase == .work, engine.activeMode == .flow {
             d["banked_break_seconds"] = engine.bankedBreakSeconds
         }
         if let memo = engine.currentMemo { d["memo"] = memo }
