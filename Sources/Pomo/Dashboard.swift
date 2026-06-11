@@ -35,6 +35,13 @@ struct DaySummary: Identifiable {
     var id: Date { date }
 }
 
+struct HeatDay: Identifiable {
+    let date: Date
+    let seconds: Int
+    let inRange: Bool // 未来の日（最終週の末尾）は描かない
+    var id: Date { date }
+}
+
 @MainActor
 final class DashboardModel: ObservableObject {
     @Published var todayWork: [SessionLogger.ParsedEntry] = [] // 新しい順
@@ -43,6 +50,7 @@ final class DashboardModel: ObservableObject {
     @Published var todayCount = 0
     @Published var yesterdaySeconds = 0
     @Published var weekAvgSeconds = 0
+    @Published var heatWeeks: [[HeatDay]] = [] // [週][7日]、GitHub の草（直近26週）
 
     func reload() {
         let cal = Calendar.current
@@ -68,6 +76,29 @@ final class DashboardModel: ObservableObject {
         yesterdaySeconds = cal.date(byAdding: .day, value: -1, to: todayStart).map { byDay[$0]?.sec ?? 0 } ?? 0
         let total = days.reduce(0) { $0 + $1.workSeconds }
         weekAvgSeconds = total / 7
+
+        buildHeatmap(byDay: byDay, cal: cal, todayStart: todayStart)
+    }
+
+    private func buildHeatmap(byDay: [Date: (sec: Int, count: Int)], cal: Calendar, todayStart: Date) {
+        let weeksCount = 26
+        guard let anchor = cal.date(byAdding: .weekOfYear, value: -(weeksCount - 1), to: todayStart),
+              var weekStart = cal.dateInterval(of: .weekOfYear, for: anchor)?.start else {
+            heatWeeks = []
+            return
+        }
+        var weeks: [[HeatDay]] = []
+        for _ in 0..<weeksCount {
+            var column: [HeatDay] = []
+            for offset in 0..<7 {
+                guard let day = cal.date(byAdding: .day, value: offset, to: weekStart) else { continue }
+                column.append(HeatDay(date: day, seconds: byDay[day]?.sec ?? 0, inRange: day <= todayStart))
+            }
+            weeks.append(column)
+            guard let next = cal.date(byAdding: .weekOfYear, value: 1, to: weekStart) else { break }
+            weekStart = next
+        }
+        heatWeeks = weeks
     }
 }
 
@@ -78,6 +109,7 @@ struct DashboardView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 32) {
                 header
+                heatmapSection
                 chartSection
                 timelineSection
             }
@@ -124,6 +156,96 @@ struct DashboardView: View {
                 .font(.system(size: 12, design: .rounded))
                 .foregroundStyle(Tokens.sumi.opacity(0.45))
         }
+    }
+
+    // GitHub の草。罪悪感装置（連続日数カウンター・空白の強調）は意図的に持たない
+    private var heatmapSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionLabel("つみあげ（直近26週）")
+            card {
+                VStack(alignment: .leading, spacing: 4) {
+                    monthLabels
+                    HStack(alignment: .top, spacing: 3) {
+                        ForEach(model.heatWeeks.indices, id: \.self) { w in
+                            VStack(spacing: 3) {
+                                ForEach(model.heatWeeks[w]) { day in
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .fill(Self.heatColor(day))
+                                        .frame(width: 13, height: 13)
+                                        .help(Self.heatTooltip(day))
+                                }
+                            }
+                        }
+                    }
+                    heatLegend
+                }
+            }
+        }
+    }
+
+    private var monthLabels: some View {
+        HStack(spacing: 3) {
+            ForEach(model.heatWeeks.indices, id: \.self) { w in
+                Text(Self.monthLabel(weeks: model.heatWeeks, index: w))
+                    .font(.system(size: 9, design: .rounded))
+                    .foregroundStyle(Tokens.sumi.opacity(0.4))
+                    .fixedSize()
+                    .frame(width: 13, alignment: .leading)
+            }
+        }
+        .frame(height: 12)
+        .clipped()
+    }
+
+    private var heatLegend: some View {
+        HStack(spacing: 3) {
+            Spacer()
+            Text("少")
+                .font(.system(size: 9, design: .rounded))
+                .foregroundStyle(Tokens.sumi.opacity(0.4))
+            ForEach([0, 15, 60, 120, 200], id: \.self) { minutes in
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(Self.heatColor(HeatDay(date: .distantPast, seconds: minutes * 60, inRange: true)))
+                    .frame(width: 13, height: 13)
+            }
+            Text("多")
+                .font(.system(size: 9, design: .rounded))
+                .foregroundStyle(Tokens.sumi.opacity(0.4))
+        }
+        .padding(.top, 6)
+    }
+
+    private static func monthLabel(weeks: [[HeatDay]], index: Int) -> String {
+        guard let first = weeks[index].first?.date else { return "" }
+        let month = Calendar.current.component(.month, from: first)
+        if index == 0 { return "\(month)月" }
+        guard let prev = weeks[index - 1].first?.date else { return "" }
+        let prevMonth = Calendar.current.component(.month, from: prev)
+        return month != prevMonth ? "\(month)月" : ""
+    }
+
+    /// しきい値は固定（自分比の相対値だと「最近さぼってる」演出になるため、解釈可能な絶対値で）
+    private static func heatColor(_ d: HeatDay) -> Color {
+        guard d.inRange else { return .clear }
+        switch d.seconds / 60 {
+        case 0: return Tokens.sumi.opacity(0.06)
+        case ..<30: return Tokens.kohaku.opacity(0.3)
+        case ..<90: return Tokens.kohaku.opacity(0.55)
+        case ..<180: return Tokens.kohaku.opacity(0.85)
+        default: return Tokens.kohakuDeep
+        }
+    }
+
+    private static let heatDate: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "M月d日"
+        return f
+    }()
+
+    private static func heatTooltip(_ d: HeatDay) -> String {
+        guard d.inRange else { return "" }
+        let date = heatDate.string(from: d.date)
+        return d.seconds > 0 ? "\(date) · \(hm(d.seconds))" : "\(date) · 記録なし"
     }
 
     private var chartSection: some View {
