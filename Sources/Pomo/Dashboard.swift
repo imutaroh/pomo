@@ -13,9 +13,13 @@ final class DashboardWindowController {
             let host = NSHostingController(rootView: DashboardView())
             let w = NSWindow(contentViewController: host)
             w.title = "きろく — Pomo"
-            w.setContentSize(NSSize(width: 520, height: 620))
+            w.setContentSize(NSSize(width: 560, height: 680))
             w.styleMask = [.titled, .closable, .miniaturizable, .resizable]
             w.isReleasedWhenClosed = false
+            // 白ベース方針: ダークモードでも常にライト・和紙背景
+            w.appearance = NSAppearance(named: .aqua)
+            w.backgroundColor = NSColor(red: 0.98, green: 0.976, blue: 0.969, alpha: 1)
+            w.titlebarAppearsTransparent = true
             w.center()
             window = w
         }
@@ -72,93 +76,109 @@ struct DashboardView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 32) {
                 header
                 chartSection
                 timelineSection
             }
-            .padding(24)
+            .padding(32)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(minWidth: 480, minHeight: 480)
+        .background(Tokens.washi)
+        .frame(minWidth: 520, minHeight: 520)
         .onAppear { model.reload() }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
             model.reload() // ウィンドウを開き直すたびに最新化
         }
     }
 
+    /// 白カード（Apple Health 風）: 純白 + 極薄の縁 + 大きめの余白
+    private func card<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        content()
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 14).fill(Color.white))
+            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Tokens.sumi.opacity(0.06), lineWidth: 1))
+    }
+
+    private func sectionLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 12, weight: .medium, design: .rounded))
+            .foregroundStyle(Tokens.sumi.opacity(0.45))
+    }
+
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("今日")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundStyle(.secondary)
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
+            sectionLabel("今日")
+            HStack(alignment: .firstTextBaseline, spacing: 14) {
                 Text(Self.hm(model.todaySeconds))
-                    .font(.system(size: 36, weight: .semibold, design: .rounded))
+                    .font(.system(size: 42, weight: .semibold, design: .rounded))
                     .monospacedDigit()
+                    .foregroundStyle(Tokens.sumi)
                 Text("\(model.todayCount) セッション")
                     .font(.system(size: 15, weight: .medium, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Tokens.sumi.opacity(0.5))
             }
             // 中立比較: 裸の事実のみ（%・矢印・評価語なし）
             Text("昨日 \(Self.hm(model.yesterdaySeconds)) · 直近7日平均 \(Self.hm(model.weekAvgSeconds))/日")
                 .font(.system(size: 12, design: .rounded))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Tokens.sumi.opacity(0.45))
         }
     }
 
     private var chartSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("直近7日")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundStyle(.secondary)
-            Chart(model.days) { day in
-                BarMark(
-                    x: .value("日", day.date, unit: .day),
-                    y: .value("分", Double(day.workSeconds) / 60.0)
-                )
-                .foregroundStyle(Tokens.kohaku)
-                .cornerRadius(4)
-            }
-            .chartXAxis {
-                AxisMarks(values: .stride(by: .day)) { _ in
-                    AxisValueLabel(format: .dateTime.weekday(.abbreviated), centered: true)
+        VStack(alignment: .leading, spacing: 12) {
+            sectionLabel("直近7日")
+            card {
+                Chart(model.days) { day in
+                    BarMark(
+                        x: .value("日", day.date, unit: .day),
+                        y: .value("分", Double(day.workSeconds) / 60.0)
+                    )
+                    .foregroundStyle(Tokens.kohaku)
+                    .cornerRadius(4)
                 }
-            }
-            .chartYAxis {
-                AxisMarks { value in
-                    AxisGridLine()
-                    AxisValueLabel {
-                        if let v = value.as(Double.self) {
-                            Text("\(Int(v))分")
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: .day)) { _ in
+                        AxisValueLabel(format: .dateTime.weekday(.abbreviated), centered: true)
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks { value in
+                        AxisGridLine().foregroundStyle(Tokens.sumi.opacity(0.06))
+                        AxisValueLabel {
+                            if let v = value.as(Double.self) {
+                                Text("\(Int(v))分")
+                            }
                         }
                     }
                 }
+                .frame(height: 150)
             }
-            .frame(height: 150)
         }
     }
 
     private var timelineSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("今日のセッション")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            sectionLabel("今日のセッション")
             if model.todayWork.isEmpty {
-                Text("まだ今日の記録はありません。タイマーを回すと、ここに積み上がっていきます。")
-                    .font(.system(size: 13, design: .rounded))
-                    .foregroundStyle(.secondary)
-                    .padding(.vertical, 12)
+                card {
+                    Text("まだ今日の記録はありません。タイマーを回すと、ここに積み上がっていきます。")
+                        .font(.system(size: 13, design: .rounded))
+                        .foregroundStyle(Tokens.sumi.opacity(0.45))
+                        .padding(.vertical, 8)
+                }
             } else {
                 VStack(spacing: 0) {
                     ForEach(model.todayWork) { e in
                         SessionRow(entry: e)
                         if e.id != model.todayWork.last?.id {
-                            Divider()
+                            Divider().overlay(Tokens.sumi.opacity(0.05))
                         }
                     }
                 }
-                .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.04)))
+                .background(RoundedRectangle(cornerRadius: 14).fill(Color.white))
+                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Tokens.sumi.opacity(0.06), lineWidth: 1))
             }
         }
     }
@@ -184,11 +204,11 @@ struct SessionRow: View {
             Text("\(Self.time.string(from: entry.start)) – \(Self.time.string(from: entry.end))")
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(.primary)
+                .foregroundStyle(Tokens.sumi)
             if let memo = entry.memo, !memo.isEmpty {
                 Text(memo)
                     .font(.system(size: 13, design: .rounded))
-                    .foregroundStyle(.primary.opacity(0.75))
+                    .foregroundStyle(Tokens.sumi.opacity(0.7))
                     .lineLimit(2)
             }
             Spacer()
@@ -196,17 +216,17 @@ struct SessionRow: View {
                 // 中断は失敗ではなく事実。色は付けない
                 Text("中断")
                     .font(.system(size: 11, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Tokens.sumi.opacity(0.45))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Capsule().fill(Color.primary.opacity(0.06)))
+                    .background(Capsule().fill(Tokens.sumi.opacity(0.05)))
             }
             Text("\(entry.durationSec / 60)分")
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Tokens.sumi.opacity(0.5))
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
     }
 }

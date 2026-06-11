@@ -3,9 +3,11 @@ import SwiftUI
 struct VisualEffectBackground: NSViewRepresentable {
     func makeNSView(context: Context) -> NSVisualEffectView {
         let v = NSVisualEffectView()
-        v.material = .hudWindow
+        v.material = .popover
         v.blendingMode = .behindWindow
         v.state = .active
+        // 白ベース方針: OS のダークモードに引きずられず常にライトのガラス
+        v.appearance = NSAppearance(named: .aqua)
         return v
     }
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
@@ -46,11 +48,11 @@ struct PanelView: View {
     var body: some View {
         ZStack {
             VisualEffectBackground()
-            // スクリム: 壁紙が白でも黒でも白文字のコントラストを保証する薄い墨の被膜
-            Tokens.sumi.opacity(0.45)
-            // 黒背景でパネルの輪郭が消えないための極薄の縁取り
+            // スクリム: 壁紙が白でも黒でも墨色文字のコントラストを保証する和紙の被膜
+            Tokens.washi.opacity(0.62)
+            // 白背景でパネルの輪郭が消えないための極薄の縁取り
             RoundedRectangle(cornerRadius: Tokens.cornerRadius)
-                .strokeBorder(Tokens.washi.opacity(0.14), lineWidth: 1)
+                .strokeBorder(Tokens.sumi.opacity(0.08), lineWidth: 1)
 
             VStack(spacing: 0) {
                 // 上端中央の細い進捗インジケータ（P0-1）
@@ -67,7 +69,7 @@ struct PanelView: View {
 
                 Text(phaseLabel)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
-                    .foregroundStyle(Tokens.washi.opacity(0.55)) // サブテキストは同色の半透過（§6 の原則を白基調に適用）
+                    .foregroundStyle(Tokens.sumi.opacity(0.5)) // サブテキストは墨50%（§6 の原則）
                     .opacity(hovering || engine.phase == .idle || engine.isPaused || engine.justFinished ? 1 : 0)
 
                 // 巨大な丸ゴシック数字（P0-1: ウィンドウ幅の約6割）
@@ -78,8 +80,7 @@ struct PanelView: View {
                     .lineLimit(1)
                     .frame(maxWidth: 170)
                     .monospacedDigit()
-                    .foregroundStyle(Tokens.washi) // monora P0-1: 巨大な「白い」丸ゴシック数字
-                    .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+                    .foregroundStyle(Tokens.sumi) // 白ベース化に伴い数字は墨色（2026-06-11 の方針転換）
                     .contentTransition(.numericText())
 
                 // フロー作業中: 貯まった休憩をライブ表示（動機づけ＝追加要件の核）
@@ -93,10 +94,10 @@ struct PanelView: View {
                                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                                 .monospacedDigit()
                         }
-                        .foregroundStyle(Tokens.kohaku)
+                        .foregroundStyle(Tokens.kohakuDeep)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
-                        .background(Capsule().fill(Tokens.kohaku.opacity(pillHovered ? 0.3 : 0.16)))
+                        .background(Capsule().fill(Tokens.kohaku.opacity(pillHovered ? 0.4 : 0.22)))
                     }
                     .buttonStyle(.plain)
                     .onHover { pillHovered = $0 }
@@ -175,7 +176,7 @@ struct ProgressBar: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                Capsule().fill(Tokens.washi.opacity(0.18))
+                Capsule().fill(Tokens.sumi.opacity(0.10))
                 Capsule()
                     .fill(Tokens.kohaku)
                     .frame(width: max(0, geo.size.width * min(1, progress)))
@@ -197,10 +198,10 @@ struct CircleButton: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: prominent ? 15 : 12, weight: .semibold))
-                .foregroundStyle(prominent ? Tokens.sumi : Tokens.washi.opacity(0.85))
+                .foregroundStyle(prominent ? Tokens.washi : Tokens.sumi.opacity(0.65))
                 .frame(width: prominent ? 40 : 32, height: prominent ? 40 : 32)
                 .background(
-                    Circle().fill(prominent ? Tokens.washi : Tokens.washi.opacity(hovered ? 0.28 : 0.14))
+                    Circle().fill(prominent ? Tokens.sumi : Tokens.sumi.opacity(hovered ? 0.14 : 0.07))
                 )
         }
         .buttonStyle(.plain)

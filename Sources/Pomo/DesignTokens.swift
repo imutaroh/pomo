@@ -4,6 +4,8 @@ import SwiftUI
 enum Tokens {
     static let sumi = Color(red: 0x1A / 255, green: 0x1A / 255, blue: 0x1B / 255)
     static let kohaku = Color(red: 0xFF / 255, green: 0xB3 / 255, blue: 0x47 / 255)
+    /// 白地の上の文字用の濃い琥珀（#FFB347 は白地だとコントラスト不足）
+    static let kohakuDeep = Color(red: 0xD0 / 255, green: 0x82 / 255, blue: 0x14 / 255)
     static let washi = Color(red: 0xFA / 255, green: 0xF9 / 255, blue: 0xF7 / 255)
     static let usugumo = Color(red: 0xF5 / 255, green: 0xF5 / 255, blue: 0xF7 / 255)
 
