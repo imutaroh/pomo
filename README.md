@@ -16,7 +16,7 @@
 Requires macOS 14+ and Xcode command line tools (`xcode-select --install`).
 
 ```sh
-git clone https://github.com/imutaakihiro/pomo.git
+git clone https://github.com/imutaroh/pomo.git
 cd pomo
 ./scripts/install.sh   # builds and installs to /Applications, then launches
 ```
