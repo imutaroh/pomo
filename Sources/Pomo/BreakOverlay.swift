@@ -50,7 +50,7 @@ final class BreakOverlayController {
     private func show() {
         guard panels.isEmpty else { return }
         for screen in NSScreen.screens {
-            let panel = NSPanel(
+            let panel = BreakPanel(
                 contentRect: screen.frame,
                 styleMask: [.nonactivatingPanel, .borderless],
                 backing: .buffered,
@@ -93,6 +93,12 @@ final class BreakOverlayController {
     }
 }
 
+/// 休憩オーバーレイ専用パネル。メモ入力のため key になれる
+/// （休憩中＝作業していない時間なので、メインパネルの「フォーカス非奪取」原則と矛盾しない）
+final class BreakPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+}
+
 struct BreakOverlayView: View {
     @ObservedObject var engine: TimerEngine
     let onCollapse: () -> Void
@@ -100,6 +106,9 @@ struct BreakOverlayView: View {
     // スキップだけ3秒の間を置く（反射クリックの習慣化を防ぐ・one sec の研究知見）。
     // 「+5分」「小さく」は即時 = 延期と放棄を区別する
     @State private var skipEnabled = false
+    // 休憩の入口メモ（interstitial journaling）: 記憶が一番新鮮な瞬間に聞く。無視してもよい
+    @State private var memoText = ""
+    @State private var memoSaved = false
 
     var body: some View {
         ZStack {
@@ -132,7 +141,13 @@ struct BreakOverlayView: View {
                 Text("画面から目を離して、少し伸びをしよう")
                     .font(.system(size: 14, weight: .regular, design: .rounded))
                     .foregroundStyle(Tokens.washi.opacity(0.45))
-                    .padding(.bottom, 12)
+
+                if Settings.shared.askMemoOnBreak {
+                    memoField
+                        .padding(.bottom, 8)
+                } else {
+                    Color.clear.frame(height: 8)
+                }
 
                 HStack(spacing: 14) {
                     PillButton(label: "+5分") { engine.extendFiveMinutes() }
@@ -152,6 +167,44 @@ struct BreakOverlayView: View {
                 skipEnabled = true
             }
         }
+    }
+
+    @ViewBuilder
+    private var memoField: some View {
+        if memoSaved {
+            Text("メモを残しました")
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundStyle(Tokens.kohaku)
+                .padding(.vertical, 9)
+        } else {
+            HStack(spacing: 10) {
+                TextField(
+                    "", text: $memoText,
+                    prompt: Text("いまの時間、何してた？（書かなくてもOK）")
+                        .foregroundStyle(Tokens.washi.opacity(0.35))
+                )
+                .textFieldStyle(.plain)
+                .font(.system(size: 14, design: .rounded))
+                .foregroundStyle(Tokens.washi)
+                .tint(Tokens.kohaku)
+                .multilineTextAlignment(.center)
+                .frame(width: 320)
+                .padding(.vertical, 9)
+                .padding(.horizontal, 16)
+                .background(Capsule().fill(.white.opacity(0.10)))
+                .onSubmit(saveMemo)
+                if !memoText.trimmingCharacters(in: .whitespaces).isEmpty {
+                    PillButton(label: "保存", action: saveMemo)
+                }
+            }
+        }
+    }
+
+    private func saveMemo() {
+        let text = memoText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return }
+        SessionLogger.shared.amendLastWorkMemo(text)
+        withAnimation(.easeOut(duration: 0.3)) { memoSaved = true }
     }
 }
 

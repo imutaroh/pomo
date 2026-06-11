@@ -52,6 +52,19 @@ final class Settings: ObservableObject {
     @Published var deferOverlayInCall: Bool {
         didSet { d.set(deferOverlayInCall, forKey: "deferOverlayInCall") }
     }
+    /// 休憩のはじめに「何してた？」を聞く（interstitial journaling。スキップ自由）
+    @Published var askMemoOnBreak: Bool {
+        didSet { d.set(askMemoOnBreak, forKey: "askMemoOnBreak") }
+    }
+    @Published var workSound: String {
+        didSet { d.set(workSound, forKey: "workSound") }
+    }
+    @Published var breakSound: String {
+        didSet { d.set(breakSound, forKey: "breakSound") }
+    }
+    @Published var soundVolume: Double {
+        didSet { d.set(soundVolume, forKey: "soundVolume") }
+    }
 
     private init() {
         let d = UserDefaults.standard
@@ -73,5 +86,9 @@ final class Settings: ObservableObject {
         soundEnabled = d.object(forKey: "soundEnabled") as? Bool ?? true
         breakFullscreen = d.object(forKey: "breakFullscreen") as? Bool ?? true
         deferOverlayInCall = d.object(forKey: "deferOverlayInCall") as? Bool ?? true
+        askMemoOnBreak = d.object(forKey: "askMemoOnBreak") as? Bool ?? true
+        workSound = d.string(forKey: "workSound") ?? "Glass"
+        breakSound = d.string(forKey: "breakSound") ?? "Tink"
+        soundVolume = d.object(forKey: "soundVolume") as? Double ?? 0.7
     }
 }

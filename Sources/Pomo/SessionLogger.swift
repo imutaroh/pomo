@@ -82,6 +82,27 @@ final class SessionLogger {
         (try? String(contentsOf: url, encoding: .utf8)) ?? ""
     }
 
+    /// 直前の作業エントリのメモを書き換える（休憩開始時のクイックメモ用。
+    /// 作業ログは休憩開始時点で書き込み済みのため、後から修正する）
+    func amendLastWorkMemo(_ memo: String) {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        var lines = text.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
+        let decoder = JSONDecoder()
+        let encoder = JSONEncoder()
+        for i in lines.indices.reversed() {
+            guard let data = lines[i].data(using: .utf8),
+                  let e = try? decoder.decode(Entry.self, from: data), e.kind == "work" else { continue }
+            let amended = Entry(start: e.start, end: e.end, kind: e.kind, mode: e.mode,
+                                durationSec: e.durationSec, completed: e.completed,
+                                interrupted: e.interrupted, memo: memo)
+            if let d = try? encoder.encode(amended), let s = String(data: d, encoding: .utf8) {
+                lines[i] = s
+            }
+            break
+        }
+        try? Data((lines.joined(separator: "\n") + "\n").utf8).write(to: url)
+    }
+
     /// 日付をパース済みのセッション（ダッシュボード用）
     struct ParsedEntry: Identifiable {
         let id = UUID()

@@ -110,7 +110,7 @@ final class TimerEngine: ObservableObject {
         guard phase == .work else { return }
         let worked = currentWorkedSeconds()
         logWork(completed: true, interrupted: false)
-        playSound()
+        playSound(named: settings.workSound)
         signalFinished()
         classicCompletedInSet += 1
 
@@ -175,7 +175,7 @@ final class TimerEngine: ObservableObject {
     private func finishBreak(playChime: Bool = true) {
         if playChime {
             logBreak(completed: true)
-            playSound()
+            playSound(named: settings.breakSound)
             signalFinished()
         }
         goIdle()
@@ -286,9 +286,11 @@ final class TimerEngine: ObservableObject {
                                  completed: completed, interrupted: false)
     }
 
-    private func playSound() {
+    private func playSound(named name: String) {
         guard settings.soundEnabled else { return }
-        NSSound(named: "Glass")?.play()
+        guard let sound = NSSound(named: name) else { return }
+        sound.volume = Float(settings.soundVolume)
+        sound.play()
     }
 
     /// 終了の合図は6秒で自動消灯する。点きっぱなしだと不透明度が 1.0 に固定され

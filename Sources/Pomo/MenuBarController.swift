@@ -149,10 +149,33 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             let deferItem = item("通話・会議中は全画面にしない", #selector(toggleDeferInCall))
             deferItem.state = settings.deferOverlayInCall ? .on : .off
             menu.addItem(deferItem)
+            let memoAskItem = item("休憩のはじめにメモを聞く", #selector(toggleAskMemo))
+            memoAskItem.state = settings.askMemoOnBreak ? .on : .off
+            menu.addItem(memoAskItem)
         }
-        let soundItem = item("サウンド", #selector(toggleSound))
-        soundItem.state = settings.soundEnabled ? .on : .off
-        menu.addItem(soundItem)
+
+        // サウンド（種類・音量はこのサブメニューで完結。選ぶと試し鳴らし）
+        let soundMenu = NSMenu()
+        let soundEnabledItem = item("鳴らす", #selector(toggleSound))
+        soundEnabledItem.state = settings.soundEnabled ? .on : .off
+        soundMenu.addItem(soundEnabledItem)
+        soundMenu.addItem(.separator())
+        let volMenu = NSMenu()
+        for pct in [25, 50, 75, 100] {
+            let i = NSMenuItem(title: "\(pct)%", action: #selector(setVolume(_:)), keyEquivalent: "")
+            i.target = self
+            i.tag = pct
+            i.state = Int((settings.soundVolume * 100).rounded()) == pct ? .on : .off
+            volMenu.addItem(i)
+        }
+        let volRoot = NSMenuItem(title: "音量", action: nil, keyEquivalent: "")
+        volRoot.submenu = volMenu
+        soundMenu.addItem(volRoot)
+        soundMenu.addItem(soundPickerItem(title: "作業おわりの音", selected: settings.workSound, action: #selector(setWorkSound(_:))))
+        soundMenu.addItem(soundPickerItem(title: "休憩おわりの音", selected: settings.breakSound, action: #selector(setBreakSound(_:))))
+        let soundRoot = NSMenuItem(title: "サウンド", action: nil, keyEquivalent: "")
+        soundRoot.submenu = soundMenu
+        menu.addItem(soundRoot)
         let autoBreakItem = item("休憩を自動開始", #selector(toggleAutoBreak))
         autoBreakItem.state = settings.autoStartBreak ? .on : .off
         menu.addItem(autoBreakItem)
@@ -181,6 +204,28 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let i = NSMenuItem(title: title, action: action, keyEquivalent: key)
         i.target = self
         return i
+    }
+
+    private static let soundChoices = ["Glass", "Tink", "Pop", "Purr", "Blow", "Hero", "Submarine", "Ping"]
+
+    private func soundPickerItem(title: String, selected: String, action: Selector) -> NSMenuItem {
+        let sub = NSMenu()
+        for name in Self.soundChoices {
+            let i = NSMenuItem(title: name, action: action, keyEquivalent: "")
+            i.target = self
+            i.representedObject = name
+            i.state = selected == name ? .on : .off
+            sub.addItem(i)
+        }
+        let root = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        root.submenu = sub
+        return root
+    }
+
+    private func previewSound(_ name: String) {
+        guard let s = NSSound(named: name) else { return }
+        s.volume = Float(settings.soundVolume)
+        s.play()
     }
 
     // MARK: - Actions
@@ -236,6 +281,21 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
     @objc private func setOpacity(_ sender: NSMenuItem) { settings.focusOpacity = Double(sender.tag) / 100 }
     @objc private func toggleSound() { settings.soundEnabled.toggle() }
+    @objc private func toggleAskMemo() { settings.askMemoOnBreak.toggle() }
+    @objc private func setVolume(_ sender: NSMenuItem) {
+        settings.soundVolume = Double(sender.tag) / 100
+        previewSound(settings.workSound)
+    }
+    @objc private func setWorkSound(_ sender: NSMenuItem) {
+        guard let name = sender.representedObject as? String else { return }
+        settings.workSound = name
+        previewSound(name)
+    }
+    @objc private func setBreakSound(_ sender: NSMenuItem) {
+        guard let name = sender.representedObject as? String else { return }
+        settings.breakSound = name
+        previewSound(name)
+    }
     @objc private func toggleAutoBreak() { settings.autoStartBreak.toggle() }
     @objc private func toggleAutoWork() { settings.autoStartWork.toggle() }
     @objc private func quit() { NSApp.terminate(nil) }
