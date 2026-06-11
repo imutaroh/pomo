@@ -48,11 +48,19 @@ struct PanelView: View {
     var body: some View {
         ZStack {
             VisualEffectBackground()
-            // スクリム: 壁紙が白でも黒でも墨色文字のコントラストを保証する和紙の被膜
-            Tokens.washi.opacity(0.62)
-            // 白背景でパネルの輪郭が消えないための極薄の縁取り
+            // スクリム: 薄く（透け感優先）。ライト固定ガラス自体が白っぽさを担保する
+            Tokens.washi.opacity(0.28)
+            // ガラスの縁: 上辺の白ハイライト＋全周の極薄墨 — ガラス感の核
             RoundedRectangle(cornerRadius: Tokens.cornerRadius)
-                .strokeBorder(Tokens.sumi.opacity(0.08), lineWidth: 1)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [.white.opacity(0.7), .white.opacity(0.08)],
+                        startPoint: .top, endPoint: .bottom
+                    ),
+                    lineWidth: 1.2
+                )
+            RoundedRectangle(cornerRadius: Tokens.cornerRadius)
+                .strokeBorder(Tokens.sumi.opacity(0.06), lineWidth: 0.5)
 
             VStack(spacing: 0) {
                 // 上端中央の細い進捗インジケータ（P0-1）
@@ -198,11 +206,13 @@ struct CircleButton: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: prominent ? 15 : 12, weight: .semibold))
-                .foregroundStyle(prominent ? Tokens.washi : Tokens.sumi.opacity(0.65))
+                .foregroundStyle(prominent ? Tokens.washi : Tokens.sumi.opacity(0.75))
                 .frame(width: prominent ? 40 : 32, height: prominent ? 40 : 32)
                 .background(
-                    Circle().fill(prominent ? Tokens.sumi : Tokens.sumi.opacity(hovered ? 0.14 : 0.07))
+                    // 副ボタンは半透明の白ガラス玉、主ボタンだけ墨で焦点を作る
+                    Circle().fill(prominent ? AnyShapeStyle(Tokens.sumi) : AnyShapeStyle(Color.white.opacity(hovered ? 0.8 : 0.55)))
                 )
+                .overlay(Circle().strokeBorder(.white.opacity(prominent ? 0 : 0.5), lineWidth: 0.8))
         }
         .buttonStyle(.plain)
         .onHover { hovered = $0 }
