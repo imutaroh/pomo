@@ -21,6 +21,8 @@ final class FloatingPanel: NSPanel {
         hasShadow = true
         isMovableByWindowBackground = true
         animationBehavior = .utilityWindow
+        // ガラスを常にライト基調に固定（白ベース方針。ダークモードや暗い壁紙でガラスが黒く沈むのを防ぐ）
+        appearance = NSAppearance(named: .aqua)
     }
 
     // パネルはボタン操作のみ（§8 破綻条件3）。キーを取らないことでフォーカス非奪取を保証する

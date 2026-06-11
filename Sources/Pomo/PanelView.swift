@@ -46,23 +46,58 @@ struct PanelView: View {
     }
 
     var body: some View {
-        ZStack {
-            VisualEffectBackground()
-            // スクリム: 薄く（透け感優先）。ライト固定ガラス自体が白っぽさを担保する
-            Tokens.washi.opacity(0.28)
-            // ガラスの縁: 上辺の白ハイライト＋全周の極薄墨 — ガラス感の核
-            RoundedRectangle(cornerRadius: Tokens.cornerRadius)
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [.white.opacity(0.7), .white.opacity(0.08)],
-                        startPoint: .top, endPoint: .bottom
-                    ),
-                    lineWidth: 1.2
-                )
-            RoundedRectangle(cornerRadius: Tokens.cornerRadius)
-                .strokeBorder(Tokens.sumi.opacity(0.06), lineWidth: 0.5)
+        glassCard
+            // 終了の合図: 琥珀のグロー（M5）
+            .overlay {
+                if engine.justFinished {
+                    RoundedRectangle(cornerRadius: Tokens.cornerRadius)
+                        .stroke(Tokens.kohaku, lineWidth: 3)
+                        .shadow(color: Tokens.kohaku.opacity(0.8), radius: 12)
+                }
+            }
+            .opacity(panelOpacity)
+            .animation(.easeOut(duration: Tokens.fadeDuration), value: panelOpacity)
+            .animation(.easeOut(duration: Tokens.fadeDuration), value: hovering)
+            .animation(.easeOut(duration: 0.3), value: engine.justFinished)
+            .onHover { h in
+                hovering = h
+                if h { engine.clearFinishedFlag() }
+            }
+            .padding(12) // グローのハローが描ける余白（ウィンドウは 220、ガラスは 196）
+    }
 
-            VStack(spacing: 0) {
+    /// 本物の Liquid Glass（macOS 26+）。.regular は背景輝度に応じて可読性を自動調整する仕様
+    /// （HIG: テキストを載せるなら regular。clear は減光なしで黒文字が沈むため不採用）。
+    /// 薄い和紙ティントで「白っぽいガラス」に寄せる。屈折・縁の光は OS が描くので自作の縁取りは持たない。
+    /// 26 未満は従来の NSVisualEffectView 構成にフォールバック
+    @ViewBuilder
+    private var glassCard: some View {
+        if #available(macOS 26.0, *) {
+            content
+                .glassEffect(
+                    .regular.tint(Tokens.washi.opacity(0.25)),
+                    in: RoundedRectangle(cornerRadius: Tokens.cornerRadius)
+                )
+        } else {
+            ZStack {
+                VisualEffectBackground()
+                Tokens.washi.opacity(0.28)
+                RoundedRectangle(cornerRadius: Tokens.cornerRadius)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [.white.opacity(0.7), .white.opacity(0.08)],
+                            startPoint: .top, endPoint: .bottom
+                        ),
+                        lineWidth: 1.2
+                    )
+                content
+            }
+            .clipShape(RoundedRectangle(cornerRadius: Tokens.cornerRadius))
+        }
+    }
+
+    private var content: some View {
+        VStack(spacing: 0) {
                 // 上端中央の細い進捗インジケータ（P0-1）
                 ProgressBar(
                     progress: engine.progress,
@@ -122,25 +157,7 @@ struct PanelView: View {
                     .opacity(hovering || engine.phase == .idle ? 1 : 0)
                     .padding(.bottom, 14)
             }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: Tokens.cornerRadius))
-        // 終了の合図: 琥珀のグロー（M5）。クリップの外に置かないとハロー光が削られる
-        .overlay {
-            if engine.justFinished {
-                RoundedRectangle(cornerRadius: Tokens.cornerRadius)
-                    .stroke(Tokens.kohaku, lineWidth: 3)
-                    .shadow(color: Tokens.kohaku.opacity(0.8), radius: 12)
-            }
-        }
-        .opacity(panelOpacity)
-        .animation(.easeOut(duration: Tokens.fadeDuration), value: panelOpacity)
-        .animation(.easeOut(duration: Tokens.fadeDuration), value: hovering)
-        .animation(.easeOut(duration: 0.3), value: engine.justFinished)
-        .onHover { h in
-            hovering = h
-            if h { engine.clearFinishedFlag() }
-        }
-        .padding(12) // グローのハローが描ける余白（ウィンドウは 220、ガラスは 196）
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder
