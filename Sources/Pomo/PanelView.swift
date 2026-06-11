@@ -75,7 +75,8 @@ struct PanelView: View {
         if #available(macOS 26.0, *) {
             content
                 .glassEffect(
-                    .regular.tint(Tokens.washi.opacity(0.25)),
+                    // ティントは最小限（10%）。透け感は glass 本体に任せ、可読性は .regular の自動減光に任せる
+                    .regular.tint(Tokens.washi.opacity(0.10)),
                     in: RoundedRectangle(cornerRadius: Tokens.cornerRadius)
                 )
         } else {
