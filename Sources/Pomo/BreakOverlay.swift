@@ -12,6 +12,8 @@ final class BreakOverlayController {
     private let settings = Settings.shared
     private var cancellables = Set<AnyCancellable>()
     private var collapsedThisBreak = false
+    /// 通話中に休憩が始まった場合、通話終了を待つ再チェックタイマー
+    private var recheckTimer: Timer?
 
     init(engine: TimerEngine) {
         self.engine = engine
@@ -39,12 +41,46 @@ final class BreakOverlayController {
         if phase == .breakTime {
             guard settings.breakFullscreen, !collapsedThisBreak else { return }
             // 通話・会議中は全画面で割り込まない（小パネルの休憩カウントダウンだけが残る）
-            if settings.deferOverlayInCall && MeetingGuard.isMicrophoneInUse() { return }
+            if settings.deferOverlayInCall && MeetingGuard.isMicrophoneInUse() {
+                // 通話が終わったら自動で出る: 10秒ごとに再チェック
+                startRecheckTimer()
+                return
+            }
             show()
         } else {
             collapsedThisBreak = false
+            invalidateRecheckTimer()
             hide()
         }
+    }
+
+    /// 通話終了を10秒ごとに監視し、終わったらオーバーレイを表示する
+    private func startRecheckTimer() {
+        invalidateRecheckTimer()
+        recheckTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.recheckAndShowIfReady()
+            }
+        }
+    }
+
+    private func recheckAndShowIfReady() {
+        guard
+            engine.phase == .breakTime,
+            settings.breakFullscreen,
+            !collapsedThisBreak,
+            panels.isEmpty,
+            settings.deferOverlayInCall,
+            !MeetingGuard.isMicrophoneInUse()
+        else { return }
+        // 通話が終わった → オーバーレイを出す
+        invalidateRecheckTimer()
+        show()
+    }
+
+    private func invalidateRecheckTimer() {
+        recheckTimer?.invalidate()
+        recheckTimer = nil
     }
 
     private func show() {
@@ -80,6 +116,7 @@ final class BreakOverlayController {
     }
 
     private func hide() {
+        invalidateRecheckTimer()
         let closing = panels
         panels = []
         for panel in closing {
@@ -109,55 +146,64 @@ struct BreakOverlayView: View {
     // 休憩の入口メモ（interstitial journaling）: 記憶が一番新鮮な瞬間に聞く。無視してもよい
     @State private var memoText = ""
     @State private var memoSaved = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        ZStack {
-            Tokens.sumi.opacity(0.92)
+        GeometryReader { geo in
+            let dim = min(geo.size.width, geo.size.height)
+            ZStack {
+                Tokens.sumi.opacity(0.92)
 
-            // 呼吸のリズムの琥珀のグロー（4秒周期・休憩のペースメーカー）
-            Circle()
-                .fill(RadialGradient(
-                    colors: [Tokens.kohaku.opacity(0.12), .clear],
-                    center: .center, startRadius: 60, endRadius: 380
-                ))
-                .frame(width: 760, height: 760)
-                .scaleEffect(breathe ? 1.1 : 0.9)
-                .animation(.easeInOut(duration: 4).repeatForever(autoreverses: true), value: breathe)
+                // 呼吸のリズムの琥珀のグロー（4秒周期・休憩のペースメーカー）
+                Circle()
+                    .fill(RadialGradient(
+                        colors: [Tokens.kohaku.opacity(0.12), .clear],
+                        center: .center, startRadius: 60, endRadius: 380
+                    ))
+                    .frame(width: dim * 0.7, height: dim * 0.7)
+                    .scaleEffect(reduceMotion ? 1.0 : (breathe ? 1.1 : 0.9))
+                    .animation(
+                        reduceMotion ? nil : .easeInOut(duration: 4).repeatForever(autoreverses: true),
+                        value: breathe
+                    )
 
-            VStack(spacing: 26) {
-                Text("ひと休み")
-                    .font(.system(size: 22, weight: .medium, design: .rounded))
-                    .foregroundStyle(Tokens.washi.opacity(0.6))
+                VStack(spacing: 26) {
+                    Text("ひと休み")
+                        .pomoFont(22, weight: .medium)
+                        .foregroundStyle(Tokens.washi.opacity(0.6))
 
-                Text(engine.timeString)
-                    .font(.system(size: 110, weight: .medium, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(Tokens.washi)
-                    .contentTransition(.numericText())
+                    Text(engine.timeString)
+                        .font(.system(size: 110, weight: .medium, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(Tokens.washi)
+                        .contentTransition(.numericText())
 
-                ProgressBar(progress: engine.progress, active: true)
-                    .frame(width: 280, height: 4)
+                    ProgressBar(progress: engine.progress, active: true)
+                        .frame(width: min(360, geo.size.width * 0.25), height: 4)
 
-                Text("画面から目を離して、少し伸びをしよう")
-                    .font(.system(size: 14, weight: .regular, design: .rounded))
-                    .foregroundStyle(Tokens.washi.opacity(0.45))
+                    Text("画面から目を離して、少し伸びをしよう")
+                        .pomoFont(14)
+                        .foregroundStyle(Tokens.washi.opacity(0.45))
 
-                if Settings.shared.askMemoOnBreak {
-                    memoField
-                        .padding(.bottom, 8)
-                } else {
-                    Color.clear.frame(height: 8)
+                    if Settings.shared.askMemoOnBreak {
+                        memoField
+                            .padding(.bottom, 8)
+                    } else {
+                        Color.clear.frame(height: 8)
+                    }
+
+                    HStack(spacing: 14) {
+                        PillButton(label: "+5分") { engine.extendFiveMinutes() }
+                        PillButton(label: "小さく", action: onCollapse)
+                        PillButton(label: "スキップ") { engine.skipBreak() }
+                            .disabled(!skipEnabled)
+                            .opacity(skipEnabled ? 1 : 0.35)
+                            .animation(.easeOut(duration: 0.4), value: skipEnabled)
+                    }
                 }
-
-                HStack(spacing: 14) {
-                    PillButton(label: "+5分") { engine.extendFiveMinutes() }
-                    PillButton(label: "小さく", action: onCollapse)
-                    PillButton(label: "スキップ") { engine.skipBreak() }
-                        .disabled(!skipEnabled)
-                        .opacity(skipEnabled ? 1 : 0.35)
-                        .animation(.easeOut(duration: 0.4), value: skipEnabled)
-                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .frame(width: geo.size.width, height: geo.size.height)
         }
         .ignoresSafeArea()
         .onAppear {
@@ -173,7 +219,7 @@ struct BreakOverlayView: View {
     private var memoField: some View {
         if memoSaved {
             Text("メモを残しました")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .pomoFont(13, weight: .medium)
                 .foregroundStyle(Tokens.kohaku)
                 .padding(.vertical, 9)
         } else {
@@ -184,7 +230,7 @@ struct BreakOverlayView: View {
                         .foregroundStyle(Tokens.washi.opacity(0.35))
                 )
                 .textFieldStyle(.plain)
-                .font(.system(size: 14, design: .rounded))
+                .pomoFont(14)
                 .foregroundStyle(Tokens.washi)
                 .tint(Tokens.kohaku)
                 .multilineTextAlignment(.center)
@@ -216,7 +262,7 @@ struct PillButton: View {
     var body: some View {
         Button(action: action) {
             Text(label)
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .pomoFont(14, weight: .semibold)
                 .foregroundStyle(Tokens.washi.opacity(0.9))
                 .padding(.horizontal, 22)
                 .padding(.vertical, 10)

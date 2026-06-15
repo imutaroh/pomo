@@ -83,7 +83,7 @@
 |---|------|-----------|
 | M9 | **全画面休憩モード** | 休憩開始で全ディスプレイを覆うオーバーレイ（呼吸グロー＋巨大カウントダウン）。クリックは遮るがキーボード・メニューバー・Dock は奪わない。「+5分 / 小さく / スキップ」の逃げ道を常設（強制すると OFF にされて終わるため）。メニューでトグル可（デフォルト ON） |
 | M10 | **作業メモ** | 進行中セッションに「何をしているか」を付けて JSONL に保存。入力はメニューバーのダイアログと API のみ（パネルにテキスト入力を置かない原則を維持） |
-| M11 | **localhost API（Claude Code 連携）** | `127.0.0.1:51766` の HTTP API。status/stats/sessions 参照、start/pause/finish/memo/skip/extend/reset 操作。ループバック限定・認証なし（個人用途のトレードオフ。配布時はトークン認証必須）。`scripts/pomo` CLI ラッパ同梱。リポジトリの CLAUDE.md に API 仕様を記載し、Claude Code セッションが自動で連携可能 |
+| M11 | ~~**localhost API（Claude Code 連携）**~~ **削除（2026-06-13）** | ローカル HTTP API（`APIServer.swift` / `scripts/pomo`）は **App Sandbox（Mac App Store 必須）と衝突するため削除**。固定ポート listen・`~/Library/Application Support` へのトークン書込が Sandbox 下で破綻し、外部プロセス連携も Sandbox の信頼境界と整合しない。タイマー操作はメニューバー・母艦ウィンドウ・グローバルホットキー（⌃⌥P / ⌃⌥T）から行う |
 | M12 | **統計表示** | メニューバーに今日/今週の完了数・作業時間。パネルは待機中ホバーで今日の積み上げを表示。チャートは作らない方針を維持（生ログは API /sessions で取得可） |
 
 > [!note] SaaS 化はしない（2026-06-11 の判断）
@@ -277,3 +277,5 @@ Claude Code は GUI 挙動を直接確認できないため、フローティン
 | 2026-06-11 | ご主人様 | **「やらないこと」2項目を撤回**: 統計チャート → 管理画面「きろく」として実装（罪悪感ゼロ原則は維持）、MAS 配布 → 販売検討の対象に昇格（docs/MARKET.md の判定参照）。**DB は調査の結果 JSONL 維持で確定**（BigQuery ネイティブロード形式と一致するため） | /goal「管理画面」「DB調査」「App Store っぽく」「売れるか判定」 |
 | 2026-06-11 | Claude | **API にトークン認証を追加**（M11 の「認証なし」を撤回）。市場判定で「出荷の絶対条件」とされたため。`~/Library/Application Support/Pomo/token`、Bearer 認証、全エンドポイント必須 | docs/MARKET.md P0 条件。ブラウザからの localhost POST 攻撃も遮断 |
 | 2026-06-11 | Claude | **単純タイマーモード（simple）追加**（M2 を「3モード」に拡張）。任意分数のカウントダウン、JSONL 記録なし。合わせて activeMode スナップショット導入により「実行中のモード切替で表示・終了動作が壊れる」「クラシックのプリセット変更で進捗バー分母がズレる」の実バグ2件を修正 | BACKLOG.md「追加機能候補」の単純タイマーモード行を反映 |
+| 2026-06-13 | ご主人様 | **localhost API（M11）を全削除**。App Sandbox（MAS 必須）と衝突するため。`APIServer.swift`・`scripts/pomo`・CLAUDE.md の API 節を撤去 | /goal「API は必要ない、消そう」。App Store 提出方針との両立 |
+| 2026-06-13 | Claude | **App Store 提出準備パス**（リサーチ監査4軸→実装）。①Dock 非表示の回帰修正（`setActivationPolicy(.accessory)` + Info.plist `LSUIElement`、母艦ウィンドウ追加時に抜けていた）②システム通知 M5 第2合図を実装（`NotificationManager`、初回完了直前に許可要求、アクション付き）③初回オンボーディング（初回起動で母艦を開く）④オーバーレイ1分前予告（`isApproachingEnd`→パネル進捗バーの色温度）⑤会議ガードの休憩中再チェック⑥レスポンシブ（ヒートマップ横スクロール・設定の固定幅撤去・母艦の余白センタリング）⑦アクセシビリティ（Dynamic Type 対応 `pomoFont`・WCAG AA コントラスト・VoiceOver ラベル・Reduce Motion 尊重）⑧Sandbox entitlements・MAS 必須 Info.plist キー・XcodeGen `project.yml`・アイコン asset catalog | /goal「シンプルさは保ったまま、デザイン・機能をすべてアップデートし App Store 提出可能に」。受け入れには手動 GUI 確認が必須（§10）。MAS 提出の外部手順は `docs/APP_STORE_SUBMISSION.md` |

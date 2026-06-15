@@ -36,13 +36,18 @@ final class PanelController: NSObject, NSWindowDelegate {
     private let frameKey = "panelFrame"
 
     let panel: FloatingPanel
+    /// パネルの「拡大」ボタン → 母艦ウィンドウを開く（AppDelegate が配線）
+    var openMainWindow: (() -> Void)?
 
     init(engine: TimerEngine) {
         panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: Self.panelSize))
         super.init()
 
-        let host = NSHostingView(rootView: PanelView(engine: engine))
+        let host = NSHostingView(rootView: PanelView(engine: engine, expand: { [weak self] in
+            self?.openMainWindow?()
+        }))
         host.frame = NSRect(origin: .zero, size: Self.panelSize)
+        host.autoresizingMask = [.width, .height]
         panel.contentView = host
         panel.delegate = self
 
@@ -52,10 +57,37 @@ final class PanelController: NSObject, NSWindowDelegate {
 
     func toggleVisibility() {
         if panel.isVisible {
-            panel.orderOut(nil)
+            hide()
         } else {
-            clampToVisibleScreen()
-            panel.orderFrontRegardless()
+            show()
+        }
+    }
+
+    /// 排他切替用: フェードアウトして消える（orderOut の瞬断を見せない）
+    func hide() {
+        guard panel.isVisible else { return }
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.25
+            ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            panel.animator().alphaValue = 0
+        } completionHandler: { [panel] in
+            Task { @MainActor in
+                panel.orderOut(nil)
+                panel.alphaValue = 1
+            }
+        }
+    }
+
+    /// 排他切替用: フェードインで復帰
+    func show() {
+        clampToVisibleScreen()
+        guard !panel.isVisible else { return }
+        panel.alphaValue = 0
+        panel.orderFrontRegardless()
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.25
+            ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            panel.animator().alphaValue = 1
         }
     }
 

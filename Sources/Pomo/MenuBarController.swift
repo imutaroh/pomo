@@ -1,8 +1,8 @@
 import AppKit
-import ServiceManagement
 
-/// メニューバー常駐（M6）: 残り時間/経過時間テキスト＋今日の完了数。設定はすべてメニューで完結
-/// （テキスト入力 UI を持たない方針 §8 のため、選択肢はサブメニューで提供する）
+/// メニューバー常駐（M6）: 残り時間/経過時間テキスト＋今日の完了数。
+/// メニューは「操作の場」— 主操作とモード切替だけを置き、詳細設定は母艦ウィンドウの設定ページに一本化
+/// （二重管理は状態不整合と保守コストの源。モードだけは作業フローの一部なので例外的に残す）
 @MainActor
 final class MenuBarController: NSObject, NSMenuDelegate {
     private let statusItem: NSStatusItem
@@ -10,11 +10,12 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private let panelController: PanelController
     private let settings = Settings.shared
     private var updateTimer: Timer?
-    private let dashboard = DashboardWindowController()
+    private let mainWindow: MainWindowController
 
-    init(engine: TimerEngine, panelController: PanelController) {
+    init(engine: TimerEngine, panelController: PanelController, mainWindow: MainWindowController) {
         self.engine = engine
         self.panelController = panelController
+        self.mainWindow = mainWindow
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         super.init()
 
@@ -50,14 +51,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         // 状態表示
         let logger = SessionLogger.shared
         let summary = NSMenuItem(
-            title: "今日: \(logger.todayWorkCount) セッション（\(Self.hm(logger.todayWorkSeconds))）",
+            title: "今日: \(logger.todayWorkCount) セッション（\(hmString(logger.todayWorkSeconds))）",
             action: nil, keyEquivalent: ""
         )
         summary.isEnabled = false
         menu.addItem(summary)
         let week = logger.weekStats()
         let weekItem = NSMenuItem(
-            title: "今週: \(week.count) セッション（\(Self.hm(week.seconds))）",
+            title: "今週: \(week.count) セッション（\(hmString(week.seconds))）",
             action: nil, keyEquivalent: ""
         )
         weekItem.isEnabled = false
@@ -94,11 +95,11 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             menu.addItem(item(engine.isPaused ? "再開" : "一時停止", #selector(togglePause), key: "p"))
         }
         menu.addItem(.separator())
-        menu.addItem(item("きろくを開く", #selector(openDashboard), key: "d"))
+        menu.addItem(item("Pomo を開く", #selector(openMainWindow), key: "d"))
         menu.addItem(item(panelController.panel.isVisible ? "パネルを隠す" : "パネルを表示", #selector(togglePanel), key: "t"))
         menu.addItem(.separator())
 
-        // モード
+        // モードだけは作業フローの一部なのでメニューに残す。詳細設定は母艦の設定ページへ
         let modeMenu = NSMenu()
         let flowItem = item("フロー（作業した時間の 1/\(settings.flowRatio) が休憩になる）", #selector(setModeFlow))
         flowItem.state = settings.mode == .flow ? .on : .off
@@ -113,146 +114,19 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(modeRoot)
         menu.setSubmenu(modeMenu, for: modeRoot)
 
-        // 使用中モードの設定だけ見せる（両方並べるとメニューが長くなり読まれない）
-        if settings.mode == .flow {
-            let ratioMenu = NSMenu()
-            for r in [3, 4, 5, 6] {
-                let sample = 45 / r
-                let i = NSMenuItem(title: "作業の 1/\(r) を休憩に（45分なら約\(sample)分）", action: #selector(setRatio(_:)), keyEquivalent: "")
-                i.target = self
-                i.tag = r
-                i.state = settings.flowRatio == r ? .on : .off
-                ratioMenu.addItem(i)
-            }
-            let ratioRoot = NSMenuItem(title: "休憩の長さ", action: nil, keyEquivalent: "")
-            menu.addItem(ratioRoot)
-            menu.setSubmenu(ratioMenu, for: ratioRoot)
-        } else if settings.mode == .classic {
-            let presetMenu = NSMenu()
-            for (w, b, l) in [(25, 5, 15), (50, 10, 20), (90, 15, 30)] {
-                let i = NSMenuItem(title: "\(w)分作業 / \(b)分休憩 / 長休憩\(l)分", action: #selector(setPreset(_:)), keyEquivalent: "")
-                i.target = self
-                i.tag = w * 10000 + b * 100 + l
-                i.state = (settings.classicWorkMin == w && settings.classicShortBreakMin == b) ? .on : .off
-                presetMenu.addItem(i)
-            }
-            let presetRoot = NSMenuItem(title: "時間プリセット", action: nil, keyEquivalent: "")
-            menu.addItem(presetRoot)
-            menu.setSubmenu(presetMenu, for: presetRoot)
-        } else {
-            // simple 選択時: 計測時間を選ぶ submenu
-            let timeMenu = NSMenu()
-            for min in [5, 10, 15, 20, 25, 30, 45, 60] {
-                let i = NSMenuItem(title: "\(min)分", action: #selector(setSimpleMinutes(_:)), keyEquivalent: "")
-                i.target = self
-                i.tag = min
-                i.state = settings.simpleTimerMinutes == min ? .on : .off
-                timeMenu.addItem(i)
-            }
-            let timeRoot = NSMenuItem(title: "時間", action: nil, keyEquivalent: "")
-            menu.addItem(timeRoot)
-            menu.setSubmenu(timeMenu, for: timeRoot)
-        }
-
-        // 集中時の濃さ（「透明度15%」は逆に読めるので「濃さ」で統一）
-        let opacityMenu = NSMenu()
-        for pct in [15, 30, 50, 70, 100] {
-            let label = pct == 15 ? "15%（ほぼ消える）" : pct == 100 ? "100%（透けない）" : "\(pct)%"
-            let i = NSMenuItem(title: label, action: #selector(setOpacity(_:)), keyEquivalent: "")
-            i.target = self
-            i.tag = pct
-            i.state = Int(settings.focusOpacity * 100) == pct ? .on : .off
-            opacityMenu.addItem(i)
-        }
-        let opacityRoot = NSMenuItem(title: "集中時の濃さ", action: nil, keyEquivalent: "")
-        menu.addItem(opacityRoot)
-        menu.setSubmenu(opacityMenu, for: opacityRoot)
-
-        // トグル類
-        let breakFsItem = item("休憩は全画面で（休憩モード）", #selector(toggleBreakFullscreen))
-        breakFsItem.state = settings.breakFullscreen ? .on : .off
-        menu.addItem(breakFsItem)
-        if settings.breakFullscreen {
-            let deferItem = item("通話・会議中は全画面にしない", #selector(toggleDeferInCall))
-            deferItem.state = settings.deferOverlayInCall ? .on : .off
-            menu.addItem(deferItem)
-            let memoAskItem = item("休憩のはじめにメモを聞く", #selector(toggleAskMemo))
-            memoAskItem.state = settings.askMemoOnBreak ? .on : .off
-            menu.addItem(memoAskItem)
-        }
-
-        // サウンド（種類・音量はこのサブメニューで完結。選ぶと試し鳴らし）
-        let soundMenu = NSMenu()
-        let soundEnabledItem = item("鳴らす", #selector(toggleSound))
-        soundEnabledItem.state = settings.soundEnabled ? .on : .off
-        soundMenu.addItem(soundEnabledItem)
-        soundMenu.addItem(.separator())
-        let volMenu = NSMenu()
-        for pct in [25, 50, 75, 100] {
-            let i = NSMenuItem(title: "\(pct)%", action: #selector(setVolume(_:)), keyEquivalent: "")
-            i.target = self
-            i.tag = pct
-            i.state = Int((settings.soundVolume * 100).rounded()) == pct ? .on : .off
-            volMenu.addItem(i)
-        }
-        let volRoot = NSMenuItem(title: "音量", action: nil, keyEquivalent: "")
-        volRoot.submenu = volMenu
-        soundMenu.addItem(volRoot)
-        soundMenu.addItem(soundPickerItem(title: "作業おわりの音", selected: settings.workSound, action: #selector(setWorkSound(_:))))
-        soundMenu.addItem(soundPickerItem(title: "休憩おわりの音", selected: settings.breakSound, action: #selector(setBreakSound(_:))))
-        let soundRoot = NSMenuItem(title: "サウンド", action: nil, keyEquivalent: "")
-        soundRoot.submenu = soundMenu
-        menu.addItem(soundRoot)
-        let autoBreakItem = item("休憩を自動開始", #selector(toggleAutoBreak))
-        autoBreakItem.state = settings.autoStartBreak ? .on : .off
-        menu.addItem(autoBreakItem)
-        let autoWorkItem = item("次の作業を自動開始", #selector(toggleAutoWork))
-        autoWorkItem.state = settings.autoStartWork ? .on : .off
-        menu.addItem(autoWorkItem)
-        let loginItem = item("ログイン時に起動", #selector(toggleLoginItem))
-        loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
-        menu.addItem(loginItem)
-
+        menu.addItem(item("設定…", #selector(openSettings), key: ","))
         menu.addItem(.separator())
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
-        let apiItem = NSMenuItem(title: "Pomo v\(version) · API 127.0.0.1:\(APIServer.port)", action: nil, keyEquivalent: "")
-        apiItem.isEnabled = false
-        menu.addItem(apiItem)
+        let versionItem = NSMenuItem(title: "Pomo v\(version)", action: nil, keyEquivalent: "")
+        versionItem.isEnabled = false
+        menu.addItem(versionItem)
         menu.addItem(item("Pomo を終了", #selector(quit), key: "q"))
-    }
-
-    private static func hm(_ seconds: Int) -> String {
-        let h = seconds / 3600
-        let m = (seconds % 3600) / 60
-        return h > 0 ? "\(h)時間\(m)分" : "\(m)分"
     }
 
     private func item(_ title: String, _ action: Selector, key: String = "") -> NSMenuItem {
         let i = NSMenuItem(title: title, action: action, keyEquivalent: key)
         i.target = self
         return i
-    }
-
-    private static let soundChoices = ["Glass", "Tink", "Pop", "Purr", "Blow", "Hero", "Submarine", "Ping"]
-
-    private func soundPickerItem(title: String, selected: String, action: Selector) -> NSMenuItem {
-        let sub = NSMenu()
-        for name in Self.soundChoices {
-            let i = NSMenuItem(title: name, action: action, keyEquivalent: "")
-            i.target = self
-            i.representedObject = name
-            i.state = selected == name ? .on : .off
-            sub.addItem(i)
-        }
-        let root = NSMenuItem(title: title, action: nil, keyEquivalent: "")
-        root.submenu = sub
-        return root
-    }
-
-    private func previewSound(_ name: String) {
-        guard let s = NSSound(named: name) else { return }
-        s.volume = Float(settings.soundVolume)
-        s.play()
     }
 
     // MARK: - Actions
@@ -279,18 +153,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         }
     }
 
-    @objc private func toggleBreakFullscreen() { settings.breakFullscreen.toggle() }
-    @objc private func toggleDeferInCall() { settings.deferOverlayInCall.toggle() }
-    @objc private func openDashboard() { dashboard.show() }
-
-    @objc private func toggleLoginItem() {
-        // ad-hoc 署名のローカルビルドではパス変更で登録が外れることがある（既知の制約）
-        if SMAppService.mainApp.status == .enabled {
-            try? SMAppService.mainApp.unregister()
-        } else {
-            try? SMAppService.mainApp.register()
-        }
-    }
+    @objc private func openMainWindow() { mainWindow.show() }
+    @objc private func openSettings() { mainWindow.show(page: .settings) }
     @objc private func togglePause() { engine.togglePause() }
     @objc private func finishWork() { engine.finishWork() }
     @objc private func resetTimer() { engine.reset() }
@@ -300,35 +164,5 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func setModeFlow() { settings.mode = .flow; engine.settingsChanged() }
     @objc private func setModeClassic() { settings.mode = .classic; engine.settingsChanged() }
     @objc private func setModeSimple() { settings.mode = .simple; engine.settingsChanged() }
-    @objc private func setSimpleMinutes(_ sender: NSMenuItem) {
-        settings.simpleTimerMinutes = sender.tag
-        engine.settingsChanged()
-    }
-    @objc private func setRatio(_ sender: NSMenuItem) { settings.flowRatio = sender.tag }
-    @objc private func setPreset(_ sender: NSMenuItem) {
-        settings.classicWorkMin = sender.tag / 10000
-        settings.classicShortBreakMin = (sender.tag / 100) % 100
-        settings.classicLongBreakMin = sender.tag % 100
-        engine.settingsChanged()
-    }
-    @objc private func setOpacity(_ sender: NSMenuItem) { settings.focusOpacity = Double(sender.tag) / 100 }
-    @objc private func toggleSound() { settings.soundEnabled.toggle() }
-    @objc private func toggleAskMemo() { settings.askMemoOnBreak.toggle() }
-    @objc private func setVolume(_ sender: NSMenuItem) {
-        settings.soundVolume = Double(sender.tag) / 100
-        previewSound(settings.workSound)
-    }
-    @objc private func setWorkSound(_ sender: NSMenuItem) {
-        guard let name = sender.representedObject as? String else { return }
-        settings.workSound = name
-        previewSound(name)
-    }
-    @objc private func setBreakSound(_ sender: NSMenuItem) {
-        guard let name = sender.representedObject as? String else { return }
-        settings.breakSound = name
-        previewSound(name)
-    }
-    @objc private func toggleAutoBreak() { settings.autoStartBreak.toggle() }
-    @objc private func toggleAutoWork() { settings.autoStartWork.toggle() }
     @objc private func quit() { NSApp.terminate(nil) }
 }

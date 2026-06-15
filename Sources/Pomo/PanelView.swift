@@ -16,8 +16,11 @@ struct VisualEffectBackground: NSViewRepresentable {
 struct PanelView: View {
     @ObservedObject var engine: TimerEngine
     @ObservedObject var settings = Settings.shared
+    /// 「拡大」ボタン → 母艦ウィンドウを開く（排他切替）
+    var expand: (() -> Void)?
     @State private var hovering = false
     @State private var pillHovered = false
+    @State private var expandHovered = false
 
     // 存在感の3段階制御（§7-B）: 操作=1.0 / 待機=1.0(要素少) / 集中=focusOpacity
     private var panelOpacity: Double {
@@ -53,6 +56,23 @@ struct PanelView: View {
                     RoundedRectangle(cornerRadius: Tokens.cornerRadius)
                         .stroke(Tokens.kohaku, lineWidth: 3)
                         .shadow(color: Tokens.kohaku.opacity(0.8), radius: 12)
+                }
+            }
+            .overlay(alignment: .topTrailing) {
+                if expand != nil {
+                    Button { expand?() } label: {
+                        Image(systemName: "macwindow")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(Tokens.sumi.opacity(expandHovered ? 0.8 : 0.5))
+                            .frame(width: 26, height: 26)
+                            .background(Circle().fill(Color.white.opacity(expandHovered ? 0.85 : 0.55)))
+                            .overlay(Circle().strokeBorder(.white.opacity(0.5), lineWidth: 0.8))
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { expandHovered = $0 }
+                    .help("ダッシュボードを開く（パネルはしまわれる）")
+                    .accessibilityLabel("ダッシュボードを開く")
+                    .padding(10)
                 }
             }
             .opacity(panelOpacity)
@@ -109,7 +129,8 @@ struct PanelView: View {
                     progress: engine.progress,
                     active: engine.phase != .idle,
                     // フロー実行中かつ基準25分超えで薄くする（満タン静止だと「完了」に誤読される）
-                    saturated: engine.phase == .work && engine.activeMode == .flow && engine.progress >= 1
+                    saturated: engine.phase == .work && engine.activeMode == .flow && engine.progress >= 1,
+                    warm: engine.isApproachingEnd
                 )
                 .frame(width: 132, height: 3)
                 .padding(.top, 14)
@@ -166,67 +187,78 @@ struct PanelView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    @ViewBuilder
     private var controls: some View {
-        HStack(spacing: 14) {
+        TimerControlsView(engine: engine, settings: settings)
+    }
+}
+
+/// フェーズ別の操作ボタン列。パネルと母艦ウィンドウのタイマーカードで共用
+/// （状態とロジックは 100% engine 側、ここは表示のみ。large は母艦用の大型ボタン）
+struct TimerControlsView: View {
+    @ObservedObject var engine: TimerEngine
+    @ObservedObject var settings: Settings
+    var large = false
+
+    var body: some View {
+        HStack(spacing: large ? 18 : 14) {
             switch engine.phase {
             case .idle:
                 // simple 選択時はタイマー時間の ±5分ボタンを出す（テキスト入力なし原則を維持）
                 if settings.mode == .simple {
-                    CircleButton(symbol: "minus") {
+                    CircleButton(symbol: "minus", large: large, accessibilityLabel: "5分減らす") {
                         settings.simpleTimerMinutes = max(5, settings.simpleTimerMinutes - 5)
                         engine.settingsChanged()
                     }
                     .help("5分減らす")
                 }
-                CircleButton(symbol: "play.fill", prominent: true) { engine.startWork() }
+                CircleButton(symbol: "play.fill", prominent: true, large: large, accessibilityLabel: settings.mode == .simple ? "タイマーを開始" : "作業を開始") { engine.startWork() }
                     .help(settings.mode == .simple ? "タイマーを開始（⌃⌥P）" : "作業を開始（⌃⌥P）")
                 if settings.mode == .simple {
-                    CircleButton(symbol: "plus") {
+                    CircleButton(symbol: "plus", large: large, accessibilityLabel: "5分増やす") {
                         settings.simpleTimerMinutes = min(120, settings.simpleTimerMinutes + 5)
                         engine.settingsChanged()
                     }
                     .help("5分増やす")
-                } else if hasPendingBreak {
-                    CircleButton(symbol: "cup.and.saucer.fill") { engine.startBreak() }
+                } else if engine.pendingBreakDuration != nil {
+                    CircleButton(symbol: "cup.and.saucer.fill", large: large, accessibilityLabel: "貯めた休憩を開始") { engine.startBreak() }
                         .help("貯めた休憩を開始")
                 }
             case .work:
-                CircleButton(symbol: "arrow.counterclockwise") { engine.reset() }
+                CircleButton(symbol: "arrow.counterclockwise", large: large, accessibilityLabel: engine.activeMode == .simple ? "タイマーを止める" : "リセット") { engine.reset() }
                     .help(engine.activeMode == .simple ? "タイマーを止める" : "リセット")
-                CircleButton(symbol: engine.isPaused ? "play.fill" : "pause.fill", prominent: true) { engine.togglePause() }
+                CircleButton(symbol: engine.isPaused ? "play.fill" : "pause.fill", prominent: true, large: large, accessibilityLabel: engine.isPaused ? "再開" : "一時停止") { engine.togglePause() }
                     .help(engine.isPaused ? "再開（⌃⌥P）" : "一時停止（⌃⌥P）")
                 // フローの核: ここを押すと作業時間に応じた休憩が自動で始まる（simple では表示しない）
                 if engine.activeMode != .simple {
-                    CircleButton(symbol: "cup.and.saucer.fill") { engine.finishWork() }
+                    CircleButton(symbol: "cup.and.saucer.fill", large: large, accessibilityLabel: "作業を終えて休憩へ") { engine.finishWork() }
                         .help("作業を終えて休憩へ（貯めた分だけ休める）")
                 }
             case .breakTime:
-                CircleButton(symbol: "goforward.plus") { engine.extendFiveMinutes() } // +5分（M4）
+                CircleButton(symbol: "goforward.plus", large: large, accessibilityLabel: "休憩を5分延長") { engine.extendFiveMinutes() } // +5分（M4）
                     .help("休憩を5分延長")
-                CircleButton(symbol: engine.isPaused ? "play.fill" : "pause.fill", prominent: true) { engine.togglePause() }
+                CircleButton(symbol: engine.isPaused ? "play.fill" : "pause.fill", prominent: true, large: large, accessibilityLabel: engine.isPaused ? "再開" : "一時停止") { engine.togglePause() }
                     .help(engine.isPaused ? "再開" : "一時停止")
-                CircleButton(symbol: "forward.end.fill") { engine.skipBreak() }       // スキップ（M4）
+                CircleButton(symbol: "forward.end.fill", large: large, accessibilityLabel: "休憩をスキップ") { engine.skipBreak() }       // スキップ（M4）
                     .help("休憩をスキップ")
             }
         }
     }
-
-    private var hasPendingBreak: Bool { engine.pendingBreakDuration != nil }
 }
 
 struct ProgressBar: View {
     let progress: Double
     let active: Bool
     var saturated = false
+    var warm: Bool = false
 
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 Capsule().fill(Tokens.sumi.opacity(0.10))
                 Capsule()
-                    .fill(Tokens.kohaku)
+                    .fill(warm ? Tokens.kohakuDeep : Tokens.kohaku)
                     .frame(width: max(0, geo.size.width * min(1, progress)))
+                    .animation(.easeOut(duration: 0.6), value: warm)
             }
         }
         .opacity(saturated ? 0.35 : (active ? 1 : 0.4))
@@ -238,22 +270,64 @@ struct ProgressBar: View {
 struct CircleButton: View {
     let symbol: String
     var prominent = false
+    /// 母艦のタイマーカード用の大型スタイル。パネルはデフォルト（false）のまま挙動・見た目とも不変
+    var large = false
+    var accessibilityLabel: String = ""
     let action: () -> Void
     @State private var hovered = false
 
+    private var diameter: CGFloat { large ? (prominent ? 64 : 44) : (prominent ? 40 : 32) }
+    private var iconSize: CGFloat { large ? (prominent ? 22 : 15) : (prominent ? 15 : 12) }
+
     var body: some View {
-        Button(action: action) {
-            Image(systemName: symbol)
-                .font(.system(size: prominent ? 15 : 12, weight: .semibold))
-                .foregroundStyle(prominent ? Tokens.washi : Tokens.sumi.opacity(0.75))
-                .frame(width: prominent ? 40 : 32, height: prominent ? 40 : 32)
-                .background(
-                    // 副ボタンは半透明の白ガラス玉、主ボタンだけ墨で焦点を作る
-                    Circle().fill(prominent ? AnyShapeStyle(Tokens.sumi) : AnyShapeStyle(Color.white.opacity(hovered ? 0.8 : 0.55)))
-                )
-                .overlay(Circle().strokeBorder(.white.opacity(prominent ? 0 : 0.5), lineWidth: 0.8))
+        if large {
+            // 母艦: 黒丸の主ボタン＋白の副ボタン。ホバーで浮き、押下で沈む
+            Button(action: action) {
+                label
+                    .background(
+                        Circle().fill(prominent ? AnyShapeStyle(Tokens.kohakuDeep) : AnyShapeStyle(Color.white))
+                    )
+                    .overlay(Circle().strokeBorder(Tokens.sumi.opacity(prominent ? 0 : 0.08), lineWidth: 1))
+                    .shadow(
+                        color: .black.opacity(prominent ? (hovered ? 0.22 : 0.14) : (hovered ? 0.10 : 0.06)),
+                        radius: hovered ? 10 : 6, y: 3
+                    )
+                    .scaleEffect(hovered ? 1.04 : 1)
+                    .animation(.easeOut(duration: 0.15), value: hovered)
+            }
+            .buttonStyle(PressableButtonStyle())
+            .onHover { hovered = $0 }
+            .accessibilityLabel(accessibilityLabel)
+        } else {
+            Button(action: action) {
+                label
+                    .background(
+                        // 副ボタンは半透明の白ガラス玉、主ボタンだけ墨で焦点を作る
+                        Circle().fill(prominent ? AnyShapeStyle(Tokens.sumi) : AnyShapeStyle(Color.white.opacity(hovered ? 0.8 : 0.55)))
+                    )
+                    .overlay(Circle().strokeBorder(.white.opacity(prominent ? 0 : 0.5), lineWidth: 0.8))
+            }
+            .buttonStyle(.plain)
+            .onHover { hovered = $0 }
+            .accessibilityLabel(accessibilityLabel)
         }
-        .buttonStyle(.plain)
-        .onHover { hovered = $0 }
+    }
+
+    private var label: some View {
+        Image(systemName: symbol)
+            .font(.system(size: iconSize, weight: .semibold))
+            .foregroundStyle(prominent ? Tokens.washi : Tokens.sumi.opacity(0.75))
+            .frame(width: diameter, height: diameter)
+            // アイコン差し替え（再生⇄一時停止）のクロスフェードは母艦のみ。パネルは従来どおり
+            .contentTransition(large ? .symbolEffect(.replace) : .identity)
+    }
+}
+
+/// 押下で静かに沈むボタンスタイル（跳ねない）
+struct PressableButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }

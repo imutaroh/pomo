@@ -2,3 +2,6 @@
 build/
 .DS_Store
 .claude/tmp/
+
+# XcodeGen 生成物（project.yml が出所）
+Pomo.xcodeproj/

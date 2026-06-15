@@ -26,6 +26,9 @@ final class TimerEngine: ObservableObject {
     @Published private(set) var bankedBreakSeconds = 0
     /// 終了直後の合図（パネルの視覚変化トリガー）
     @Published private(set) var justFinished = false
+    /// 終了予定の60秒前（カウントダウン作業＝クラシック/単純のみ）。パネルが事前に色温度を上げ、
+    /// 全画面オーバーレイが「突然落ちてくる」体験を避ける（BACKLOG: オーバーレイ事前警告）
+    @Published private(set) var isApproachingEnd = false
     @Published private(set) var classicCompletedInSet = 0
     /// 進行中の作業セッションに付けるメモ（メニュー/API から設定、ログ記録時に保存）
     @Published var currentMemo: String?
@@ -130,6 +133,7 @@ final class TimerEngine: ObservableObject {
         if activeMode == .simple {
             playSound(named: settings.workSound)
             signalFinished()
+            NotificationManager.shared.notifySimpleTimerEnded()
             goIdle()
             onPhaseChange?()
             return
@@ -151,9 +155,11 @@ final class TimerEngine: ObservableObject {
 
         if settings.autoStartBreak {
             startBreak(duration: breakDuration)
+            NotificationManager.shared.notifyWorkEndedBreakStarted(breakSeconds: Int(breakDuration))
         } else {
             pendingBreakDuration = breakDuration
             goIdle()
+            NotificationManager.shared.notifyWorkEndedBreakPending(breakSeconds: Int(breakDuration))
         }
         onPhaseChange?()
     }
@@ -205,6 +211,7 @@ final class TimerEngine: ObservableObject {
             logBreak(completed: true)
             playSound(named: settings.breakSound)
             signalFinished()
+            NotificationManager.shared.notifyBreakEnded(autoWork: settings.autoStartWork)
         }
         goIdle()
         if settings.autoStartWork { startWork() }
@@ -261,22 +268,26 @@ final class TimerEngine: ObservableObject {
                 displaySeconds = 0
             }
             progress = 0
+            isApproachingEnd = false
         case .work:
             if activeMode == .flow {
                 let worked = currentWorkedSeconds()
                 displaySeconds = Int(worked)
                 bankedBreakSeconds = Int(max(60, worked / Double(settings.flowRatio)))
                 progress = min(1.0, worked / (25 * 60)) // 基準25分に対する充足感の演出
+                isApproachingEnd = false // フローは終了予定時刻がない（停止はユーザー操作）
             } else {
                 let remaining = countdownRemaining()
                 displaySeconds = Int(remaining.rounded(.up))
                 // 分母は startWork() 時点の workCountdownTotal を使う（設定変更による分母ズレを防ぐ）
                 progress = workCountdownTotal > 0 ? 1 - remaining / workCountdownTotal : 0
+                isApproachingEnd = !isPaused && remaining > 0 && remaining <= 60
             }
         case .breakTime:
             let remaining = countdownRemaining()
             displaySeconds = Int(remaining.rounded(.up))
             progress = countdownTotal > 0 ? 1 - remaining / countdownTotal : 0
+            isApproachingEnd = false
         }
     }
 

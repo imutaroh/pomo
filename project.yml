@@ -1,0 +1,52 @@
+# XcodeGen 定義: SPM の Swift ソースから Mac App Store / Developer ID 配布用の Xcode App ターゲットを生成する。
+#   brew install xcodegen
+#   xcodegen generate         # → Pomo.xcodeproj（Pomo.entitlements / Pomo-Info.plist も下記 properties から再生成される）
+#   open Pomo.xcodeproj       # Signing & Capabilities で Team を選ぶ（自動署名）
+# ローカル開発の素早いビルドは従来どおり ./scripts/build.sh（ad-hoc・非サンドボックス）でよい。
+# 注意: entitlements / info の中身はこの project.yml が唯一の出所。直接ファイルを編集しても再生成で消える。
+name: Pomo
+options:
+  bundleIdPrefix: com.imutaakihiro
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: "0.9.0"
+    CURRENT_PROJECT_VERSION: "3"
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: "" # ← Apple Developer の Team ID を入れる（Xcode の自動署名でも可）
+targets:
+  Pomo:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/Pomo
+      - path: Resources/Assets.xcassets
+    entitlements:
+      path: Pomo.entitlements
+      properties:
+        # Mac App Store 必須。Pomo はネットワーク不使用・外部ファイルアクセスなし・録音なし
+        # （MeetingGuard は CoreAudio の公開プロパティを読むだけ）なので、必要なのはこの1つだけ。
+        com.apple.security.app-sandbox: true
+    info:
+      path: Pomo-Info.plist
+      properties:
+        CFBundleDevelopmentRegion: ja
+        CFBundleShortVersionString: "0.9.0"
+        CFBundleVersion: "3"
+        LSMinimumSystemVersion: "14.0"
+        NSHighResolutionCapable: true
+        # メニューバー常駐・Dock 非表示
+        LSUIElement: true
+        # App Store 必須 / 推奨
+        LSApplicationCategoryType: public.app-category.productivity
+        ITSAppUsesNonExemptEncryption: false
+        NSHumanReadableCopyright: "Copyright © 2026 imutaakihiro. All rights reserved."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.imutaakihiro.pomo
+        PRODUCT_NAME: Pomo
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_HARDENED_RUNTIME: YES
+        COMBINE_HIDPI_IMAGES: YES
