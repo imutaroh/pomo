@@ -51,11 +51,11 @@ func sectionLabel(_ text: String) -> some View {
         .foregroundStyle(Tokens.sumiSecondary)
 }
 
-/// 秒数 → 「X時間Y分」（1時間未満は「Y分」）
+/// 秒数 → 「Xh Ym」（1時間未満は「Ym」）。コンパクト表記で統一（MM:SS のタイマーと誤読しないよう h/m を明記）
 func hmString(_ seconds: Int) -> String {
     let h = seconds / 3600
     let m = (seconds % 3600) / 60
-    return h > 0 ? "\(h)時間\(m)分" : "\(m)分"
+    return h > 0 ? "\(h)h \(m)m" : "\(m)m"
 }
 
 /// 直近7日の棒グラフ。ダッシュボード「今週の推移」と統計ページで共用。
