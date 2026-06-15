@@ -16,6 +16,10 @@ settings:
     CURRENT_PROJECT_VERSION: "3"
     SWIFT_VERSION: "5.0"
     DEVELOPMENT_TEAM: "" # ← Apple Developer の Team ID を入れる（Xcode の自動署名でも可）
+packages:
+  GRDB:
+    url: https://github.com/groue/GRDB.swift.git
+    from: 7.0.0
 targets:
   Pomo:
     type: application
@@ -23,6 +27,9 @@ targets:
     sources:
       - path: Sources/Pomo
       - path: Resources/Assets.xcassets
+    dependencies:
+      - package: GRDB
+        product: GRDB
     entitlements:
       path: Pomo.entitlements
       properties:

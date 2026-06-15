@@ -140,26 +140,24 @@ struct DashboardPage: View {
     // MARK: - 今日のサマリー（円形チップ＋大きな数字）
 
     private var summaryCard: some View {
-        VStack(spacing: 18) {
-            HStack(spacing: 0) {
+        // 縦線をやめ、上下に余白を逃がして「箱で仕切られた密度」=圧迫感を解消。
+        // 統計はカード中央に空気を持って並び、日の出は静かなフッターとして下端に置く。
+        VStack(spacing: 0) {
+            Spacer(minLength: 12)
+            HStack(alignment: .top, spacing: 8) {
                 summaryStat(label: "今日の集中", value: hmString(store.todaySeconds), symbol: "clock")
-                divider
                 summaryStat(label: "完了", value: "\(store.todayCount)", symbol: "checkmark")
-                divider
                 summaryStat(label: "休憩", value: "\(store.todayBreakCount)", symbol: "cup.and.saucer")
             }
+            Spacer(minLength: 20)
             SunriseFooter()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .pomoCard()
     }
 
-    private var divider: some View {
-        Divider().overlay(Tokens.sumi.opacity(0.06)).padding(.vertical, 22)
-    }
-
     private func summaryStat(label: String, value: String, symbol: String) -> some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             // 円形チップのアイコン（モック準拠。色は琥珀のみ — 評価色を持ち込まない）
             Image(systemName: symbol)
                 .font(.system(size: 15, weight: .medium))
