@@ -145,9 +145,12 @@ struct DashboardPage: View {
         VStack(spacing: 0) {
             Spacer(minLength: 12)
             HStack(alignment: .top, spacing: 8) {
-                summaryStat(label: "今日の集中", value: hmString(store.todaySeconds), symbol: "clock")
-                summaryStat(label: "完了", value: "\(store.todayCount)", symbol: "checkmark")
-                summaryStat(label: "休憩", value: "\(store.todayBreakCount)", symbol: "cup.and.saucer")
+                summaryStat(label: "今日の集中", value: hmString(store.todaySeconds), symbol: "clock",
+                            help: "今日ちゃんと終えた作業の合計時間。手動リセット・スリープ中断・単純タイマーは含みません。")
+                summaryStat(label: "完了", value: "\(store.todayCount)回", symbol: "checkmark",
+                            help: "今日ちゃんと終えた作業セッションの本数。")
+                summaryStat(label: "休憩", value: "\(store.todayBreakCount)回", symbol: "cup.and.saucer",
+                            help: "今日、最後まで取った休憩の回数。スキップした休憩は含みません。")
             }
             Spacer(minLength: 20)
             SunriseFooter()
@@ -156,7 +159,7 @@ struct DashboardPage: View {
         .pomoCard()
     }
 
-    private func summaryStat(label: String, value: String, symbol: String) -> some View {
+    private func summaryStat(label: String, value: String, symbol: String, help: String = "") -> some View {
         VStack(spacing: 12) {
             // 円形チップのアイコン（モック準拠。色は琥珀のみ — 評価色を持ち込まない）
             Image(systemName: symbol)
@@ -176,6 +179,11 @@ struct DashboardPage: View {
                 .foregroundStyle(Tokens.sumiSecondary)
         }
         .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+        .help(help)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label) \(value)")
+        .accessibilityHint(help)
     }
 
     // MARK: - 今週・最近
