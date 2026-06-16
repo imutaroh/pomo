@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pomo — 作業画面を邪魔しない、フロータイマー</title>
+<meta name="description" content="全Space・フルスクリーンに追従する macOS のフローティング・ポモドーロ／フロータイマー。ローカル完結・アカウント不要・無料。" />
+<meta property="og:title" content="Pomo — 作業画面を邪魔しない、フロータイマー" />
+<meta property="og:description" content="全Space・フルスクリーンに追従する macOS のフロータイマー。ローカル完結・アカウント不要・無料。" />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🍅&lt;/text&gt;&lt;/svg&gt;" />
+<style>
+  :root{
+    --sumi:#1A1A1B; --sumi60:rgba(26,26,27,.60); --sumi45:rgba(26,26,27,.45);
+    --kohaku:#FFB347; --kohaku-deep:#D08214; --washi:#FAF9F7; --canvas:#F1EEE8; --white:#fff;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Segoe UI",sans-serif;
+    color:var(--sumi); background:var(--canvas); line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  a{color:var(--kohaku-deep);text-decoration:none}
+
+  /* nav */
+  nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0}
+  .logo{font-size:20px;font-weight:700;letter-spacing:.01em}
+  .logo span{margin-right:6px}
+  nav .ghlink{font-size:14px;color:var(--sumi60)}
+
+  /* hero */
+  .hero{text-align:center;padding:56px 0 24px}
+  .hero h1{font-size:clamp(32px,6vw,54px);font-weight:700;letter-spacing:-.01em;line-height:1.25}
+  .hero .accent{color:var(--kohaku-deep)}
+  .hero p.lead{font-size:clamp(15px,2.4vw,19px);color:var(--sumi60);margin:18px auto 0;max-width:620px}
+  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:28px;
+    background:var(--kohaku-deep);color:#fff;font-weight:700;font-size:16px;
+    padding:14px 26px;border-radius:999px;box-shadow:0 8px 22px rgba(208,130,20,.28);
+    transition:transform .15s ease, box-shadow .15s ease}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(208,130,20,.34)}
+  .meta{margin-top:14px;font-size:13px;color:var(--sumi45)}
+
+  /* app mock (CSS で実アプリのパネルを再現) */
+  .mock{margin:44px auto 0;max-width:340px}
+  .panel{
+    background:linear-gradient(180deg,#fff, #fdfcfa);
+    border:1px solid rgba(26,26,27,.06);
+    border-radius:24px;padding:30px 28px;
+    box-shadow:0 2px 4px rgba(26,26,27,.05), 0 30px 60px rgba(26,26,27,.12);
+    text-align:center;
+  }
+  .bar{height:4px;width:120px;margin:0 auto 26px;border-radius:99px;background:rgba(26,26,27,.10);overflow:hidden}
+  .bar i{display:block;height:100%;width:62%;background:var(--kohaku)}
+  .time{font-size:58px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+  .phase{font-size:13px;color:var(--sumi45);margin-top:2px}
+  .pill{display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-size:13px;font-weight:600;
+    color:var(--kohaku-deep);background:rgba(255,179,71,.22);padding:5px 12px;border-radius:999px}
+  .controls{display:flex;justify-content:center;gap:14px;margin-top:22px}
+  .dot{width:40px;height:40px;border-radius:99px;display:grid;place-items:center;font-size:14px;color:var(--sumi60);
+    background:#fff;border:1px solid rgba(26,26,27,.08)}
+  .dot.main{width:54px;height:54px;background:var(--kohaku-deep);color:#fff;border:none;box-shadow:0 6px 14px rgba(208,130,20,.3)}
+
+  /* sections */
+  section{padding:56px 0}
+  h2{font-size:clamp(22px,3.4vw,28px);font-weight:700;text-align:center}
+  h2+.sub{text-align:center;color:var(--sumi60);margin-top:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:36px}
+  .card{background:#fff;border:1px solid rgba(26,26,27,.05);border-radius:16px;padding:24px;
+    box-shadow:0 2px 4px rgba(26,26,27,.04),0 18px 36px rgba(26,26,27,.05)}
+  .card .ic{width:42px;height:42px;border-radius:999px;display:grid;place-items:center;font-size:18px;
+    background:rgba(255,179,71,.16);margin-bottom:14px}
+  .card h3{font-size:16px;font-weight:700}
+  .card p{font-size:14px;color:var(--sumi60);margin-top:6px}
+
+  /* install steps */
+  .steps{background:#fff;border:1px solid rgba(26,26,27,.05);border-radius:16px;padding:28px 30px;margin-top:32px;
+    box-shadow:0 18px 36px rgba(26,26,27,.05)}
+  .steps ol{margin:0;padding-left:1.2em}
+  .steps li{margin:10px 0;font-size:15px}
+  .note{font-size:13px;color:var(--sumi45);margin-top:14px;border-top:1px solid rgba(26,26,27,.06);padding-top:14px}
+
+  footer{padding:48px 0 64px;text-align:center;color:var(--sumi45);font-size:13px}
+  footer .creed{margin-top:8px}
+  .center{text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="logo"><span>🍅</span>Pomo</div>
+    <a class="ghlink" href="https://github.com/imutaroh/pomo">GitHub ↗</a>
+  </nav>
+
+  <header class="hero">
+    <h1>作業画面を<span class="accent">一切邪魔しない</span>。<br />でも、ちゃんとそこにいる。</h1>
+    <p class="lead">全Space・フルスクリーンに追従する、macOS のフローティング・タイマー。集中したい時は溶け込み、必要な時だけ顔を出す。</p>
+    <a class="cta" href="https://github.com/imutaroh/pomo/releases/latest">🍅 ダウンロード（無料）</a>
+    <div class="meta">macOS 14 (Sonoma) 以降 ・ ローカル完結 ・ アカウント不要</div>
+
+    <div class="mock" aria-hidden="true">
+      <div class="panel">
+        <div class="bar"><i></i></div>
+        <div class="time">25:00</div>
+        <div class="phase">集中</div>
+        <div class="pill">☕️ 休憩 +5:00</div>
+        <div class="controls">
+          <div class="dot">↺</div>
+          <div class="dot main">⏸</div>
+          <div class="dot">☕️</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="features">
+    <h2>「強制する看守」ではなく、「提案する秘書」</h2>
+    <p class="sub">中断・延長・スキップに、罪悪感を持たせない。</p>
+    <div class="grid">
+      <div class="card">
+        <div class="ic">🪟</div>
+        <h3>どの画面にもついてくる</h3>
+        <p>別アプリをフルスクリーンにしても、Spaceを切り替えても、タイマーは常に最前面。視界から消えて忘れる、を防ぐ。</p>
+      </div>
+      <div class="card">
+        <div class="ic">🌊</div>
+        <h3>フロー：貯まる休憩</h3>
+        <p>作業はカウントアップで好きなだけ。止めた時間に応じて休憩が自動で貯まる（45分→約9分）。固定25分のクラシックも、単純タイマーも。</p>
+      </div>
+      <div class="card">
+        <div class="ic">😮‍💨</div>
+        <h3>休憩モード</h3>
+        <p>休憩は画面全体でそっと知らせる。会議・通話中は割り込まない。「+5分／小さく／スキップ」の逃げ道つき。</p>
+      </div>
+      <div class="card">
+        <div class="ic">📝</div>
+        <h3>メモと検索</h3>
+        <p>「何をしていたか」をセッションに残し、あとから全文検索。あなたの時間の記録は、すべて手元のローカルに。</p>
+      </div>
+      <div class="card">
+        <div class="ic">🔒</div>
+        <h3>ローカル完結</h3>
+        <p>アカウントなし・クラウドなし・テレメトリなし。外部送信は一切しない。</p>
+      </div>
+      <div class="card">
+        <div class="ic">🍅</div>
+        <h3>軽い常駐</h3>
+        <p>メニューバーに 🍅 として常駐（Dockには出ない）。ネイティブで軽量。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>はじめての開き方</h2>
+    <p class="sub">現在は無料配布のため、初回だけ手動で開く必要があります。</p>
+    <div class="steps">
+      <ol>
+        <li><strong>Pomo.dmg</strong> をダウンロードして開く</li>
+        <li><strong>Pomo</strong> を「アプリケーション」フォルダへドラッグ</li>
+        <li>アプリケーションフォルダの Pomo を<strong>右クリック →「開く」→「開く」</strong></li>
+        <li>「開発元を確認できません」と出たら：<strong>システム設定 → プライバシーとセキュリティ → 下の「このまま開く」</strong></li>
+        <li>起動すると、画面右上の<strong>メニューバーに 🍅</strong>（Dockには出ません）</li>
+      </ol>
+      <p class="note">※ Apple の公証(notarize)を行っていないため、この手順が必要です。会社支給などの管理対象(MDM)Macでは起動できない場合があります。</p>
+    </div>
+    <div class="center" style="margin-top:32px">
+      <a class="cta" href="https://github.com/imutaroh/pomo/releases/latest">🍅 ダウンロード（無料）</a>
+    </div>
+  </section>
+
+  <footer>
+    <div>Pomo — macOS のフロータイマー</div>
+    <div class="creed">ローカル完結 ・ アカウント不要 ・ テレメトリなし ・ 罪悪感なし</div>
+    <div style="margin-top:10px"><a href="https://github.com/imutaroh/pomo">GitHub</a> ・ <a href="https://github.com/imutaroh/pomo/releases/latest">Releases</a></div>
+  </footer>
+
+</div>
+</body>
+</html>
