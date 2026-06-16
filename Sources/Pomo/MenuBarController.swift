@@ -11,11 +11,13 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private let settings = Settings.shared
     private var updateTimer: Timer?
     private let mainWindow: MainWindowController
+    private let breakOverlay: BreakOverlayController
 
-    init(engine: TimerEngine, panelController: PanelController, mainWindow: MainWindowController) {
+    init(engine: TimerEngine, panelController: PanelController, mainWindow: MainWindowController, breakOverlay: BreakOverlayController) {
         self.engine = engine
         self.panelController = panelController
         self.mainWindow = mainWindow
+        self.breakOverlay = breakOverlay
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         super.init()
 
@@ -93,6 +95,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             menu.addItem(item("+5分延長", #selector(extendBreak)))
             menu.addItem(item("休憩をスキップ", #selector(skipBreak)))
             menu.addItem(item(engine.isPaused ? "再開" : "一時停止", #selector(togglePause), key: "p"))
+            // 「小さく」で畳んだ後に全画面へ戻す導線（全画面が今出ていない時だけ）
+            if settings.breakFullscreen, !breakOverlay.isShowing {
+                menu.addItem(item("休憩を全画面で表示", #selector(expandBreak)))
+            }
         }
         menu.addItem(.separator())
         menu.addItem(item("Pomo を開く", #selector(openMainWindow), key: "d"))
@@ -160,6 +166,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func resetTimer() { engine.reset() }
     @objc private func extendBreak() { engine.extendFiveMinutes() }
     @objc private func skipBreak() { engine.skipBreak() }
+    @objc private func expandBreak() { breakOverlay.expand() }
     @objc private func togglePanel() { panelController.toggleVisibility() }
     @objc private func setModeFlow() { settings.mode = .flow; engine.settingsChanged() }
     @objc private func setModeClassic() { settings.mode = .classic; engine.settingsChanged() }

@@ -37,6 +37,18 @@ final class BreakOverlayController {
         hide()
     }
 
+    /// 「小さく」した後などに、休憩中の全画面オーバーレイを出し直す
+    /// （手動操作なので会議ガードは無視＝本人の意思を優先する）
+    func expand() {
+        guard engine.phase == .breakTime else { return }
+        collapsedThisBreak = false
+        invalidateRecheckTimer()
+        show()
+    }
+
+    /// 全画面オーバーレイが今出ているか（メニューの出し分け用）
+    var isShowing: Bool { !panels.isEmpty }
+
     private func phaseChanged(_ phase: Phase) {
         if phase == .breakTime {
             guard settings.breakFullscreen, !collapsedThisBreak else { return }

@@ -17,9 +17,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panelController = PanelController(engine: engine)
         mainWindow = MainWindowController(engine: engine, panelController: panelController)
         panelController.openMainWindow = { [weak self] in self?.mainWindow.show() }
-        menuBar = MenuBarController(engine: engine, panelController: panelController, mainWindow: mainWindow)
-        hotKeys = HotKeyManager(engine: engine, panelController: panelController)
         breakOverlay = BreakOverlayController(engine: engine)
+        menuBar = MenuBarController(engine: engine, panelController: panelController, mainWindow: mainWindow, breakOverlay: breakOverlay)
+        hotKeys = HotKeyManager(engine: engine, panelController: panelController)
 
         // M5 第2合図: 通知のカテゴリ登録とアクション配線（許可要求は初回完了直前まで遅延）
         NotificationManager.shared.configure()
