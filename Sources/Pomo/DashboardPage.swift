@@ -123,18 +123,96 @@ struct DashboardPage: View {
             }
             .padding(.top, 8)
 
+            // 待機中はこの画面でモードと時間を変更できる（設定ページに行かなくてよい）
+            if engine.phase == .idle {
+                timerSetup
+                    .transition(.opacity)
+            }
+
             // フロー実行中: 貯まった休憩ピル（押せば受け取れる = パネルと同じ核メカニクス）
             if engine.phase == .work && engine.activeMode == .flow {
                 BankedBreakPill(engine: engine)
                     .transition(.opacity)
             }
 
-            TimerControlsView(engine: engine, settings: settings, large: true)
+            // 母艦は独自の時間設定UI（timerSetup）を持つので、play 行では simple の ±5分を出さない
+            TimerControlsView(engine: engine, settings: settings, large: true, hideSimpleAdjust: true)
                 .padding(.bottom, 8)
         }
         .frame(maxWidth: .infinity)
         .animation(.easeOut(duration: 0.3), value: engine.phase)
+        .animation(.easeOut(duration: 0.25), value: settings.mode)
+        // モード・時間の変更を待機中の大きな数字へ即反映
+        .onChange(of: settings.mode) { _, _ in engine.settingsChanged() }
+        .onChange(of: settings.classicWorkMin) { _, _ in engine.settingsChanged() }
+        .onChange(of: settings.simpleTimerMinutes) { _, _ in engine.settingsChanged() }
         .pomoCard()
+    }
+
+    // MARK: - 待機中のモード＋時間設定（この画面でタイマーを変更）
+
+    @ViewBuilder
+    private var timerSetup: some View {
+        VStack(spacing: 14) {
+            Picker("", selection: $settings.mode) {
+                Text("フロー").tag(TimerMode.flow)
+                Text("クラシック").tag(TimerMode.classic)
+                Text("タイマー").tag(TimerMode.simple)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(maxWidth: 300)
+
+            switch settings.mode {
+            case .flow:
+                Text("止めるまで計測。休憩が自動で貯まります。")
+                    .pomoFont(12)
+                    .foregroundStyle(Tokens.sumiSecondary)
+                    .multilineTextAlignment(.center)
+            case .classic:
+                durationRow("作業の長さ", value: $settings.classicWorkMin, range: 5...120, step: 5)
+            case .simple:
+                durationRow("計測する時間", value: $settings.simpleTimerMinutes, range: 5...120, step: 5)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func durationRow(_ label: String, value: Binding<Int>, range: ClosedRange<Int>, step: Int) -> some View {
+        VStack(spacing: 8) {
+            Text(label)
+                .pomoFont(12, weight: .medium)
+                .foregroundStyle(Tokens.sumiSecondary)
+            HStack(spacing: 16) {
+                adjustButton("minus", disabled: value.wrappedValue <= range.lowerBound) {
+                    value.wrappedValue = max(range.lowerBound, value.wrappedValue - step)
+                }
+                Text("\(value.wrappedValue) 分")
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(Tokens.sumi)
+                    .frame(minWidth: 70)
+                    .contentTransition(.numericText())
+                adjustButton("plus", disabled: value.wrappedValue >= range.upperBound) {
+                    value.wrappedValue = min(range.upperBound, value.wrappedValue + step)
+                }
+            }
+        }
+    }
+
+    private func adjustButton(_ symbol: String, disabled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Tokens.sumi.opacity(0.7))
+                .frame(width: 32, height: 32)
+                .background(Circle().fill(Color.white))
+                .overlay(Circle().strokeBorder(Tokens.sumi.opacity(0.10), lineWidth: 1))
+        }
+        .buttonStyle(PressableButtonStyle())
+        .disabled(disabled)
+        .opacity(disabled ? 0.4 : 1)
+        .accessibilityLabel(symbol == "minus" ? "5分減らす" : "5分増やす")
     }
 
     // MARK: - 今日のサマリー（円形チップ＋大きな数字）

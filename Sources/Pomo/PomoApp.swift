@@ -59,6 +59,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 struct PomoMain {
     @MainActor
     static func main() {
+        SelfTest.runIfRequested() // POMO_SELFTEST=1 のときだけ作動。検証して exit（通常起動は素通り）
         terminateOtherInstances() // 二重起動の根治: 後から起動した方が主導権を握る
         let app = NSApplication.shared
         let delegate = AppDelegate()

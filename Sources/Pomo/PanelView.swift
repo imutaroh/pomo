@@ -198,13 +198,15 @@ struct TimerControlsView: View {
     @ObservedObject var engine: TimerEngine
     @ObservedObject var settings: Settings
     var large = false
+    /// 母艦のタイマーカードは独自の「モード＋時間」設定UIを持つので、simple の ±5分ボタンを重複表示しない
+    var hideSimpleAdjust = false
 
     var body: some View {
         HStack(spacing: large ? 18 : 14) {
             switch engine.phase {
             case .idle:
                 // simple 選択時はタイマー時間の ±5分ボタンを出す（テキスト入力なし原則を維持）
-                if settings.mode == .simple {
+                if settings.mode == .simple && !hideSimpleAdjust {
                     CircleButton(symbol: "minus", large: large, accessibilityLabel: "5分減らす") {
                         settings.simpleTimerMinutes = max(5, settings.simpleTimerMinutes - 5)
                         engine.settingsChanged()
@@ -213,7 +215,7 @@ struct TimerControlsView: View {
                 }
                 CircleButton(symbol: "play.fill", prominent: true, large: large, accessibilityLabel: settings.mode == .simple ? "タイマーを開始" : "作業を開始") { engine.startWork() }
                     .help(settings.mode == .simple ? "タイマーを開始（⌃⌥P）" : "作業を開始（⌃⌥P）")
-                if settings.mode == .simple {
+                if settings.mode == .simple && !hideSimpleAdjust {
                     CircleButton(symbol: "plus", large: large, accessibilityLabel: "5分増やす") {
                         settings.simpleTimerMinutes = min(120, settings.simpleTimerMinutes + 5)
                         engine.settingsChanged()
