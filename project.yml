@@ -12,8 +12,8 @@ options:
   createIntermediateGroups: true
 settings:
   base:
-    MARKETING_VERSION: "0.9.0"
-    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "0.9.1"
+    CURRENT_PROJECT_VERSION: "4"
     SWIFT_VERSION: "5.0"
     DEVELOPMENT_TEAM: "" # ← Apple Developer の Team ID を入れる（Xcode の自動署名でも可）
 packages:
@@ -40,8 +40,8 @@ targets:
       path: Pomo-Info.plist
       properties:
         CFBundleDevelopmentRegion: ja
-        CFBundleShortVersionString: "0.9.0"
-        CFBundleVersion: "3"
+        CFBundleShortVersionString: "0.9.1"
+        CFBundleVersion: "4"
         LSMinimumSystemVersion: "14.0"
         NSHighResolutionCapable: true
         # メニューバー常駐・Dock 常時表示（旧 .accessory/LSUIElement=true から方針転換）
