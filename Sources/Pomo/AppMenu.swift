@@ -5,14 +5,21 @@ import AppKit
 @MainActor
 final class AppMenuActions: NSObject {
     private let openSettings: () -> Void
+    private let openPage: (SidebarItem) -> Void
 
-    init(openSettings: @escaping () -> Void) {
+    init(openSettings: @escaping () -> Void, openPage: @escaping (SidebarItem) -> Void) {
         self.openSettings = openSettings
+        self.openPage = openPage
     }
 
     @objc func openSettingsTapped() {
         openSettings()
     }
+
+    @objc func openDashboardTapped() { openPage(.dashboard) }
+    @objc func openSessionsTapped() { openPage(.sessions) }
+    @objc func openStatsTapped() { openPage(.stats) }
+    @objc func openSettingsPageTapped() { openPage(.settings) }
 
     /// Info.plist の CFBundleName/Version/Copyright は標準Aboutパネルが自動で拾うため、
     /// ここでは一言添えるだけ（罪悪感ゼロ・ローカル完結の哲学を伝える最小限のクレジット）
@@ -38,12 +45,42 @@ enum AppMenu {
         let mainMenu = NSMenu()
 
         mainMenu.addItem(appMenuItem(actions: actions))
+        mainMenu.addItem(fileMenuItem())
         mainMenu.addItem(editMenuItem())
+        mainMenu.addItem(viewMenuItem(actions: actions))
         let windowItem = windowMenuItem()
         mainMenu.addItem(windowItem)
         NSApp.windowsMenu = windowItem.submenu
 
         return mainMenu
+    }
+
+    /// 閉じる＝パネルへ戻る（排他切替）。フォーカスモードへの主要導線なので HIG どおり File に置く
+    private static func fileMenuItem() -> NSMenuItem {
+        let item = NSMenuItem()
+        let menu = NSMenu(title: "ファイル")
+        menu.addItem(NSMenuItem(title: "閉じる", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
+        item.submenu = menu
+        return item
+    }
+
+    /// サイドバー4ページへのキーボード移動（Cmd+1〜4）。母艦が閉じていても開いて遷移する
+    private static func viewMenuItem(actions: AppMenuActions) -> NSMenuItem {
+        let item = NSMenuItem()
+        let menu = NSMenu(title: "表示")
+        let pages: [(String, Selector, String)] = [
+            ("ダッシュボード", #selector(AppMenuActions.openDashboardTapped), "1"),
+            ("セッション", #selector(AppMenuActions.openSessionsTapped), "2"),
+            ("統計", #selector(AppMenuActions.openStatsTapped), "3"),
+            ("設定", #selector(AppMenuActions.openSettingsPageTapped), "4"),
+        ]
+        for (title, action, key) in pages {
+            let i = NSMenuItem(title: title, action: action, keyEquivalent: key)
+            i.target = actions
+            menu.addItem(i)
+        }
+        item.submenu = menu
+        return item
     }
 
     private static func appMenuItem(actions: AppMenuActions) -> NSMenuItem {
