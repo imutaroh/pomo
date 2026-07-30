@@ -28,8 +28,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>NSHighResolutionCapable</key><true/>
-    <!-- メニューバー常駐・Dock 非表示（コードの setActivationPolicy(.accessory) と二重に効かせる） -->
-    <key>LSUIElement</key><true/>
+    <!-- メニューバー常駐・Dock 常時表示（コードの setActivationPolicy(.regular) と対応。旧 .accessory から方針転換） -->
+    <key>LSUIElement</key><false/>
     <!-- App Store / 配布で要求されるキー（ローカル ad-hoc ビルドでも害はない） -->
     <key>LSApplicationCategoryType</key><string>public.app-category.productivity</string>
     <key>ITSAppUsesNonExemptEncryption</key><false/>

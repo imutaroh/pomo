@@ -8,15 +8,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBar: MenuBarController!
     private var hotKeys: HotKeyManager!
     private var breakOverlay: BreakOverlayController!
+    private var menuActions: AppMenuActions!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // メニューバー常駐・Dock 非表示（LSUIElement 相当）。Info.plist の LSUIElement と二重に効かせる。
-        NSApp.setActivationPolicy(.accessory)
+        // メニューバー常駐 + Dock 常時表示。通常アプリとして起動する。
+        NSApp.setActivationPolicy(.regular)
 
         engine = TimerEngine()
         panelController = PanelController(engine: engine)
         mainWindow = MainWindowController(engine: engine, panelController: panelController)
         panelController.openMainWindow = { [weak self] in self?.mainWindow.show() }
+        menuActions = AppMenuActions(openSettings: { [weak self] in self?.mainWindow.show(page: .settings) })
+        NSApp.mainMenu = AppMenu.build(actions: menuActions)
         breakOverlay = BreakOverlayController(engine: engine)
         menuBar = MenuBarController(engine: engine, panelController: panelController, mainWindow: mainWindow, breakOverlay: breakOverlay)
         hotKeys = HotKeyManager(engine: engine, panelController: panelController)
