@@ -29,7 +29,7 @@ struct StatsPage: View {
                 .foregroundStyle(Tokens.sumi)
             HStack(alignment: .firstTextBaseline, spacing: 14) {
                 Text(hmString(store.todaySeconds))
-                    .font(.system(size: 42, weight: .semibold, design: .rounded))
+                    .font(.system(size: 42, weight: .semibold, design: .monospaced))
                     .monospacedDigit()
                     .foregroundStyle(Tokens.sumi)
                 Text("\(store.todayCount) セッション")

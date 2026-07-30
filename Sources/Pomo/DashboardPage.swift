@@ -1,6 +1,8 @@
 import SwiftUI
 
-/// 母艦のホーム。リングタイマー＋今日のサマリー＋今週の推移＋最近のアクティビティ
+/// 母艦のホーム。フィールドノートの計器盤（Issue #30 フェーズ2）:
+/// Bento 構成（タイマーヒーロー＋TODAY タイル / WEEK＋LOG タイル）、
+/// mono の eyebrow、外科的アクセント（今日のバーだけティール）。装飾は情報を運ぶものだけ。
 struct DashboardPage: View {
     @ObservedObject var engine: TimerEngine
     @ObservedObject var store: SessionStore
@@ -17,39 +19,61 @@ struct DashboardPage: View {
         self.enterFocus = enterFocus
     }
 
+    private static let headerDate: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd EEE"
+        return f
+    }()
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 28) {
+        VStack(alignment: .leading, spacing: 24) {
             header
                 .staggeredAppear(0)
+            // ヒーロー行: タイマー（主役・幅広）＋ TODAY タイル（従・幅狭）の非対称 Bento
             ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 24) {
-                    timerCard
-                    summaryCard
+                HStack(alignment: .top, spacing: 16) {
+                    timerCard.frame(minWidth: 400)
+                    todayCard.frame(width: 240)
                 }
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(minWidth: 660)
-                VStack(spacing: 24) {
+                VStack(spacing: 16) {
                     timerCard
-                    summaryCard
+                    todayCard
                 }
             }
             .staggeredAppear(1)
-            weekSection
-                .staggeredAppear(2)
-            recentSection
-                .staggeredAppear(3)
+            // 下段: WEEK ＋ LOG の2タイル（狭ければ縦積み）
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 16) {
+                    weekCard
+                    recentCard
+                }
+                .frame(minWidth: 660)
+                VStack(spacing: 16) {
+                    weekCard
+                    recentCard
+                }
+            }
+            .staggeredAppear(2)
         }
     }
 
+    // MARK: - ヘッダー（eyebrow + 日付 + フォーカスCTA）
+
     private var header: some View {
         HStack(alignment: .center) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("ダッシュボード")
-                    .pomoFont(28, weight: .semibold)
-                    .foregroundStyle(Tokens.sumi)
-                Text("集中して、ちゃんと休む。")
-                    .pomoFont(13)
-                    .foregroundStyle(Tokens.sumiSecondary)
+            VStack(alignment: .leading, spacing: 8) {
+                sectionEyebrow("DASHBOARD")
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    Text("ダッシュボード")
+                        .pomoFont(24, weight: .semibold)
+                        .foregroundStyle(Tokens.sumi)
+                    Text(Self.headerDate.string(from: Date()))
+                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                        .tracking(0.5)
+                        .foregroundStyle(Tokens.sumiTertiary)
+                }
             }
             Spacer()
             focusModeButton
@@ -62,19 +86,28 @@ struct DashboardPage: View {
                 Image(systemName: "moon.stars.fill").font(.system(size: 12, weight: .semibold))
                 Text("フォーカスモード").pomoFont(13, weight: .semibold)
             }
-            .foregroundStyle(Tokens.washi)
+            .foregroundStyle(.white)
             .padding(.horizontal, 16).padding(.vertical, 9)
-            .background(Capsule().fill(Tokens.kohakuDeep))
+            .background(Capsule().fill(Tokens.sumi))
         }
         .buttonStyle(PressableButtonStyle())
         .help("母艦を閉じて、パネルだけで作業を始める")
         .accessibilityLabel("フォーカスモードに入る")
     }
 
+    // MARK: - タイマーヒーロー
+
+    private var statusText: String {
+        switch engine.phase {
+        case .idle: return "IDLE"
+        case .work: return engine.isPaused ? "PAUSED" : (engine.activeMode == .simple ? "TIMER" : "FOCUS")
+        case .breakTime: return engine.isPaused ? "PAUSED" : "BREAK"
+        }
+    }
+
     private var phaseLabel: String {
         switch engine.phase {
         case .idle:
-            // 貯まった休憩は待機中も見せる（M2 の動機づけ。パネルと同じ文言）
             if let pending = engine.pendingBreakLabel {
                 return "☕️ \(pending)の休憩が待っています"
             }
@@ -84,21 +117,21 @@ struct DashboardPage: View {
         }
     }
 
-    // MARK: - タイマーカード（モックの象徴: リング＋黒丸ボタン）
-
     private var timerCard: some View {
-        VStack(spacing: 24) {
-            HStack {
-                Text("集中タイマー").pomoFont(13, weight: .medium).foregroundStyle(Tokens.sumiSecondary)
+        VStack(spacing: 22) {
+            // 計器のステータス行: 状態ドット＋mono ラベル（実行中だけドットがアクセント色）
+            HStack(spacing: 7) {
+                Circle()
+                    .fill(engine.phase != .idle && !engine.isPaused ? Tokens.kohaku : Tokens.sumi.opacity(0.25))
+                    .frame(width: 7, height: 7)
+                Text(statusText)
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .tracking(1.4)
+                    .foregroundStyle(Tokens.sumiSecondary)
                 Spacer()
-                Button(action: openSettings) {
-                    Image(systemName: "gearshape").font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Tokens.sumiSecondary)
-                }
-                .buttonStyle(.plain)
-                .help("設定を開く")
-                .accessibilityLabel("設定を開く")
             }
+            .accessibilityHidden(true) // phaseLabel が読み上げを担う
+
             ZStack {
                 TimerRing(
                     progress: engine.progress,
@@ -106,15 +139,15 @@ struct DashboardPage: View {
                     saturated: engine.phase == .work && engine.activeMode == .flow && engine.progress >= 1,
                     glowing: engine.justFinished
                 )
-                .frame(width: 190, height: 190)
+                .frame(width: 196, height: 196)
                 .accessibilityHidden(true)
 
                 VStack(spacing: 4) {
                     Text(engine.timeString)
-                        .font(.system(size: 44, weight: .medium, design: .rounded))
+                        .font(.system(size: 46, weight: .medium, design: .monospaced))
+                        .tracking(-1.5) // display 数字はタイトに詰める（計器の密度）
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
-                        .monospacedDigit()
                         .foregroundStyle(Tokens.sumi)
                         .contentTransition(.numericText())
                     Text(phaseLabel)
@@ -126,47 +159,42 @@ struct DashboardPage: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("\(phaseLabel) \(engine.timeString)")
             }
-            .padding(.top, 8)
 
-            // 待機中はこの画面でモードと時間を変更できる（設定ページに行かなくてよい）
+            // 待機中はこの画面でモードと時間を変更できる
             if engine.phase == .idle {
                 timerSetup
                     .transition(.opacity)
             }
 
-            // フロー実行中: 貯まった休憩ピル（押せば受け取れる = パネルと同じ核メカニクス）
+            // フロー実行中: 貯まった休憩ピル（押せば受け取れる）
             if engine.phase == .work && engine.activeMode == .flow {
                 BankedBreakPill(engine: engine)
                     .transition(.opacity)
             }
 
-            // 母艦は独自の時間設定UI（timerSetup）を持つので、play 行では simple の ±5分を出さない
             TimerControlsView(engine: engine, settings: settings, large: true, hideSimpleAdjust: true)
-                .padding(.bottom, 8)
+                .padding(.bottom, 4)
         }
         .frame(maxWidth: .infinity)
         .animation(.easeOut(duration: 0.3), value: engine.phase)
         .animation(.easeOut(duration: 0.25), value: settings.mode)
-        // モード・時間の変更を待機中の大きな数字へ即反映
         .onChange(of: settings.mode) { _, _ in engine.settingsChanged() }
         .onChange(of: settings.classicWorkMin) { _, _ in engine.settingsChanged() }
         .onChange(of: settings.simpleTimerMinutes) { _, _ in engine.settingsChanged() }
         .pomoCard()
     }
 
-    // MARK: - 待機中のモード＋時間設定（この画面でタイマーを変更）
+    // MARK: - 待機中のモード＋時間設定
 
     @ViewBuilder
     private var timerSetup: some View {
         VStack(spacing: 14) {
-            Picker("", selection: $settings.mode) {
-                Text("フロー").tag(TimerMode.flow)
-                Text("クラシック").tag(TimerMode.classic)
-                Text("タイマー").tag(TimerMode.simple)
+            // 標準 segmented ではなく SelectChip（フィルタと同じ言語で統一）
+            HStack(spacing: 8) {
+                SelectChip(label: "フロー", selected: settings.mode == .flow) { settings.mode = .flow }
+                SelectChip(label: "クラシック", selected: settings.mode == .classic) { settings.mode = .classic }
+                SelectChip(label: "タイマー", selected: settings.mode == .simple) { settings.mode = .simple }
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            .frame(maxWidth: 300)
 
             switch settings.mode {
             case .flow:
@@ -193,8 +221,7 @@ struct DashboardPage: View {
                     value.wrappedValue = max(range.lowerBound, value.wrappedValue - step)
                 }
                 Text("\(value.wrappedValue) 分")
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
+                    .font(.system(size: 18, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Tokens.sumi)
                     .frame(minWidth: 70)
                     .contentTransition(.numericText())
@@ -212,7 +239,7 @@ struct DashboardPage: View {
                 .foregroundStyle(Tokens.sumi.opacity(0.7))
                 .frame(width: 38, height: 38)
                 .background(Circle().fill(Color.white))
-                .overlay(Circle().strokeBorder(Tokens.sumi.opacity(0.10), lineWidth: 1))
+                .overlay(Circle().strokeBorder(Tokens.line, lineWidth: 1))
                 .contentShape(Circle())
         }
         .buttonStyle(PressableButtonStyle())
@@ -221,48 +248,39 @@ struct DashboardPage: View {
         .accessibilityLabel(symbol == "minus" ? "5分減らす" : "5分増やす")
     }
 
-    // MARK: - 今日のサマリー（円形チップ＋大きな数字）
+    // MARK: - TODAY タイル（縦積みの計器行。丸チップ・イラスト・標語は廃止）
 
-    private var summaryCard: some View {
-        // 縦線をやめ、上下に余白を逃がして「箱で仕切られた密度」=圧迫感を解消。
-        // 統計はカード中央に空気を持って並び、日の出は静かなフッターとして下端に置く。
-        VStack(spacing: 0) {
-            Spacer(minLength: 12)
-            HStack(alignment: .top, spacing: 8) {
-                summaryStat(label: "今日の集中", value: hmString(store.todaySeconds), symbol: "clock",
-                            help: "今日ちゃんと終えた作業の合計時間。手動リセット・スリープ中断・単純タイマーは含みません。")
-                summaryStat(label: "完了", value: "\(store.todayCount)回", symbol: "checkmark",
-                            help: "今日ちゃんと終えた作業セッションの本数。")
-                summaryStat(label: "休憩", value: "\(store.todayBreakCount)回", symbol: "cup.and.saucer",
-                            help: "今日、最後まで取った休憩の回数。スキップした休憩は含みません。")
-            }
-            Spacer(minLength: 20)
-            SunriseFooter()
+    private var todayCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            sectionEyebrow("TODAY")
+                .padding(.bottom, 14)
+            statRow(label: "集中時間", value: hmString(store.todaySeconds),
+                    help: "今日ちゃんと終えた作業の合計時間。手動リセット・スリープ中断・単純タイマーは含みません。")
+            Divider().overlay(Tokens.line)
+            statRow(label: "完了", value: "\(store.todayCount)",
+                    help: "今日ちゃんと終えた作業セッションの本数。")
+            Divider().overlay(Tokens.line)
+            statRow(label: "休憩", value: "\(store.todayBreakCount)",
+                    help: "今日、最後まで取った休憩の回数。スキップした休憩は含みません。")
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .pomoCard()
     }
 
-    private func summaryStat(label: String, value: String, symbol: String, help: String = "") -> some View {
-        VStack(spacing: 12) {
-            // 円形チップのアイコン（モック準拠。色は琥珀のみ — 評価色を持ち込まない）
-            Image(systemName: symbol)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(Tokens.kohakuDeep)
-                .frame(width: 40, height: 40)
-                .background(Circle().fill(Tokens.kohaku.opacity(0.14)))
-            Text(value)
-                .font(.system(size: 26, weight: .semibold, design: .rounded))
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-                .monospacedDigit()
-                .foregroundStyle(Tokens.sumi)
-                .contentTransition(.numericText())
+    private func statRow(label: String, value: String, help: String) -> some View {
+        HStack(alignment: .firstTextBaseline) {
             Text(label)
                 .pomoFont(12, weight: .medium)
                 .foregroundStyle(Tokens.sumiSecondary)
+            Spacer()
+            Text(value)
+                .font(.system(size: 22, weight: .semibold, design: .monospaced))
+                .tracking(-0.5)
+                .foregroundStyle(Tokens.sumi)
+                .contentTransition(.numericText())
         }
-        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
         .contentShape(Rectangle())
         .help(help)
         .accessibilityElement(children: .combine)
@@ -270,19 +288,27 @@ struct DashboardPage: View {
         .accessibilityHint(help)
     }
 
-    // MARK: - 今週・最近
+    // MARK: - WEEK / LOG タイル
 
-    private var weekSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            sectionLabel("今週の推移")
-            WeekChart(days: store.days).pomoCard()
+    private var weekCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .firstTextBaseline) {
+                sectionEyebrow("THIS WEEK")
+                Spacer()
+                Text(hmString(store.days.reduce(0) { $0 + $1.workSeconds }))
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(Tokens.sumiSecondary)
+            }
+            WeekChart(days: store.days)
         }
+        .frame(maxWidth: .infinity)
+        .pomoCard()
     }
 
-    private var recentSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    private var recentCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
             HStack {
-                sectionLabel("最近のアクティビティ")
+                sectionEyebrow("RECENT LOG")
                 Spacer()
                 Button(action: openSessions) {
                     HStack(spacing: 2) {
@@ -290,28 +316,37 @@ struct DashboardPage: View {
                             .pomoFont(12, weight: .medium)
                         Image(systemName: "chevron.right")
                             .font(.system(size: 9))
-                            .foregroundStyle(Tokens.kohakuText)
                     }
                     .foregroundStyle(Tokens.kohakuText)
                 }
                 .buttonStyle(.plain)
             }
-            let recent = Array(store.recentByDay.flatMap(\.entries).prefix(6))
+            let recent = Array(store.recentByDay.flatMap(\.entries).prefix(5))
             if recent.isEmpty {
                 Text("まだ記録はありません。タイマーを回すと、ここに積み上がっていきます。")
                     .pomoFont(13)
                     .foregroundStyle(Tokens.sumiSecondary)
                     .padding(.vertical, 8)
-                    .pomoCard()
             } else {
-                SessionListCard(entries: recent, onChanged: { store.reload() })
+                // タイル内リスト: カード内カードにせず、ヘアラインで区切るだけ
+                VStack(spacing: 0) {
+                    ForEach(recent) { e in
+                        SessionRow(entry: e, onChanged: { store.reload() })
+                            .padding(.horizontal, -20) // SessionRow 自身の横 padding をタイル余白に合わせて相殺
+                        if e.id != recent.last?.id {
+                            Divider().overlay(Tokens.line)
+                        }
+                    }
+                }
             }
         }
+        .frame(maxWidth: .infinity)
+        .pomoCard()
     }
 }
 
-/// 円形プログレスリング。トラックの上を琥珀が周回し、先端にドット。
-/// flow 25分超（saturated）はパネルの横棒と同じ条件で減光（満タン静止＝完了の誤読防止）。
+/// 円形プログレスリング。トラックはヘアライン色、進行はアクセント、先端にドット。
+/// flow 25分超（saturated）は減光（満タン静止＝完了の誤読防止）。
 /// justFinished はゆっくり明滅して6秒で静まる（パネルのグローと同じ言語）
 struct TimerRing: View {
     let progress: Double
@@ -319,24 +354,24 @@ struct TimerRing: View {
     let saturated: Bool
     let glowing: Bool
 
-    private let lineWidth: CGFloat = 6
+    private let lineWidth: CGFloat = 5
 
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Tokens.sumi.opacity(0.06), lineWidth: lineWidth)
+                .stroke(Tokens.line, lineWidth: 1) // トラックはヘアライン（計器の目盛りの静けさ）
             Circle()
                 .trim(from: 0, to: max(0.0001, min(1, progress)))
                 .stroke(Tokens.kohaku, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .opacity(ringOpacity)
                 .shadow(color: Tokens.kohaku.opacity(glowing ? 0.7 : 0), radius: glowing ? 10 : 0)
-            // 先端のドット（モック準拠）。idle 時は上端で待つ
+            // 先端のドット。idle 時は上端で待つ
             GeometryReader { geo in
                 let r = geo.size.width / 2
                 Circle()
-                    .fill(active ? Tokens.kohaku : Tokens.kohaku.opacity(0.4)) // idle でも温かい琥珀の点で待つ
-                    .frame(width: 10, height: 10)
+                    .fill(active ? Tokens.kohaku : Tokens.sumi.opacity(0.25))
+                    .frame(width: 9, height: 9)
                     .position(x: r, y: lineWidth / 2)
                     .rotationEffect(.degrees(min(1, max(0, progress)) * 360), anchor: .center)
             }
@@ -364,52 +399,17 @@ struct BankedBreakPill: View {
                 Image(systemName: "cup.and.saucer.fill")
                     .font(.system(size: 10))
                 Text("休憩 +\(engine.bankedBreakString)")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
             }
-            .foregroundStyle(Tokens.kohakuDeep)
+            .foregroundStyle(Tokens.kohakuText)
             .padding(.horizontal, 12)
             .padding(.vertical, 5)
-            .background(Capsule().fill(Tokens.kohaku.opacity(hovered ? 0.4 : 0.22)))
+            .background(Capsule().fill(hovered ? Tokens.usugumo : Color.white))
+            .overlay(Capsule().strokeBorder(Tokens.kohaku.opacity(hovered ? 0.6 : 0.35), lineWidth: 1))
         }
         .buttonStyle(PressableButtonStyle())
         .onHover { hovered = $0 }
         .animation(.easeOut(duration: 0.15), value: hovered)
         .help("作業を終えて、この長さの休憩を始める")
-    }
-}
-
-/// サマリーカード下部の静かな日の出イラスト（SVG アセット不要・SwiftUI 純描画）
-struct SunriseFooter: View {
-    var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            // 薄い日の出グラデ + 太陽 + 山。静かなトーン。
-            LinearGradient(colors: [.clear, Tokens.kohaku.opacity(0.10)], startPoint: .top, endPoint: .bottom)
-            Circle().fill(Tokens.kohaku.opacity(0.22)).frame(width: 44, height: 44)
-                .offset(x: 0, y: 18).frame(maxWidth: .infinity, alignment: .trailing).padding(.trailing, 24)
-            Hills().fill(Tokens.sumi.opacity(0.05))
-            Text("小さな一歩の積み重ねが、大きな成果につながります。")
-                .pomoFont(12).foregroundStyle(Tokens.sumiTertiary)
-                .padding(.bottom, 10)
-        }
-        .frame(height: 88)
-        .clipShape(RoundedRectangle(cornerRadius: Tokens.radiusChip))
-    }
-}
-
-/// サマリーカード下部のなだらかな山シルエット（静かなトーン）
-struct Hills: Shape {
-    func path(in r: CGRect) -> Path {
-        var p = Path()
-        p.move(to: CGPoint(x: 0, y: r.maxY))
-        p.addCurve(to: CGPoint(x: r.midX, y: r.maxY - r.height * 0.45),
-                   control1: CGPoint(x: r.width * 0.18, y: r.maxY - r.height * 0.1),
-                   control2: CGPoint(x: r.width * 0.34, y: r.maxY - r.height * 0.5))
-        p.addCurve(to: CGPoint(x: r.maxX, y: r.maxY - r.height * 0.2),
-                   control1: CGPoint(x: r.width * 0.66, y: r.maxY - r.height * 0.38),
-                   control2: CGPoint(x: r.width * 0.84, y: r.maxY - r.height * 0.05))
-        p.addLine(to: CGPoint(x: r.maxX, y: r.maxY))
-        p.closeSubpath()
-        return p
     }
 }

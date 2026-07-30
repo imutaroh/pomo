@@ -185,7 +185,7 @@ struct BreakOverlayView: View {
                         .foregroundStyle(Tokens.washi.opacity(0.6))
 
                     Text(engine.timeString)
-                        .font(.system(size: 110, weight: .medium, design: .rounded))
+                        .font(.system(size: 110, weight: .medium, design: .monospaced))
                         .monospacedDigit()
                         .foregroundStyle(Tokens.washi)
                         .contentTransition(.numericText())

@@ -235,7 +235,7 @@ struct SettingsPage: View {
             }
             Spacer()
             Text(keys)
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
                 .foregroundStyle(Tokens.sumi.opacity(0.75))
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
@@ -324,7 +324,7 @@ struct SettingsPage: View {
     private func stepper(value: Binding<Int>, range: ClosedRange<Int>, step: Int, unit: String) -> some View {
         HStack(spacing: 10) {
             Text("\(value.wrappedValue)\(unit)")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
                 .monospacedDigit()
                 .foregroundStyle(Tokens.sumi)
             Stepper("", value: value, in: range, step: step)

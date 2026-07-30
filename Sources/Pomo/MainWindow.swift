@@ -64,7 +64,7 @@ final class MainWindowController: NSObject, NSWindowDelegate {
             w.isReleasedWhenClosed = false
             // 白ベース方針: ダークモードでも常にライト・和紙背景
             w.appearance = NSAppearance(named: .aqua)
-            w.backgroundColor = NSColor(red: 0.945, green: 0.933, blue: 0.910, alpha: 1) // Tokens.canvas と一致
+            w.backgroundColor = NSColor(red: 0xFA / 255, green: 0xFB / 255, blue: 0xFC / 255, alpha: 1) // Tokens.canvas と一致
             w.titlebarAppearsTransparent = true
             w.titleVisibility = .hidden
             w.setFrameAutosaveName("PomoMainWindow")
@@ -222,10 +222,10 @@ private struct SidebarRow: View {
             .padding(.vertical, 9)
             .background {
                 if selected {
-                    // 選択ピルは matchedGeometryEffect で行間を滑って移動する
+                    // 選択ピルは matchedGeometryEffect で行間を滑って移動する（影→ヘアライン罫線）
                     RoundedRectangle(cornerRadius: Tokens.radiusPill)
                         .fill(Color.white)
-                        .shadow(color: .black.opacity(0.05), radius: 5, y: 1)
+                        .overlay(RoundedRectangle(cornerRadius: Tokens.radiusPill).strokeBorder(Tokens.line, lineWidth: 1))
                         .matchedGeometryEffect(id: "sidebar.pill", in: ns)
                 } else if hovered {
                     RoundedRectangle(cornerRadius: Tokens.radiusPill)
