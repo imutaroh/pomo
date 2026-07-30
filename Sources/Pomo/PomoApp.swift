@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotKeys: HotKeyManager!
     private var breakOverlay: BreakOverlayController!
     private var menuActions: AppMenuActions!
+    private var dayStartCue: DayStartCue!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // メニューバー常駐 + Dock 常時表示。通常アプリとして起動する。
@@ -27,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         breakOverlay = BreakOverlayController(engine: engine)
         menuBar = MenuBarController(engine: engine, panelController: panelController, mainWindow: mainWindow, breakOverlay: breakOverlay)
         hotKeys = HotKeyManager(engine: engine, panelController: panelController)
+        dayStartCue = DayStartCue(engine: engine)
 
         // M5 第2合図: 通知のカテゴリ登録とアクション配線（許可要求は初回完了直前まで遅延）
         NotificationManager.shared.configure()

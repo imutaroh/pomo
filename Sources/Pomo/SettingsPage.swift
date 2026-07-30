@@ -7,7 +7,7 @@ import SwiftUI
 struct SettingsPage: View {
     @ObservedObject var engine: TimerEngine
     @ObservedObject private var settings = Settings.shared
-    @State private var loginEnabled = SMAppService.mainApp.status == .enabled
+    @State private var loginEnabled = SMAppService.mainApp.status == .enabled || LoginLaunch.agentInstalled
     @State private var loginNote: String?
 
     init(engine: TimerEngine) {
@@ -28,10 +28,11 @@ struct SettingsPage: View {
 
             timerSection.staggeredAppear(1)
             breakSection.staggeredAppear(2)
-            displaySection.staggeredAppear(3)
-            soundSection.staggeredAppear(4)
-            shortcutSection.staggeredAppear(5)
-            generalSection.staggeredAppear(6)
+            rhythmSection.staggeredAppear(3)
+            displaySection.staggeredAppear(4)
+            soundSection.staggeredAppear(5)
+            shortcutSection.staggeredAppear(6)
+            generalSection.staggeredAppear(7)
         }
         // モード・時間の変更を待機中の表示（クラシックの予告時間等）へ反映
         .onChange(of: settings.mode) { _, _ in engine.settingsChanged() }
@@ -139,6 +140,45 @@ struct SettingsPage: View {
             .animation(.easeOut(duration: 0.25), value: settings.breakFullscreen)
             .pomoCard()
         }
+    }
+
+    // MARK: - リズム（ルーティンの入口。看守にしない: opt-in・1日1回だけ）
+
+    private var rhythmSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionLabel("リズム")
+            VStack(alignment: .leading, spacing: 14) {
+                toggleRow("はじまりの合図", isOn: $settings.dayStartEnabled)
+                if settings.dayStartEnabled {
+                    settingRow("時刻") {
+                        DatePicker("", selection: dayStartBinding, displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                            .datePickerStyle(.compact)
+                    }
+                    .transition(.opacity)
+                }
+                Text("設定した時刻に「今日をはじめますか」を1日1回だけ。その日すでに作業していれば鳴りません。無視しても何も起きません。")
+                    .pomoFont(12)
+                    .foregroundStyle(Tokens.sumiSecondary)
+            }
+            .animation(.easeOut(duration: 0.25), value: settings.dayStartEnabled)
+            .pomoCard()
+        }
+    }
+
+    /// dayStartMinutes（0時からの分）⇄ DatePicker 用 Date の相互変換
+    private var dayStartBinding: Binding<Date> {
+        Binding(
+            get: {
+                let cal = Calendar.current
+                return cal.date(bySettingHour: settings.dayStartMinutes / 60,
+                                minute: settings.dayStartMinutes % 60, second: 0, of: Date()) ?? Date()
+            },
+            set: { date in
+                let cal = Calendar.current
+                settings.dayStartMinutes = cal.component(.hour, from: date) * 60 + cal.component(.minute, from: date)
+            }
+        )
     }
 
     // MARK: - 表示
@@ -270,11 +310,15 @@ struct SettingsPage: View {
                     .pomoFont(13)
                     .foregroundStyle(Tokens.sumi)
                     .onChange(of: loginEnabled) { _, enabled in
-                        // ad-hoc 署名のローカルビルドではパス変更で登録が外れることがある（既知の制約）
                         if enabled {
+                            // まず正規ルート（SMAppService）。ad-hoc 署名では失敗する既知の制約があるため、
+                            // 非サンドボックス環境に限り LaunchAgent フォールバックで「Macを開いたらそこにいる」を保証する
                             try? SMAppService.mainApp.register()
                             if SMAppService.mainApp.status == .enabled {
+                                LoginLaunch.removeAgent() // 二重起動経路を残さない
                                 loginNote = nil
+                            } else if !LoginLaunch.isSandboxed, (try? LoginLaunch.installAgent()) != nil {
+                                loginNote = "LaunchAgent 方式で設定しました（ad-hoc ビルド用の代替。次回ログインから有効）"
                             } else {
                                 // 登録できなかった: 理由を表示してトグルを戻す。
                                 // 戻し（false 代入）で onChange が再入し else 分岐に入るが、
@@ -284,6 +328,7 @@ struct SettingsPage: View {
                             }
                         } else {
                             try? SMAppService.mainApp.unregister()
+                            LoginLaunch.removeAgent()
                         }
                     }
                 if let loginNote {

@@ -30,6 +30,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     private let catBreakRunning = "pomo.cat.breakRunning"   // 休憩が自動開始した
     private let catBreakEnded = "pomo.cat.breakEnded"       // 休憩おわり
     private let catFlowLimit = "pomo.cat.flowLimit"         // フロー上限に到達（止めてはいない）
+    private let catDayStart = "pomo.cat.dayStart"           // はじまりの合図（1日1回・opt-in）
 
     /// 起動時に呼ぶ: delegate 設定とカテゴリ（アクションボタン）の登録。許可要求はしない。
     func configure() {
@@ -46,6 +47,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             UNNotificationCategory(identifier: catBreakRunning, actions: [extendBreak, skipBreak], intentIdentifiers: []),
             UNNotificationCategory(identifier: catBreakEnded, actions: [startWork], intentIdentifiers: []),
             UNNotificationCategory(identifier: catFlowLimit, actions: [finishWork], intentIdentifiers: []),
+            UNNotificationCategory(identifier: catDayStart, actions: [startWork], intentIdentifiers: []),
         ])
     }
 
@@ -73,6 +75,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         deliver(title: "フロー \(minutes)分に届きました",
                 body: "そのまま続けてもかまいません。貯まった休憩を受け取るのもおすすめです。",
                 category: catFlowLimit, id: "pomo.flowlimit")
+    }
+
+    /// はじまりの合図（opt-in・1日1回）。急かさない文面を厳守
+    func notifyDayStart() {
+        deliver(title: "今日をはじめますか", body: "準備ができたら、いつでも。",
+                category: catDayStart, id: "pomo.daystart")
     }
 
     /// 休憩おわり
