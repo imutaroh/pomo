@@ -29,6 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBar = MenuBarController(engine: engine, panelController: panelController, mainWindow: mainWindow, breakOverlay: breakOverlay)
         hotKeys = HotKeyManager(engine: engine, panelController: panelController)
         dayStartCue = DayStartCue(engine: engine)
+        _ = UpdaterManager.shared // Sparkle 起動（自動チェック開始）
 
         // M5 第2合図: 通知のカテゴリ登録とアクション配線（許可要求は初回完了直前まで遅延）
         NotificationManager.shared.configure()
