@@ -70,6 +70,11 @@ final class Settings: ObservableObject {
     @Published var simpleTimerMinutes: Int {
         didSet { d.set(simpleTimerMinutes, forKey: "simpleTimerMinutes") }
     }
+    /// フローの上限リマインド（分）。0 = なし。届いても止めない（看守ではなく秘書）—
+    /// 合図（音・グロー・通知）だけ出す。設定時はリング/バーの分母がこの値になる
+    @Published var flowMaxMinutes: Int {
+        didSet { d.set(flowMaxMinutes, forKey: "flowMaxMinutes") }
+    }
 
     private init() {
         let d = UserDefaults.standard
@@ -98,5 +103,7 @@ final class Settings: ObservableObject {
         let vol = d.object(forKey: "soundVolume") as? Double ?? 0.7
         soundVolume = (0.1...1.0).contains(vol) ? vol : 0.7
         simpleTimerMinutes = clamped("simpleTimerMinutes", 5...120, default: 10)
+        let fm = d.integer(forKey: "flowMaxMinutes")
+        flowMaxMinutes = (30...180).contains(fm) ? fm : 0 // 0 = なし（デフォルト）
     }
 }

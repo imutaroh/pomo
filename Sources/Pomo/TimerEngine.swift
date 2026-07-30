@@ -48,6 +48,8 @@ final class TimerEngine: ObservableObject {
     /// 進捗バーの分母スナップショット。クラシック実行中に設定を変えても分母がズレないよう startWork() 時点で確定
     private var workCountdownTotal: TimeInterval = 0
     private var lastTick = Date()
+    /// フロー上限の合図は1セッション1回だけ（無視して続ける自由は保つ）
+    private var flowLimitSignaled = false
 
     var onPhaseChange: (() -> Void)?
 
@@ -72,6 +74,7 @@ final class TimerEngine: ObservableObject {
         phase = .work
         isPaused = false
         justFinished = false
+        flowLimitSignaled = false
         pendingBreakDuration = nil // 休憩せず次の作業へ進んだら破棄（罪悪感なし）
         currentMemo = nil
         phaseStart = Date()
@@ -265,6 +268,15 @@ final class TimerEngine: ObservableObject {
                 finishWork()
             }
         }
+        // フロー上限: 届いても止めない。合図（音・グロー・通知）を1回だけ出す
+        if phase == .work, activeMode == .flow, !flowLimitSignaled,
+           settings.flowMaxMinutes > 0,
+           currentWorkedSeconds() >= TimeInterval(settings.flowMaxMinutes * 60) {
+            flowLimitSignaled = true
+            playSound(named: settings.workSound)
+            signalFinished()
+            NotificationManager.shared.notifyFlowLimit(minutes: settings.flowMaxMinutes)
+        }
     }
 
     private func refresh() {
@@ -286,8 +298,16 @@ final class TimerEngine: ObservableObject {
                 let worked = currentWorkedSeconds()
                 displaySeconds = Int(worked)
                 bankedBreakSeconds = Int(max(60, worked / Double(settings.flowRatio)))
-                progress = min(1.0, worked / (25 * 60)) // 基準25分に対する充足感の演出
-                isApproachingEnd = false // フローは終了予定時刻がない（停止はユーザー操作）
+                if settings.flowMaxMinutes > 0 {
+                    // 上限設定時: リングの分母は上限（満ちる＝上限到達、計器として意味を持つ）。
+                    // 上限1分前からは色温度で予告（クラシックと同じ言語）
+                    let limit = TimeInterval(settings.flowMaxMinutes * 60)
+                    progress = min(1.0, worked / limit)
+                    isApproachingEnd = !isPaused && worked >= limit - 60 && worked < limit
+                } else {
+                    progress = min(1.0, worked / (25 * 60)) // 基準25分に対する充足感の演出
+                    isApproachingEnd = false // 上限なし: 終了予定時刻がない（停止はユーザー操作）
+                }
             } else {
                 let remaining = countdownRemaining()
                 displaySeconds = Int(remaining.rounded(.up))

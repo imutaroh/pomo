@@ -38,6 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             case NotificationManager.actExtendBreak: engine.extendFiveMinutes()
             case NotificationManager.actSkipBreak: engine.skipBreak()
             case NotificationManager.actStartWork: engine.startWork()
+            case NotificationManager.actFinishWork: engine.finishWork()
             default: break
             }
         }
