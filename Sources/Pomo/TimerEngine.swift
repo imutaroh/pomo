@@ -379,4 +379,14 @@ final class TimerEngine: ObservableObject {
         let s = bankedBreakSeconds
         return String(format: "%d:%02d", s / 60, s % 60)
     }
+
+    /// 待機中に貯まっている休憩の日本語表記（"5分" / "5分30秒" / "45秒"）。無ければ nil。
+    /// M2「貯まった休憩をライブ表示して動機づけ」の待機時版（パネル・母艦の待機ラベルで使用）
+    var pendingBreakLabel: String? {
+        guard let dur = pendingBreakDuration else { return nil }
+        let s = Int(dur)
+        let m = s / 60, r = s % 60
+        if m > 0 { return r > 0 ? "\(m)分\(r)秒" : "\(m)分" }
+        return "\(s)秒"
+    }
 }

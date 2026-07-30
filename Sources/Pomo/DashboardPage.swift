@@ -73,7 +73,12 @@ struct DashboardPage: View {
 
     private var phaseLabel: String {
         switch engine.phase {
-        case .idle: return "いつでもどうぞ"
+        case .idle:
+            // 貯まった休憩は待機中も見せる（M2 の動機づけ。パネルと同じ文言）
+            if let pending = engine.pendingBreakLabel {
+                return "☕️ \(pending)の休憩が待っています"
+            }
+            return "いつでもどうぞ"
         case .work: return engine.isPaused ? "一時停止" : (engine.activeMode == .simple ? "タイマー" : "集中")
         case .breakTime: return engine.isPaused ? "一時停止" : "休憩"
         }
