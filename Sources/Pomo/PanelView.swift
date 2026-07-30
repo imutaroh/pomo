@@ -149,14 +149,14 @@ struct PanelView: View {
                 Spacer()
 
                 Text(phaseLabel)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(Tokens.sumi.opacity(0.5)) // サブテキストは墨50%（§6 の原則）
                     .opacity(hovering || engine.phase == .idle || engine.isPaused || engine.justFinished ? 1 : 0)
 
                 // 巨大な丸ゴシック数字（P0-1: ウィンドウ幅の約6割）
                 Text(engine.timeString)
                     // サイズ分岐だと 1:00:00 到達の瞬間に数字がガクッと縮む → 固定+自動縮小
-                    .font(.system(size: 54, weight: .medium, design: .rounded))
+                    .font(.system(size: 54, weight: .medium, design: .monospaced))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .frame(maxWidth: 170)
@@ -172,7 +172,7 @@ struct PanelView: View {
                             Image(systemName: "cup.and.saucer.fill")
                                 .font(.system(size: 10))
                             Text("休憩 +\(engine.bankedBreakString)")
-                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .font(.system(size: 12, weight: .semibold, design: .monospaced))
                                 .monospacedDigit()
                         }
                         .foregroundStyle(Tokens.kohakuDeep)

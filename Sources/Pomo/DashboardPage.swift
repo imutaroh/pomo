@@ -111,7 +111,7 @@ struct DashboardPage: View {
 
                 VStack(spacing: 4) {
                     Text(engine.timeString)
-                        .font(.system(size: 44, weight: .medium, design: .rounded))
+                        .font(.system(size: 44, weight: .medium, design: .monospaced))
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
                         .monospacedDigit()
@@ -193,7 +193,7 @@ struct DashboardPage: View {
                     value.wrappedValue = max(range.lowerBound, value.wrappedValue - step)
                 }
                 Text("\(value.wrappedValue) 分")
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .font(.system(size: 18, weight: .semibold, design: .monospaced))
                     .monospacedDigit()
                     .foregroundStyle(Tokens.sumi)
                     .frame(minWidth: 70)
@@ -252,7 +252,7 @@ struct DashboardPage: View {
                 .frame(width: 40, height: 40)
                 .background(Circle().fill(Tokens.kohaku.opacity(0.14)))
             Text(value)
-                .font(.system(size: 26, weight: .semibold, design: .rounded))
+                .font(.system(size: 26, weight: .semibold, design: .monospaced))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
                 .monospacedDigit()
@@ -364,7 +364,7 @@ struct BankedBreakPill: View {
                 Image(systemName: "cup.and.saucer.fill")
                     .font(.system(size: 10))
                 Text("休憩 +\(engine.bankedBreakString)")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
                     .monospacedDigit()
             }
             .foregroundStyle(Tokens.kohakuDeep)

@@ -5,7 +5,7 @@ import SwiftUI
 // 母艦ウィンドウの4ページで共用する部品（白カード・見出し・時間表記・週チャート）
 
 extension View {
-    /// 白カード（Apple Health 風）: 純白 + 細い縁 + 二層の柔らかい影で生成り背景から浮かせる
+    /// フィールドノートの白カード: 純白＋ヘアライン罫線（#E3E8ED）。影は使わない（DESIGN.md §5）
     func pomoCard() -> some View {
         padding(24)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -14,13 +14,9 @@ extension View {
                     .fill(Color.white)
                     .overlay(
                         RoundedRectangle(cornerRadius: Tokens.radiusCard)
-                            .strokeBorder(Tokens.sumi.opacity(0.05), lineWidth: 1)
+                            .strokeBorder(Tokens.line, lineWidth: 1)
                     )
             )
-            .compositingGroup()
-            // 接地の締まった影 + 大きく拡散する環境光の影（浮遊感）
-            .shadow(color: .black.opacity(0.04), radius: 2, y: 1)
-            .shadow(color: Tokens.sumi.opacity(0.07), radius: 22, y: 9)
     }
 
     /// ページ表示時に上から順に静かにフェードインする（index ごとに 40ms 遅延、跳ねない）
@@ -113,7 +109,7 @@ struct SessionRow: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text("\(Self.time.string(from: entry.start)) – \(Self.time.string(from: entry.end))")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
                 .monospacedDigit()
                 .foregroundStyle(Tokens.sumi)
                 .layoutPriority(1)
@@ -136,7 +132,7 @@ struct SessionRow: View {
                     .background(Capsule().fill(Tokens.sumi.opacity(0.05)))
             }
             Text("\(entry.durationSec / 60)分")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
                 .monospacedDigit()
                 .foregroundStyle(Tokens.sumi.opacity(0.5))
                 .layoutPriority(1)
@@ -216,10 +212,7 @@ struct SessionListCard: View {
         .clipShape(RoundedRectangle(cornerRadius: Tokens.radiusCard))
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.radiusCard)
-                .strokeBorder(Tokens.sumi.opacity(0.05), lineWidth: 1)
+                .strokeBorder(Tokens.line, lineWidth: 1)
         )
-        .compositingGroup()
-        .shadow(color: .black.opacity(0.04), radius: 2, y: 1)
-        .shadow(color: Tokens.sumi.opacity(0.07), radius: 22, y: 9)
     }
 }

@@ -97,7 +97,7 @@ struct SessionsPage: View {
                             HStack(alignment: .firstTextBaseline, spacing: 10) {
                                 sectionLabel(Self.dayLabel(day.date))
                                 Text("\(day.entries.filter(\.completed).count) セッション · \(hmString(day.entries.filter(\.completed).reduce(0) { $0 + $1.durationSec }))")
-                                    .font(.system(size: 11, design: .rounded))
+                                    .font(.system(size: 11, design: .monospaced))
                                     .monospacedDigit()
                                     .foregroundStyle(Tokens.sumiTertiary)
                             }
