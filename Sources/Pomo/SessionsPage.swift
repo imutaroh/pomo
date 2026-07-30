@@ -32,11 +32,12 @@ struct SessionsPage: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 28) {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
+                sectionEyebrow("LOG")
                 Text("セッション")
-                    .pomoFont(28, weight: .semibold)
+                    .pomoFont(24, weight: .semibold)
                     .foregroundStyle(Tokens.sumi)
-                Text("直近14日の記録。中断も延長も、ぜんぶただの事実。")
+                Text("中断も延長も、ぜんぶただの事実。")
                     .pomoFont(13)
                     .foregroundStyle(Tokens.sumiSecondary)
             }

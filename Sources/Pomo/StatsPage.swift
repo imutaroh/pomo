@@ -24,8 +24,9 @@ struct StatsPage: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
+            sectionEyebrow("STATS")
             Text("統計")
-                .pomoFont(28, weight: .semibold)
+                .pomoFont(24, weight: .semibold)
                 .foregroundStyle(Tokens.sumi)
             HStack(alignment: .firstTextBaseline, spacing: 14) {
                 Text(hmString(store.todaySeconds))
