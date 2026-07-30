@@ -1,4 +1,5 @@
 import AppKit
+import Sparkle
 
 /// 「設定…」「Pomoについて」メニュー項目の action 先。NSMenuItem の target は weak 参照のため、
 /// このオブジェクトを AppDelegate がプロパティとして保持し続ける必要がある。
@@ -97,6 +98,14 @@ enum AppMenu {
         let about = NSMenuItem(title: "Pomoについて", action: #selector(AppMenuActions.aboutTapped), keyEquivalent: "")
         about.target = actions
         menu.addItem(about)
+        // Sparkle 標準の更新確認（target は UpdaterManager が保持する controller）
+        let checkUpdates = NSMenuItem(
+            title: "アップデートを確認…",
+            action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
+            keyEquivalent: ""
+        )
+        checkUpdates.target = UpdaterManager.shared.controller
+        menu.addItem(checkUpdates)
         menu.addItem(.separator())
 
         let settings = NSMenuItem(title: "設定…", action: #selector(AppMenuActions.openSettingsTapped), keyEquivalent: ",")
