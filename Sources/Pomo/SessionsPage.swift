@@ -72,10 +72,10 @@ struct SessionsPage: View {
             // 期間・中断フィルタのチップ
             HStack(spacing: 8) {
                 ForEach(PeriodFilter.allCases) { p in
-                    FilterChip(label: p.label, selected: period == p) { period = p }
+                    SelectChip(label: p.label, selected: period == p) { period = p }
                 }
                 Spacer().frame(width: 4)
-                FilterChip(label: "中断のみ", selected: interruptedOnly) { interruptedOnly.toggle() }
+                SelectChip(label: "中断のみ", selected: interruptedOnly) { interruptedOnly.toggle() }
             }
             .staggeredAppear(1)
 
@@ -181,34 +181,5 @@ struct SessionsPage: View {
         if cal.isDateInToday(date) { return "今日" }
         if cal.isDateInYesterday(date) { return "昨日" }
         return dayFormat.string(from: date)
-    }
-}
-
-/// 選択式フィルタチップ（期間・中断フィルタ用の共用部品）
-private struct FilterChip: View {
-    let label: String
-    let selected: Bool
-    let action: () -> Void
-    @State private var hovered = false
-
-    var body: some View {
-        Button(action: action) {
-            Text(label)
-                .pomoFont(12, weight: selected ? .semibold : .medium)
-                .foregroundStyle(selected ? Tokens.kohakuText : Tokens.sumiSecondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 5)
-                .background(
-                    Capsule().fill(
-                        selected
-                            ? Tokens.kohaku.opacity(0.22)
-                            : Tokens.sumi.opacity(hovered ? 0.09 : 0.05)
-                    )
-                )
-        }
-        .buttonStyle(.plain)
-        .onHover { hovered = $0 }
-        .animation(.easeOut(duration: 0.15), value: hovered)
-        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }

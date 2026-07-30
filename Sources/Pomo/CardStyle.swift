@@ -48,6 +48,49 @@ func sectionLabel(_ text: String) -> some View {
         .foregroundStyle(Tokens.sumiSecondary)
 }
 
+/// フィールドノートの署名: ミニダイヤル◉＋mono大文字のセクション見出し（DESIGN.md §4・§6）。
+/// 小サイズの mono は広めのトラッキングでスキャナブルに（Linear/Raycast の作法）
+func sectionEyebrow(_ text: String) -> some View {
+    HStack(spacing: 7) {
+        ZStack {
+            Circle().strokeBorder(Tokens.kohaku, lineWidth: 1)
+            Circle().fill(Tokens.kohaku).frame(width: 3.5, height: 3.5)
+        }
+        .frame(width: 10, height: 10)
+        Text(text)
+            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+            .tracking(1.4)
+            .foregroundStyle(Tokens.sumiSecondary)
+    }
+    .accessibilityElement(children: .combine)
+}
+
+/// 選択チップ（期間フィルタ・モード切替などの共用部品。旧 SessionsPage.FilterChip を昇格）
+struct SelectChip: View {
+    let label: String
+    let selected: Bool
+    let action: () -> Void
+    @State private var hovered = false
+
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+                .pomoFont(12, weight: selected ? .semibold : .medium)
+                .foregroundStyle(selected ? Color.white : Tokens.sumiSecondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+                .background(
+                    Capsule().fill(selected ? Tokens.sumi : (hovered ? Tokens.usugumo : Color.white))
+                )
+                .overlay(Capsule().strokeBorder(selected ? Tokens.sumi : Tokens.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .onHover { hovered = $0 }
+        .animation(.easeOut(duration: 0.15), value: hovered)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+}
+
 /// 秒数 → 「Xh Ym」（1時間未満は「Ym」）。コンパクト表記で統一（MM:SS のタイマーと誤読しないよう h/m を明記）
 func hmString(_ seconds: Int) -> String {
     let h = seconds / 3600
@@ -67,7 +110,8 @@ struct WeekChart: View {
                 x: .value("日", day.date, unit: .day),
                 y: .value("分", grown ? Double(day.workSeconds) / 60.0 : 0)
             )
-            .foregroundStyle(Tokens.kohaku)
+            // 外科的アクセント: 「今」である今日のバーだけティール、他は墨の淡色（Linear 的な抑制）
+            .foregroundStyle(Calendar.current.isDateInToday(day.date) ? Tokens.kohaku : Tokens.sumi.opacity(0.14))
             .cornerRadius(Tokens.radiusChip)
         }
         // 伸びるアニメーション中に軸スケールが暴れないよう、分母は実データで固定
