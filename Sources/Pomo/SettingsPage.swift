@@ -71,6 +71,21 @@ struct SettingsPage: View {
                             }
                             .labelsHidden()
                         }
+                        settingRow("フローの上限") {
+                            Picker("", selection: $settings.flowMaxMinutes) {
+                                Text("なし").tag(0)
+                                ForEach([45, 60, 90, 120, 180], id: \.self) { m in
+                                    Text("\(m)分").tag(m)
+                                }
+                            }
+                            .labelsHidden()
+                        }
+                        if settings.flowMaxMinutes > 0 {
+                            Text("上限に届いても止めません。合図（音・グロー・通知）だけ出し、リングは上限を分母に満ちていきます。")
+                                .pomoFont(12)
+                                .foregroundStyle(Tokens.sumiSecondary)
+                                .transition(.opacity)
+                        }
                     case .classic:
                         settingRow("作業") {
                             stepper(value: $settings.classicWorkMin, range: 5...120, step: 5, unit: "分")

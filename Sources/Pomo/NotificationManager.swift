@@ -23,11 +23,13 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     static let actExtendBreak = "pomo.action.extendBreak"
     static let actSkipBreak = "pomo.action.skipBreak"
     static let actStartWork = "pomo.action.startWork"
+    static let actFinishWork = "pomo.action.finishWork"
 
     private let center = UNUserNotificationCenter.current()
     private let catBreakPending = "pomo.cat.breakPending"   // 休憩は手動開始待ち
     private let catBreakRunning = "pomo.cat.breakRunning"   // 休憩が自動開始した
     private let catBreakEnded = "pomo.cat.breakEnded"       // 休憩おわり
+    private let catFlowLimit = "pomo.cat.flowLimit"         // フロー上限に到達（止めてはいない）
 
     /// 起動時に呼ぶ: delegate 設定とカテゴリ（アクションボタン）の登録。許可要求はしない。
     func configure() {
@@ -37,11 +39,13 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         let extendBreak = UNNotificationAction(identifier: Self.actExtendBreak, title: "+5分")
         let skipBreak = UNNotificationAction(identifier: Self.actSkipBreak, title: "スキップ")
         let startWork = UNNotificationAction(identifier: Self.actStartWork, title: "作業を始める", options: [.foreground])
+        let finishWork = UNNotificationAction(identifier: Self.actFinishWork, title: "休憩を受け取る", options: [.foreground])
 
         center.setNotificationCategories([
             UNNotificationCategory(identifier: catBreakPending, actions: [startBreak], intentIdentifiers: []),
             UNNotificationCategory(identifier: catBreakRunning, actions: [extendBreak, skipBreak], intentIdentifiers: []),
             UNNotificationCategory(identifier: catBreakEnded, actions: [startWork], intentIdentifiers: []),
+            UNNotificationCategory(identifier: catFlowLimit, actions: [finishWork], intentIdentifiers: []),
         ])
     }
 
@@ -62,6 +66,13 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     /// 単純タイマー終了（記録なし・休憩なし）
     func notifySimpleTimerEnded() {
         deliver(title: "タイマー終了", body: "時間になりました。", category: nil, id: "pomo.simple")
+    }
+
+    /// フロー上限に到達（止めてはいない — 続ける自由は保ちつつ、休憩の受け取りを勧める）
+    func notifyFlowLimit(minutes: Int) {
+        deliver(title: "フロー \(minutes)分に届きました",
+                body: "そのまま続けてもかまいません。貯まった休憩を受け取るのもおすすめです。",
+                category: catFlowLimit, id: "pomo.flowlimit")
     }
 
     /// 休憩おわり
