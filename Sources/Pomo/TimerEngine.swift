@@ -147,7 +147,8 @@ final class TimerEngine: ObservableObject {
         logWork(completed: true, interrupted: false)
         playSound(named: settings.workSound)
         signalFinished()
-        classicCompletedInSet += 1
+        // クラシックの長休憩判定用。フローの完了で進めるとモードを行き来した時にセット周期がズレる
+        if activeMode == .classic { classicCompletedInSet += 1 }
 
         let breakDuration: TimeInterval
         if activeMode == .flow {

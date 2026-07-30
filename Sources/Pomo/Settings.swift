@@ -73,19 +73,20 @@ final class Settings: ObservableObject {
 
     private init() {
         let d = UserDefaults.standard
+        // 読み込み値は UI と同じ範囲にクランプする（壊れた plist・移行ミスの異常値をそのまま通さない）。
+        // 未設定（0）も範囲外としてデフォルトに倒れる
+        func clamped(_ key: String, _ range: ClosedRange<Int>, default def: Int) -> Int {
+            let v = d.integer(forKey: key)
+            return range.contains(v) ? v : def
+        }
         mode = TimerMode(rawValue: d.string(forKey: "mode") ?? "") ?? .flow
-        let ratio = d.integer(forKey: "flowRatio")
-        flowRatio = ratio == 0 ? 5 : ratio
-        let w = d.integer(forKey: "classicWorkMin")
-        classicWorkMin = w == 0 ? 25 : w
-        let sb = d.integer(forKey: "classicShortBreakMin")
-        classicShortBreakMin = sb == 0 ? 5 : sb
-        let lb = d.integer(forKey: "classicLongBreakMin")
-        classicLongBreakMin = lb == 0 ? 15 : lb
-        let sc = d.integer(forKey: "classicSetCount")
-        classicSetCount = sc == 0 ? 4 : sc
+        flowRatio = clamped("flowRatio", 3...6, default: 5)
+        classicWorkMin = clamped("classicWorkMin", 5...120, default: 25)
+        classicShortBreakMin = clamped("classicShortBreakMin", 1...30, default: 5)
+        classicLongBreakMin = clamped("classicLongBreakMin", 5...60, default: 15)
+        classicSetCount = clamped("classicSetCount", 2...8, default: 4)
         let fo = d.double(forKey: "focusOpacity")
-        focusOpacity = fo == 0 ? 0.3 : fo
+        focusOpacity = (0.15...1.0).contains(fo) ? fo : 0.3
         autoStartBreak = d.object(forKey: "autoStartBreak") as? Bool ?? true
         autoStartWork = d.object(forKey: "autoStartWork") as? Bool ?? false
         soundEnabled = d.object(forKey: "soundEnabled") as? Bool ?? true
@@ -94,9 +95,8 @@ final class Settings: ObservableObject {
         askMemoOnBreak = d.object(forKey: "askMemoOnBreak") as? Bool ?? true
         workSound = d.string(forKey: "workSound") ?? "Glass"
         breakSound = d.string(forKey: "breakSound") ?? "Tink"
-        soundVolume = d.object(forKey: "soundVolume") as? Double ?? 0.7
-        let stm = d.integer(forKey: "simpleTimerMinutes")
-        // 範囲外（0含む）は 10 分に倒す
-        simpleTimerMinutes = (5...120).contains(stm) ? stm : 10
+        let vol = d.object(forKey: "soundVolume") as? Double ?? 0.7
+        soundVolume = (0.1...1.0).contains(vol) ? vol : 0.7
+        simpleTimerMinutes = clamped("simpleTimerMinutes", 5...120, default: 10)
     }
 }
