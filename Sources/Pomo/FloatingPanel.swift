@@ -48,9 +48,11 @@ final class PanelController: NSObject, NSWindowDelegate {
         panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: Self.panelSize))
         super.init()
 
-        let host = NSHostingView(rootView: PanelView(engine: engine, expand: { [weak self] in
-            self?.openMainWindow?()
-        }))
+        let host = NSHostingView(rootView: PanelView(
+            engine: engine,
+            expand: { [weak self] in self?.openMainWindow?() },
+            hidePanel: { [weak self] in self?.hide() }
+        ))
         host.frame = NSRect(origin: .zero, size: Self.panelSize)
         host.autoresizingMask = [.width, .height]
         panel.contentView = host

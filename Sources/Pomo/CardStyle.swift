@@ -160,6 +160,11 @@ struct SessionRow: View {
         .background(Tokens.sumi.opacity(hovered ? 0.03 : 0))
         .animation(.easeOut(duration: 0.15), value: hovered)
         .onHover { hovered = $0 }
+        // 「…」メニューと同じ操作を右クリックでも（macOS の標準作法）
+        .contextMenu {
+            Button("メモを編集…") { presentEditMemo() }
+            Button("削除…", role: .destructive) { showDeleteConfirm = true }
+        }
         .confirmationDialog("このセッションを削除しますか？", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
             Button("削除", role: .destructive) {
                 SessionLogger.shared.deleteEntry(start: entry.start, end: entry.end)
