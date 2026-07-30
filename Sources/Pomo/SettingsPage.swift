@@ -30,7 +30,8 @@ struct SettingsPage: View {
             breakSection.staggeredAppear(2)
             displaySection.staggeredAppear(3)
             soundSection.staggeredAppear(4)
-            generalSection.staggeredAppear(5)
+            shortcutSection.staggeredAppear(5)
+            generalSection.staggeredAppear(6)
         }
         // モード・時間の変更を待機中の表示（クラシックの予告時間等）へ反映
         .onChange(of: settings.mode) { _, _ in engine.settingsChanged() }
@@ -203,6 +204,43 @@ struct SettingsPage: View {
         guard let s = NSSound(named: name) else { return }
         s.volume = Float(settings.soundVolume)
         s.play()
+    }
+
+    // MARK: - ショートカット
+
+    /// グローバルショートカット（M7）の一覧。tooltip でしか知る手段がなく発見性が低かったので明示する。
+    /// 変更機能は持たない（表示のみ。カスタマイズは需要が出てから）
+    private var shortcutSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionLabel("ショートカット")
+            VStack(alignment: .leading, spacing: 14) {
+                shortcutRow("開始 / 一時停止", keys: "⌃⌥P", note: "どのアプリにいても効く")
+                shortcutRow("パネルを表示 / 隠す", keys: "⌃⌥T", note: "どのアプリにいても効く")
+                shortcutRow("ページ移動", keys: "⌘1〜4", note: "母艦ウィンドウを開く")
+                shortcutRow("ウィンドウを閉じてパネルへ", keys: "⌘W", note: "")
+            }
+            .pomoCard()
+        }
+    }
+
+    private func shortcutRow(_ label: String, keys: String, note: String) -> some View {
+        HStack {
+            Text(label)
+                .pomoFont(13)
+                .foregroundStyle(Tokens.sumi)
+            if !note.isEmpty {
+                Text(note)
+                    .pomoFont(11)
+                    .foregroundStyle(Tokens.sumiTertiary)
+            }
+            Spacer()
+            Text(keys)
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundStyle(Tokens.sumi.opacity(0.75))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(RoundedRectangle(cornerRadius: 6).fill(Tokens.sumi.opacity(0.05)))
+        }
     }
 
     // MARK: - 一般
