@@ -56,6 +56,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mainWindow.show()
         return false
     }
+
+    // MARK: - Dock 右クリックメニュー（Dock 常時表示化に伴い新設。主操作をメニューバー版と揃える）
+
+    func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        let menu = NSMenu()
+        if engine.phase == .idle {
+            menu.addItem(dockItem("作業を開始", #selector(dockStartWork)))
+        } else {
+            menu.addItem(dockItem(engine.isPaused ? "再開" : "一時停止", #selector(dockTogglePause)))
+        }
+        menu.addItem(dockItem(panelController.panel.isVisible ? "パネルを隠す" : "パネルを表示", #selector(dockTogglePanel)))
+        menu.addItem(.separator())
+        menu.addItem(dockItem("設定を開く", #selector(dockOpenSettings)))
+        return menu
+    }
+
+    private func dockItem(_ title: String, _ action: Selector) -> NSMenuItem {
+        let i = NSMenuItem(title: title, action: action, keyEquivalent: "")
+        i.target = self
+        return i
+    }
+
+    @objc private func dockStartWork() { engine.startWork() }
+    @objc private func dockTogglePause() { engine.togglePause() }
+    @objc private func dockTogglePanel() { panelController.toggleVisibility() }
+    @objc private func dockOpenSettings() { mainWindow.show(page: .settings) }
 }
 
 @main

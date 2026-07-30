@@ -1,6 +1,6 @@
 import AppKit
 
-/// 「設定…」メニュー項目の action 先。NSMenuItem の target は weak 参照のため、
+/// 「設定…」「Pomoについて」メニュー項目の action 先。NSMenuItem の target は weak 参照のため、
 /// このオブジェクトを AppDelegate がプロパティとして保持し続ける必要がある。
 @MainActor
 final class AppMenuActions: NSObject {
@@ -12,6 +12,20 @@ final class AppMenuActions: NSObject {
 
     @objc func openSettingsTapped() {
         openSettings()
+    }
+
+    /// Info.plist の CFBundleName/Version/Copyright は標準Aboutパネルが自動で拾うため、
+    /// ここでは一言添えるだけ（罪悪感ゼロ・ローカル完結の哲学を伝える最小限のクレジット）
+    @objc func aboutTapped() {
+        NSApp.orderFrontStandardAboutPanel(options: [
+            .credits: NSAttributedString(
+                string: "集中して、ちゃんと休む。\nローカル完結・アカウントなしのポモドーロタイマー。",
+                attributes: [
+                    .font: NSFont.systemFont(ofSize: 11),
+                    .foregroundColor: NSColor.secondaryLabelColor,
+                ]
+            ),
+        ])
     }
 }
 
@@ -36,11 +50,9 @@ enum AppMenu {
         let item = NSMenuItem()
         let menu = NSMenu()
 
-        menu.addItem(NSMenuItem(
-            title: "Pomoについて",
-            action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)),
-            keyEquivalent: ""
-        ))
+        let about = NSMenuItem(title: "Pomoについて", action: #selector(AppMenuActions.aboutTapped), keyEquivalent: "")
+        about.target = actions
+        menu.addItem(about)
         menu.addItem(.separator())
 
         let settings = NSMenuItem(title: "設定…", action: #selector(AppMenuActions.openSettingsTapped), keyEquivalent: ",")
