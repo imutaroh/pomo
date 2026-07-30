@@ -82,6 +82,9 @@ final class SessionLogger {
         (try? String(contentsOf: url, encoding: .utf8)) ?? ""
     }
 
+    /// 記録ファイルの実体パス（設定ページの「Finder で表示」用。UI 依存はここに持ち込まない）
+    var fileURL: URL { url }
+
     /// 直前の作業エントリのメモを書き換える（休憩開始時のクイックメモ用。
     /// 作業ログは休憩開始時点で書き込み済みのため、後から修正する）
     func amendLastWorkMemo(_ memo: String) {

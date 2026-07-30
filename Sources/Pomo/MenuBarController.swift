@@ -42,7 +42,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         case .work:
             button.title = (engine.isPaused ? "⏸ " : "") + engine.timeString
         case .breakTime:
-            button.title = "☕️ " + engine.timeString
+            // 作業中と対称に、一時停止を可視化（付けないと走行中と区別できない）
+            button.title = (engine.isPaused ? "⏸ " : "") + "☕️ " + engine.timeString
         }
     }
 

@@ -238,6 +238,22 @@ struct SettingsPage: View {
                         .pomoFont(12)
                         .foregroundStyle(Tokens.sumiTertiary)
                 }
+                // 記録はユーザーのもの（ローカル完結）。実体へ1クリックで辿り着けるようにする
+                Button {
+                    let file = SessionLogger.shared.fileURL
+                    if FileManager.default.fileExists(atPath: file.path) {
+                        NSWorkspace.shared.activateFileViewerSelecting([file])
+                    } else {
+                        NSWorkspace.shared.open(file.deletingLastPathComponent())
+                    }
+                } label: {
+                    Text("記録ファイルを Finder で表示")
+                        .pomoFont(12, weight: .medium)
+                        .foregroundStyle(Tokens.kohakuText)
+                }
+                .buttonStyle(.plain)
+                .help("セッション記録（sessions.jsonl）の保存場所を開く")
+
                 let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
                 Text("Pomo v\(version)")
                     .pomoFont(12)
