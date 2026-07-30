@@ -35,14 +35,18 @@ final class MainWindowState: ObservableObject {
 }
 
 /// 母艦ウィンドウ。メニューバーに潜らず設定・操作・振り返りができる「Pomo の家」。
-/// フローティングパネルとは排他切替: 母艦が見えている間はパネルをしまい、閉じる/最小化で戻す
-/// （「どちらか一方がそこにいる」）。通常ウィンドウ — フォーカスを取ってよい。
+/// パネルとの関係（Issue #39 で意図を分離）:
+/// - 母艦が見えている間はパネルをしまう
+/// - 「パネルに戻る」/フォーカスモード経由の close → パネル復帰（明示的にパネルが欲しい操作）
+/// - 赤バツ/⌘W の close → すべてしまう（macOS 標準の「閉じる」。復帰は ⌃⌥T・メニューバー・Dock）
 @MainActor
 final class MainWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     private let engine: TimerEngine
     private let panelController: PanelController
     private let state = MainWindowState()
+    /// 「パネルに戻る」意図で閉じるときだけ true（赤バツ/⌘W との意図分離）
+    private var showPanelOnClose = false
 
     init(engine: TimerEngine, panelController: PanelController) {
         self.engine = engine
@@ -53,7 +57,7 @@ final class MainWindowController: NSObject, NSWindowDelegate {
         if window == nil {
             let host = NSHostingController(
                 rootView: MainWindowView(engine: engine, state: state, shrinkToPanel: { [weak self] in
-                    self?.window?.performClose(nil)
+                    self?.shrinkToPanel()
                 })
             )
             let w = NSWindow(contentViewController: host)
@@ -86,10 +90,20 @@ final class MainWindowController: NSObject, NSWindowDelegate {
         state.searchFocusToken += 1
     }
 
-    // MARK: - 排他切替（「母艦が可視でなければパネルを出す」が唯一の真実）
+    /// 「パネルに戻る」/フォーカスモード用: 母艦を閉じてパネルを出す（明示的なパネル導線）
+    func shrinkToPanel() {
+        showPanelOnClose = true
+        window?.performClose(nil)
+    }
+
+    // MARK: - 閉じ方の意図分離（Issue #39）
 
     func windowWillClose(_ notification: Notification) {
-        panelController.show()
+        // 赤バツ/⌘W はすべてしまう。「パネルに戻る」経由のときだけパネルを出す
+        if showPanelOnClose {
+            panelController.show()
+        }
+        showPanelOnClose = false
     }
 
     func windowDidMiniaturize(_ notification: Notification) {
