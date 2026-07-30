@@ -103,7 +103,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         }
         menu.addItem(.separator())
         menu.addItem(item("Pomo を開く", #selector(openMainWindow), key: "d"))
-        menu.addItem(item(panelController.panel.isVisible ? "パネルを隠す" : "パネルを表示", #selector(togglePanel), key: "t"))
+        menu.addItem(item(panelController.isShown ? "パネルを隠す" : "パネルを表示", #selector(togglePanel), key: "t"))
         menu.addItem(.separator())
 
         // モードだけは作業フローの一部なのでメニューに残す。詳細設定は母艦の設定ページへ

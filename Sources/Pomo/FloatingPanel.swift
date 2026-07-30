@@ -38,6 +38,11 @@ final class PanelController: NSObject, NSWindowDelegate {
     let panel: FloatingPanel
     /// パネルの「拡大」ボタン → 母艦ウィンドウを開く（AppDelegate が配線）
     var openMainWindow: (() -> Void)?
+    /// 最後に意図された表示状態。フェード中の isVisible は当てにならない
+    /// （hide のフェード完了前に show が来ると、完了ハンドラの orderOut が意図を上書きするレース対策）
+    private var desiredVisible = true
+    /// メニューのラベル出し分け用（フェード中でも意図と一致する）
+    var isShown: Bool { desiredVisible }
 
     init(engine: TimerEngine) {
         panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: Self.panelSize))
@@ -56,7 +61,8 @@ final class PanelController: NSObject, NSWindowDelegate {
     }
 
     func toggleVisibility() {
-        if panel.isVisible {
+        // isVisible はフェードアウト中も true のままなので、意図ベースで切り替える
+        if desiredVisible {
             hide()
         } else {
             show()
@@ -65,23 +71,35 @@ final class PanelController: NSObject, NSWindowDelegate {
 
     /// 排他切替用: フェードアウトして消える（orderOut の瞬断を見せない）
     func hide() {
+        desiredVisible = false
         guard panel.isVisible else { return }
         NSAnimationContext.runAnimationGroup { ctx in
             ctx.duration = 0.25
             ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
             panel.animator().alphaValue = 0
-        } completionHandler: { [panel] in
+        } completionHandler: { [weak self] in
             Task { @MainActor in
-                panel.orderOut(nil)
-                panel.alphaValue = 1
+                guard let self, !self.desiredVisible else { return } // フェード中に show が来たら消さない
+                self.panel.orderOut(nil)
+                self.panel.alphaValue = 1
             }
         }
     }
 
     /// 排他切替用: フェードインで復帰
     func show() {
+        desiredVisible = true
         clampToVisibleScreen()
-        guard !panel.isVisible else { return }
+        if panel.isVisible {
+            // hide のフェードアウト中に呼ばれた場合: orderOut は完了ハンドラ側で
+            // キャンセルされる（desiredVisible）ので、alpha を戻すだけで復帰できる
+            NSAnimationContext.runAnimationGroup { ctx in
+                ctx.duration = 0.25
+                ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                panel.animator().alphaValue = 1
+            }
+            return
+        }
         panel.alphaValue = 0
         panel.orderFrontRegardless()
         NSAnimationContext.runAnimationGroup { ctx in
