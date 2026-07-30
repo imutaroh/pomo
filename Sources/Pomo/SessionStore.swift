@@ -29,6 +29,8 @@ final class SessionStore: ObservableObject {
     @Published var heatWeeks: [[HeatDay]] = [] // [週][7日]、GitHub の草（直近26週）
     /// 直近14日の作業セッション（日別・新しい日が先頭、日の中も新しい順）
     @Published var recentByDay: [(date: Date, entries: [SessionLogger.ParsedEntry])] = []
+    /// カットオフなし・全期間の作業セッション（日別・新しい日が先頭、日の中も新しい順）
+    @Published var allWorkByDay: [(date: Date, entries: [SessionLogger.ParsedEntry])] = []
 
     func reload() {
         let cal = Calendar.current
@@ -64,11 +66,18 @@ final class SessionStore: ObservableObject {
     private func buildRecent(entries: [SessionLogger.ParsedEntry], cal: Calendar, todayStart: Date) {
         guard let cutoff = cal.date(byAdding: .day, value: -13, to: todayStart) else {
             recentByDay = []
+            allWorkByDay = groupByDay(entries: entries, cal: cal)
             return
         }
         let recent = entries.filter { $0.start >= cutoff }
-        let grouped = Dictionary(grouping: recent) { cal.startOfDay(for: $0.start) }
-        recentByDay = grouped.keys.sorted(by: >).map { day in
+        recentByDay = groupByDay(entries: recent, cal: cal)
+        allWorkByDay = groupByDay(entries: entries, cal: cal)
+    }
+
+    /// 日別グルーピング（新しい日が先頭、日の中も新しい順）
+    private func groupByDay(entries: [SessionLogger.ParsedEntry], cal: Calendar) -> [(date: Date, entries: [SessionLogger.ParsedEntry])] {
+        let grouped = Dictionary(grouping: entries) { cal.startOfDay(for: $0.start) }
+        return grouped.keys.sorted(by: >).map { day in
             (date: day, entries: grouped[day]!.sorted { $0.start > $1.start })
         }
     }
