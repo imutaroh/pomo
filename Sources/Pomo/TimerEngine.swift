@@ -42,6 +42,9 @@ final class TimerEngine: ObservableObject {
     private var accumulated: TimeInterval = 0 // pause までに積んだ作業時間（フロー/クラシック共通）
     private var endDate: Date?               // カウントダウンの終了予定時刻
     private var countdownTotal: TimeInterval = 0
+    /// 一時停止中に凍結した残り時間。countdownTotal（進捗の分母）とは役割を分ける
+    /// （以前は countdownTotal を残りで上書きしており、休憩の進捗バーが 0 に飛ぶバグの原因だった）
+    private var pausedRemaining: TimeInterval?
     /// 進捗バーの分母スナップショット。クラシック実行中に設定を変えても分母がズレないよう startWork() 時点で確定
     private var workCountdownTotal: TimeInterval = 0
     private var lastTick = Date()
@@ -108,7 +111,7 @@ final class TimerEngine: ObservableObject {
             segmentStart = nil
         }
         if let end = endDate {
-            countdownTotal = end.timeIntervalSince(Date()) // 残りを保持
+            pausedRemaining = end.timeIntervalSince(Date()) // 残りを凍結（分母 countdownTotal は触らない）
             endDate = nil
         }
         refresh()
@@ -122,6 +125,7 @@ final class TimerEngine: ObservableObject {
         if phase == .breakTime || activeMode != .flow {
             endDate = Date().addingTimeInterval(countdownRemaining())
         }
+        pausedRemaining = nil
         refresh()
     }
 
@@ -188,10 +192,16 @@ final class TimerEngine: ObservableObject {
         finishBreak(playChime: false)
     }
 
-    /// +5分延長（M4）
+    /// +5分延長（M4）。一時停止中でも効く（endDate が無い間は凍結残りに足す）
     func extendFiveMinutes() {
-        guard phase == .breakTime, let end = endDate else { return }
-        endDate = end.addingTimeInterval(300)
+        guard phase == .breakTime else { return }
+        if let end = endDate {
+            endDate = end.addingTimeInterval(300)
+        } else if let remaining = pausedRemaining {
+            pausedRemaining = remaining + 300
+        } else {
+            return
+        }
         countdownTotal += 300
         refresh()
     }
@@ -226,6 +236,7 @@ final class TimerEngine: ObservableObject {
         accumulated = 0
         endDate = nil
         countdownTotal = 0
+        pausedRemaining = nil
         bankedBreakSeconds = 0
         refresh()
     }
@@ -301,13 +312,15 @@ final class TimerEngine: ObservableObject {
 
     private func countdownRemaining() -> TimeInterval {
         if let end = endDate { return max(0, end.timeIntervalSince(Date())) }
-        return max(0, countdownTotal) // paused: 凍結した残り
+        if let remaining = pausedRemaining { return max(0, remaining) } // paused: 凍結した残り
+        return max(0, countdownTotal) // 開始直後など endDate 未設定の瞬間
     }
 
-    /// スリープ復帰: 5分以上のギャップを跨いだ作業セッションは「中断」として中立に記録（§9）
+    /// スリープ復帰: 5分以上のギャップを跨いだ作業セッションは「中断」として中立に記録（§9）。
+    /// 一時停止中は計時が凍結していて歪まないので対象外（意図的な停止をスリープで殺さない）
     private func handleWake() {
         let gap = Date().timeIntervalSince(lastTick)
-        if phase == .work, gap > 5 * 60 {
+        if phase == .work, !isPaused, gap > 5 * 60 {
             // simple は記録しない。スリープ5分超は無音キャンセル（20分後の誤報より良い）
             if activeMode != .simple { logWork(completed: false, interrupted: true) }
             goIdle()
