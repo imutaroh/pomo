@@ -73,7 +73,7 @@
 | M3 | **自動開始の非対称トグル** | 休憩=自動開始（デフォルト ON、カウント漏れ防止）/ 次の作業=手動開始（デフォルト OFF、作業は意図的に始める）。独立した2トグル |
 | M4 | **終了時の3択を1クリック** | 「休憩へ / +5分延長 / スキップ」。**延長・スキップを失敗扱いにしない**（abstinence violation effect 対策）。パネル UI を主、通知アクションを副とする冗長設計（§2-4 の通知バナー制約のため） |
 | M5 | **終了の合図（2段構え）** | 第1=パネル自体の視覚変化＋サウンド（権限不要・macOS集中モード非依存）、第2=システム通知（アクションボタン付き）。「集中するためのアプリなのに集中モード中は終了に気づけない」矛盾への対処 |
-| M6 | **メニューバー常駐** | MenuBarExtra + LSUIElement（Dock 非表示）。残り時間テキスト＋今日の完了セッション数を表示。パネルと視界を二重化する monora の設計を踏襲 |
+| M6 | **メニューバー常駐** | MenuBarExtra 常駐（残り時間テキスト＋今日の完了セッション数を表示）。**Dock アイコンは常時表示**（`.regular` + `NSApp.mainMenu` 新設。旧 LSUIElement/`.accessory` による Dock 非表示から方針転換、§11 修正履歴参照）。パネルと視界を二重化する monora の設計を踏襲 |
 | M7 | **グローバルショートカット** | 開始/一時停止、パネル表示/非表示の2つから |
 | M8 | **データ保存（ローカルのみ）** | 設定= UserDefaults。セッション履歴= 1行1セッションの JSONL 追記（~/Library/Application Support/ 配下、schema: start/end/種別/完了フラグ）。チャートは作らず、分析は得意領域の Python/BigQuery に寄せる |
 
@@ -153,7 +153,7 @@ panel.becomesKeyOnlyIfNeeded = true                              // キーフォ
 panel.hidesOnDeactivate = false
 panel.isOpaque = false
 panel.isMovableByWindowBackground = true                         // 全面ドラッグ
-NSApp.setActivationPolicy(.accessory)                            // LSUIElement 相当
+NSApp.setActivationPolicy(.regular)                              // Dock 常時表示（旧 .accessory/LSUIElement から方針転換、§11 修正履歴参照）
 // SwiftUI ビューは NSHostingView で載せる
 ```
 
@@ -279,3 +279,4 @@ Claude Code は GUI 挙動を直接確認できないため、フローティン
 | 2026-06-11 | Claude | **単純タイマーモード（simple）追加**（M2 を「3モード」に拡張）。任意分数のカウントダウン、JSONL 記録なし。合わせて activeMode スナップショット導入により「実行中のモード切替で表示・終了動作が壊れる」「クラシックのプリセット変更で進捗バー分母がズレる」の実バグ2件を修正 | BACKLOG.md「追加機能候補」の単純タイマーモード行を反映 |
 | 2026-06-13 | ご主人様 | **localhost API（M11）を全削除**。App Sandbox（MAS 必須）と衝突するため。`APIServer.swift`・`scripts/pomo`・CLAUDE.md の API 節を撤去 | /goal「API は必要ない、消そう」。App Store 提出方針との両立 |
 | 2026-06-13 | Claude | **App Store 提出準備パス**（リサーチ監査4軸→実装）。①Dock 非表示の回帰修正（`setActivationPolicy(.accessory)` + Info.plist `LSUIElement`、母艦ウィンドウ追加時に抜けていた）②システム通知 M5 第2合図を実装（`NotificationManager`、初回完了直前に許可要求、アクション付き）③初回オンボーディング（初回起動で母艦を開く）④オーバーレイ1分前予告（`isApproachingEnd`→パネル進捗バーの色温度）⑤会議ガードの休憩中再チェック⑥レスポンシブ（ヒートマップ横スクロール・設定の固定幅撤去・母艦の余白センタリング）⑦アクセシビリティ（Dynamic Type 対応 `pomoFont`・WCAG AA コントラスト・VoiceOver ラベル・Reduce Motion 尊重）⑧Sandbox entitlements・MAS 必須 Info.plist キー・XcodeGen `project.yml`・アイコン asset catalog | /goal「シンプルさは保ったまま、デザイン・機能をすべてアップデートし App Store 提出可能に」。受け入れには手動 GUI 確認が必須（§10）。MAS 提出の外部手順は `docs/APP_STORE_SUBMISSION.md` |
+| 2026-07-30 | Claude | **Dock 非表示 → Dock 常時表示への方針転換**（`.accessory` → `.regular`、Info.plist `LSUIElement` を `false` に変更）。**`NSApp.mainMenu` を新設**（App/編集/ウィンドウメニュー）し、メニューバーにアプリ名が出ない不具合と Cmd+Q/Cmd+C 等の標準ショートカット欠如を修正。あわせて**セッションメモのテキスト選択不可バグ**を `.textSelection(.enabled)` 付与で修正 | ユーザー要望: フォーカス時にアプリ名が出ない／メモが選択できない不具合の指摘を受け、Dock常時表示への方針転換もあわせて承認 |

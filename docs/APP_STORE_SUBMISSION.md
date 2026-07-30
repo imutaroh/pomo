@@ -11,7 +11,7 @@ GUI 挙動・署名・公証は Claude Code から検証できないため、最
 |------|------|
 | App Sandbox 用エンタイトルメント | ✅ `Pomo.entitlements`（`com.apple.security.app-sandbox` のみ。ネットワーク不使用・外部ファイルアクセスなし・録音なしのため追加権限は不要） |
 | MAS 必須の Info.plist キー | ✅ `LSUIElement` / `LSApplicationCategoryType=public.app-category.productivity` / `ITSAppUsesNonExemptEncryption=false` / `NSHumanReadableCopyright` / `CFBundleDevelopmentRegion=ja` |
-| Dock 非表示（メニューバー常駐） | ✅ `setActivationPolicy(.accessory)` + `LSUIElement`（母艦ウィンドウ追加時に抜けていた回帰を修正） |
+| Dock 常時表示（メニューバー常駐） | ✅ `setActivationPolicy(.regular)` + `LSUIElement=false` + `NSApp.mainMenu` 新設（2026-07-30、旧 Dock 非表示方針から転換） |
 | アプリアイコン | ✅ `Resources/Assets.xcassets/AppIcon.appiconset`（16〜1024px 揃い）。`assets/AppIcon.icns` も再生成済み |
 | Xcode プロジェクト生成 | ✅ `project.yml`（XcodeGen）。`xcodegen generate` で `Pomo.xcodeproj` を生成（生成物は .gitignore 済み） |
 | Sandbox 下での JSONL パス | ✅ コード変更不要。`~/Library/Containers/com.imutaakihiro.pomo/Data/...` へ OS が自動リダイレクト |

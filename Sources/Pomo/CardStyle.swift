@@ -120,6 +120,7 @@ struct SessionRow: View {
                     .foregroundStyle(Tokens.sumi.opacity(0.7))
                     .lineLimit(2)
                     .layoutPriority(0)
+                    .textSelection(.enabled)
             }
             Spacer()
             if entry.interrupted {

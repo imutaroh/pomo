@@ -205,9 +205,10 @@ struct DashboardPage: View {
             Image(systemName: symbol)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Tokens.sumi.opacity(0.7))
-                .frame(width: 32, height: 32)
+                .frame(width: 38, height: 38)
                 .background(Circle().fill(Color.white))
                 .overlay(Circle().strokeBorder(Tokens.sumi.opacity(0.10), lineWidth: 1))
+                .contentShape(Circle())
         }
         .buttonStyle(PressableButtonStyle())
         .disabled(disabled)

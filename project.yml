@@ -44,8 +44,8 @@ targets:
         CFBundleVersion: "3"
         LSMinimumSystemVersion: "14.0"
         NSHighResolutionCapable: true
-        # メニューバー常駐・Dock 非表示
-        LSUIElement: true
+        # メニューバー常駐・Dock 常時表示（旧 .accessory/LSUIElement=true から方針転換）
+        LSUIElement: false
         # App Store 必須 / 推奨
         LSApplicationCategoryType: public.app-category.productivity
         ITSAppUsesNonExemptEncryption: false
