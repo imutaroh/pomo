@@ -22,6 +22,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         super.init()
 
         statusItem.button?.font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+        statusItem.button?.imagePosition = .imageLeading
+        statusItem.button?.toolTip = "Pomo"
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
@@ -34,16 +36,41 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         updateTitle()
     }
 
+    /// メニューバーのブランドマーク: アプリアイコンと同じ270°ダイヤル＋中心点のテンプレート画像。
+    /// テンプレートなのでメニューバーのライト/ダーク・選択状態に自動追従する（絵文字は使わない）
+    private static let dialIcon: NSImage = {
+        let img = NSImage(size: NSSize(width: 18, height: 18), flipped: false) { _ in
+            let center = NSPoint(x: 9, y: 9)
+            NSColor.black.setStroke()
+            let arc = NSBezierPath()
+            arc.appendArc(withCenter: center, radius: 6.2, startAngle: 90, endAngle: 180, clockwise: true)
+            arc.lineWidth = 2.2
+            arc.lineCapStyle = .round
+            arc.stroke()
+            NSColor.black.setFill()
+            NSBezierPath(ovalIn: NSRect(x: 9 - 1.7, y: 9 - 1.7, width: 3.4, height: 3.4)).fill()
+            return true
+        }
+        img.isTemplate = true
+        return img
+    }()
+
+    private static let pauseIcon = NSImage(systemSymbolName: "pause.fill", accessibilityDescription: "一時停止中")
+    private static let breakIcon = NSImage(systemSymbolName: "cup.and.saucer.fill", accessibilityDescription: "休憩中")
+
     private func updateTitle() {
         guard let button = statusItem.button else { return }
         switch engine.phase {
         case .idle:
-            button.title = "🍅"
+            button.image = Self.dialIcon
+            button.title = ""
         case .work:
-            button.title = (engine.isPaused ? "⏸ " : "") + engine.timeString
+            button.image = engine.isPaused ? Self.pauseIcon : Self.dialIcon
+            button.title = " " + engine.timeString
         case .breakTime:
-            // 作業中と対称に、一時停止を可視化（付けないと走行中と区別できない）
-            button.title = (engine.isPaused ? "⏸ " : "") + "☕️ " + engine.timeString
+            // 一時停止はアイコンで可視化（付けないと走行中と区別できない）
+            button.image = engine.isPaused ? Self.pauseIcon : Self.breakIcon
+            button.title = " " + engine.timeString
         }
     }
 

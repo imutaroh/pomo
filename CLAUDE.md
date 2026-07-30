@@ -7,7 +7,7 @@
 ```sh
 swift build                 # デバッグビルド（コンパイル確認）
 ./scripts/build.sh          # release ビルド → build/Pomo.app（ad-hoc 署名）
-open build/Pomo.app         # 起動（メニューバー 🍅 常駐・Dock 常時表示）
+open build/Pomo.app         # 起動（メニューバーにダイヤルアイコン常駐・Dock 常時表示）
 pkill -f "build/Pomo.app"   # 停止
 ```
 
