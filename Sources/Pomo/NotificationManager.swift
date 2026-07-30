@@ -15,6 +15,9 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
     /// 通知アクションのハンドラ。AppDelegate が engine に配線する。
     var actionHandler: ((String) -> Void)?
+    /// 通知本文クリック（Default アクション）のハンドラ。macOS の標準作法どおり
+    /// 「通知クリック＝アプリを開く」にする。AppDelegate が母艦の表示を配線する。
+    var openApp: (() -> Void)?
 
     static let actStartBreak = "pomo.action.startBreak"
     static let actExtendBreak = "pomo.action.extendBreak"
@@ -122,7 +125,9 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let id = response.actionIdentifier
-        if id != UNNotificationDefaultActionIdentifier, id != UNNotificationDismissActionIdentifier {
+        if id == UNNotificationDefaultActionIdentifier {
+            Task { @MainActor in NotificationManager.shared.openApp?() }
+        } else if id != UNNotificationDismissActionIdentifier {
             Task { @MainActor in NotificationManager.shared.actionHandler?(id) }
         }
         completionHandler()

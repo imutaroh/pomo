@@ -29,6 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // M5 第2合図: 通知のカテゴリ登録とアクション配線（許可要求は初回完了直前まで遅延）
         NotificationManager.shared.configure()
+        NotificationManager.shared.openApp = { [weak self] in self?.mainWindow.show() }
         NotificationManager.shared.actionHandler = { [weak self] id in
             guard let engine = self?.engine else { return }
             switch id {
