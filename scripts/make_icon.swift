@@ -1,5 +1,5 @@
-// アプリアイコン生成: 琥珀グラデーションの角丸スクエア＋白いタイマーダイヤル（270°アーク＋中心ドット）
-// 使い方: swift scripts/make_icon.swift → assets/icon_1024.png を出力（build_icns.sh が .icns に変換）
+// アプリアイコン生成: フィールドノート調の明るい角丸スクエア＋ティールのタイマーリング
+// 使い方: swift scripts/make_icon.swift → assets/icon_1024.png を出力
 import AppKit
 
 let px = 1024
@@ -18,35 +18,75 @@ let size = CGFloat(px)
 let squareRect = CGRect(x: 100, y: 100, width: 824, height: 824)
 let square = NSBezierPath(roundedRect: squareRect, xRadius: 185, yRadius: 185)
 
-// 白ベース方針（2026-06-11）: 白地に琥珀のダイヤル
-let white = NSColor.white
-let warmGray = NSColor(red: 0.949, green: 0.941, blue: 0.925, alpha: 1) // 和紙寄りの暖かいグレー
-NSGradient(colors: [white, warmGray])!.draw(in: square, angle: -90)
+let fieldNoteBackground = NSColor(
+    deviceRed: 0xFA / 255.0,
+    green: 0xFB / 255.0,
+    blue: 0xFC / 255.0,
+    alpha: 1
+)
+fieldNoteBackground.setFill()
+square.fill()
 
-let kohaku = NSColor(red: 0.96, green: 0.63, blue: 0.13, alpha: 1) // 白地用にやや濃い琥珀 #F5A021
+let ruleColor = NSColor(
+    deviceRed: 0xE3 / 255.0,
+    green: 0xE8 / 255.0,
+    blue: 0xED / 255.0,
+    alpha: 1
+)
+let teal = NSColor(
+    deviceRed: 0x00 / 255.0,
+    green: 0x87 / 255.0,
+    blue: 0xA8 / 255.0,
+    alpha: 1
+)
+let ink = NSColor(
+    deviceRed: 0x1A / 255.0,
+    green: 0x23 / 255.0,
+    blue: 0x30 / 255.0,
+    alpha: 1
+)
 let center = CGPoint(x: size / 2, y: size / 2)
+let ringRadius: CGFloat = 235
 
-// タイマーダイヤル: 12時から時計回りに 270°（残り 90° の隙間が「進行中」を示す）
+// 罫線色のトラックリング
+let track = NSBezierPath(ovalIn: CGRect(
+    x: center.x - ringRadius,
+    y: center.y - ringRadius,
+    width: ringRadius * 2,
+    height: ringRadius * 2
+))
+track.lineWidth = 26
+ruleColor.setStroke()
+track.stroke()
+
+// 進捗アーク: 12時から時計回りに 270°
 let ring = NSBezierPath()
-ring.appendArc(withCenter: center, radius: 235, startAngle: 90, endAngle: 180, clockwise: true)
+ring.appendArc(withCenter: center, radius: ringRadius, startAngle: 90, endAngle: 180, clockwise: true)
 ring.lineWidth = 78
 ring.lineCapStyle = .round
-kohaku.setStroke()
+teal.setStroke()
 ring.stroke()
 
-// 中心ドット
-let dotR: CGFloat = 58
-kohaku.setFill()
-NSBezierPath(ovalIn: CGRect(x: center.x - dotR, y: center.y - dotR, width: dotR * 2, height: dotR * 2)).fill()
+// アーク先端のドット（9時方向）
+let endpoint = CGPoint(x: center.x - ringRadius, y: center.y)
+let endpointDotRadius: CGFloat = 30
+teal.setFill()
+NSBezierPath(ovalIn: CGRect(
+    x: endpoint.x - endpointDotRadius,
+    y: endpoint.y - endpointDotRadius,
+    width: endpointDotRadius * 2,
+    height: endpointDotRadius * 2
+)).fill()
 
-// 針: 中心から 12時方向へ
-let hand = NSBezierPath()
-hand.move(to: center)
-hand.line(to: CGPoint(x: center.x, y: center.y + 150))
-hand.lineWidth = 44
-hand.lineCapStyle = .round
-kohaku.setStroke()
-hand.stroke()
+// 中心点
+let centerDotRadius: CGFloat = 58
+ink.setFill()
+NSBezierPath(ovalIn: CGRect(
+    x: center.x - centerDotRadius,
+    y: center.y - centerDotRadius,
+    width: centerDotRadius * 2,
+    height: centerDotRadius * 2
+)).fill()
 
 NSGraphicsContext.restoreGraphicsState()
 
