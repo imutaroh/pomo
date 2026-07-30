@@ -20,7 +20,7 @@ GUI 挙動（フルスクリーン追従・透明化・ウィンドウのレス�
 - `TimerEngine.swift` — 心臓部。Date 差分ベース。フロー（カウントアップ→休憩自動算出）・クラシック（固定カウントダウン）・単純タイマー（任意分数カウントダウン、記録なし）の3モード
 - `FloatingPanel.swift` — NSPanel の検証済みレシピ（nonactivating + canJoinAllSpaces + fullScreenAuxiliary）。**このフラグ構成を崩さないこと**
 - `PanelView.swift` — パネルの SwiftUI。白基調の Liquid Glass ＋墨色文字＋ティール（フィールドノートトーン。imutaro リポジトリ DESIGN.md 準拠、2026-07-30 に琥珀の和テイストから刷新）。**テキスト入力を置かない**（フォーカス奪取の罠 §8）
-- `MainWindow.swift` — 母艦ウィンドウ（通常 NSWindow）。サイドバー＋5ページ。パネルと排他切替（母艦が見える間はパネルをしまう）
+- `MainWindow.swift` — 母艦ウィンドウ（通常 NSWindow）。サイドバー＋5ページ。母艦が見える間はパネルをしまう。閉じ方で意図分離: 「パネルに戻る」/フォーカスモード→パネル復帰、赤バツ/⌘W→すべてしまう（復帰は ⌃⌥T・メニューバー・Dock）
 - `DashboardPage / SessionsPage / StatsPage / SettingsPage / PhilosophyPage.swift` — 母艦の5ページ。`CardStyle.swift` が共用部品（ヘアラインカード・eyebrow・SelectChip・週チャート・セッション行）、`SessionStore.swift` が JSONL 読み出しの共有モデル
 - `BreakOverlay.swift` — 全画面休憩モード（全ディスプレイ、クリック遮断、キーボードは奪わない）。`MeetingGuard.swift` でマイク使用中は全画面化を見送る
 - `MenuBarController.swift` — 常駐メニュー（操作の場）。詳細設定は母艦の設定ページに一本化（モード切替だけ作業フローの一部として例外的にメニューにも残す）

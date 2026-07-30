@@ -272,7 +272,7 @@ struct SettingsPage: View {
                 shortcutRow("開始 / 一時停止", keys: "⌃⌥P", note: "どのアプリにいても効く")
                 shortcutRow("パネルを表示 / 隠す", keys: "⌃⌥T", note: "どのアプリにいても効く")
                 shortcutRow("ページ移動", keys: "⌘1〜4", note: "母艦ウィンドウを開く")
-                shortcutRow("ウィンドウを閉じてパネルへ", keys: "⌘W", note: "")
+                shortcutRow("ウィンドウを閉じる", keys: "⌘W", note: "パネルも出さず、すべてしまう")
             }
             .pomoCard()
         }

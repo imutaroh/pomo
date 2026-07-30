@@ -60,7 +60,8 @@ enum AppMenu {
         return mainMenu
     }
 
-    /// 閉じる＝パネルへ戻る（排他切替）。フォーカスモードへの主要導線なので HIG どおり File に置く
+    /// 閉じる＝すべてしまう（メニューバー🍅のみ残る。復帰は ⌃⌥T / メニューバー / Dock）。
+    /// パネルが欲しいときはサイドバー「パネルに戻る」かフォーカスモード（Issue #39 で意図分離）
     private static func fileMenuItem() -> NSMenuItem {
         let item = NSMenuItem()
         let menu = NSMenu(title: "ファイル")
