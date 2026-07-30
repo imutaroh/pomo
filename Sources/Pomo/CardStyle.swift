@@ -1,3 +1,4 @@
+import AppKit
 import Charts
 import SwiftUI
 
@@ -99,7 +100,9 @@ struct WeekChart: View {
 
 struct SessionRow: View {
     let entry: SessionLogger.ParsedEntry
+    var onChanged: () -> Void
     @State private var hovered = false
+    @State private var showDeleteConfirm = false
 
     private static let time: DateFormatter = {
         let f = DateFormatter()
@@ -137,23 +140,68 @@ struct SessionRow: View {
                 .monospacedDigit()
                 .foregroundStyle(Tokens.sumi.opacity(0.5))
                 .layoutPriority(1)
+            // 常にレイアウトに置き opacity だけ切り替える（出し入れすると Spacer が幅を再配分し他要素がガタつくため）
+            Menu {
+                Button("メモを編集…") { presentEditMemo() }
+                Button("削除…") { showDeleteConfirm = true }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Tokens.sumiSecondary)
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+            .frame(width: 20)
+            .opacity(hovered ? 1 : 0)
+            .allowsHitTesting(hovered)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 13)
         .background(Tokens.sumi.opacity(hovered ? 0.03 : 0))
         .animation(.easeOut(duration: 0.15), value: hovered)
         .onHover { hovered = $0 }
+        .confirmationDialog("このセッションを削除しますか？", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
+            Button("削除", role: .destructive) {
+                SessionLogger.shared.deleteEntry(start: entry.start, end: entry.end)
+                onChanged()
+            }
+            Button("キャンセル", role: .cancel) {}
+        } message: {
+            Text("元に戻せません。")
+        }
+    }
+
+    /// メモ編集は NSAlert（MenuBarController.editMemo と同じ体裁）。パネルではなく母艦上のダイアログなので
+    /// テキスト入力を SwiftUI View に置く原則（§8）には抵触しない
+    private func presentEditMemo() {
+        NSApp.activate(ignoringOtherApps: true)
+        let alert = NSAlert()
+        alert.messageText = "メモを編集"
+        alert.informativeText = "セッション記録（JSONL）に保存されます"
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
+        field.stringValue = entry.memo ?? ""
+        field.placeholderString = "例: Go の学習、ブログ執筆"
+        alert.accessoryView = field
+        alert.addButton(withTitle: "保存")
+        alert.addButton(withTitle: "キャンセル")
+        alert.window.initialFirstResponder = field
+        if alert.runModal() == .alertFirstButtonReturn {
+            let text = field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            SessionLogger.shared.updateMemo(start: entry.start, end: entry.end, memo: text.isEmpty ? nil : text)
+            onChanged()
+        }
     }
 }
 
 /// SessionRow をリスト状に積む白カード（区切り線付き）
 struct SessionListCard: View {
     let entries: [SessionLogger.ParsedEntry]
+    var onChanged: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             ForEach(entries) { e in
-                SessionRow(entry: e)
+                SessionRow(entry: e, onChanged: onChanged)
                 if e.id != entries.last?.id {
                     Divider().overlay(Tokens.sumi.opacity(0.05))
                 }

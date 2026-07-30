@@ -71,7 +71,7 @@ struct SessionsPage: View {
                                     .monospacedDigit()
                                     .foregroundStyle(Tokens.sumiTertiary)
                             }
-                            SessionListCard(entries: day.entries)
+                            SessionListCard(entries: day.entries, onChanged: { store.reload() })
                         }
                         .staggeredAppear(min(index + 2, 6)) // 遅延の上限は 240ms（下の方まで待たせない）
                     }
@@ -88,7 +88,7 @@ struct SessionsPage: View {
                             .padding(.vertical, 8)
                             .pomoCard()
                     } else {
-                        SessionListCard(entries: results)
+                        SessionListCard(entries: results, onChanged: { store.reload() })
                     }
                 }
                 .staggeredAppear(2)

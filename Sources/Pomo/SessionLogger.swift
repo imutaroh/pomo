@@ -103,6 +103,45 @@ final class SessionLogger {
         try? Data((lines.joined(separator: "\n") + "\n").utf8).write(to: url)
     }
 
+    /// start/end が一致するエントリのメモを書き換える（過去セッションの記録ミス訂正用）
+    func updateMemo(start: Date, end: Date, memo: String?) {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        var lines = text.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
+        let decoder = JSONDecoder()
+        let encoder = JSONEncoder()
+        guard let idx = lines.firstIndex(where: { line in
+            guard let data = line.data(using: .utf8), let e = try? decoder.decode(Entry.self, from: data),
+                  let s = iso.date(from: e.start), let f = iso.date(from: e.end) else { return false }
+            return s == start && f == end
+        }), let data = lines[idx].data(using: .utf8), let e = try? decoder.decode(Entry.self, from: data) else { return }
+        let updated = Entry(start: e.start, end: e.end, kind: e.kind, mode: e.mode, durationSec: e.durationSec,
+                             completed: e.completed, interrupted: e.interrupted, memo: memo)
+        if let d = try? encoder.encode(updated), let s = String(data: d, encoding: .utf8) {
+            lines[idx] = s
+        }
+        try? Data((lines.joined(separator: "\n") + "\n").utf8).write(to: url)
+    }
+
+    /// start/end が一致するエントリを1件削除する（誤記録の削除用）
+    func deleteEntry(start: Date, end: Date) {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        var lines = text.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
+        let decoder = JSONDecoder()
+        guard let idx = lines.firstIndex(where: { line in
+            guard let data = line.data(using: .utf8), let e = try? decoder.decode(Entry.self, from: data),
+                  let s = iso.date(from: e.start), let f = iso.date(from: e.end) else { return false }
+            return s == start && f == end
+        }) else { return }
+        // 削除対象が「今日の完了済み作業」なら当日カウンタも整合させる（log()/loadToday() でのみ更新される値のため）
+        if let data = lines[idx].data(using: .utf8), let e = try? decoder.decode(Entry.self, from: data),
+           e.kind == "work", e.completed, let s = iso.date(from: e.start), Calendar.current.isDateInToday(s) {
+            todayWorkCount = max(0, todayWorkCount - 1)
+            todayWorkSeconds = max(0, todayWorkSeconds - e.durationSec)
+        }
+        lines.remove(at: idx)
+        try? Data((lines.isEmpty ? "" : lines.joined(separator: "\n") + "\n").utf8).write(to: url)
+    }
+
     /// 日付をパース済みのセッション（ダッシュボード用）
     struct ParsedEntry: Identifiable {
         let id = UUID()
