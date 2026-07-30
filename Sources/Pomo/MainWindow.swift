@@ -3,7 +3,7 @@ import Combine
 import SwiftUI
 
 enum SidebarItem: String, CaseIterable, Identifiable {
-    case dashboard, sessions, stats, settings
+    case dashboard, sessions, stats, settings, philosophy
     var id: String { rawValue }
 
     var title: String {
@@ -12,6 +12,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .sessions: return "セッション"
         case .stats: return "統計"
         case .settings: return "設定"
+        case .philosophy: return "願い"
         }
     }
 
@@ -21,6 +22,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .sessions: return "list.bullet"
         case .stats: return "chart.bar"
         case .settings: return "gearshape"
+        case .philosophy: return "heart"
         }
     }
 }
@@ -195,6 +197,8 @@ struct MainWindowView: View {
             StatsPage(store: store)
         case .settings:
             SettingsPage(engine: engine)
+        case .philosophy:
+            PhilosophyPage()
         }
     }
 }

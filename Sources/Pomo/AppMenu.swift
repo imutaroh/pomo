@@ -24,6 +24,7 @@ final class AppMenuActions: NSObject {
     @objc func openSessionsTapped() { openPage(.sessions) }
     @objc func openStatsTapped() { openPage(.stats) }
     @objc func openSettingsPageTapped() { openPage(.settings) }
+    @objc func openPhilosophyTapped() { openPage(.philosophy) }
 
     /// Info.plist の CFBundleName/Version/Copyright は標準Aboutパネルが自動で拾うため、
     /// ここでは一言添えるだけ（罪悪感ゼロ・ローカル完結の哲学を伝える最小限のクレジット）
@@ -77,6 +78,7 @@ enum AppMenu {
             ("セッション", #selector(AppMenuActions.openSessionsTapped), "2"),
             ("統計", #selector(AppMenuActions.openStatsTapped), "3"),
             ("設定", #selector(AppMenuActions.openSettingsPageTapped), "4"),
+            ("願い", #selector(AppMenuActions.openPhilosophyTapped), "5"),
         ]
         for (title, action, key) in pages {
             let i = NSMenuItem(title: title, action: action, keyEquivalent: key)
