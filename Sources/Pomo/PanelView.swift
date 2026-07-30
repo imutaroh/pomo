@@ -18,6 +18,8 @@ struct PanelView: View {
     @ObservedObject var settings = Settings.shared
     /// 「拡大」ボタン → 母艦ウィンドウを開く（排他切替）
     var expand: (() -> Void)?
+    /// 右クリック「パネルを隠す」→ PanelController.hide()（パネル自身から隠せる導線）
+    var hidePanel: (() -> Void)?
     @State private var hovering = false
     @State private var pillHovered = false
     @State private var expandHovered = false
@@ -82,6 +84,11 @@ struct PanelView: View {
             .onHover { h in
                 hovering = h
                 if h { engine.clearFinishedFlag() }
+            }
+            // 右クリック: パネル自身から完結できる最小限の導線（テキスト入力なし原則は維持）
+            .contextMenu {
+                Button("ダッシュボードを開く") { expand?() }
+                Button("パネルを隠す（⌃⌥T で再表示）") { hidePanel?() }
             }
             .padding(12) // グローのハローが描ける余白（ウィンドウは 220、ガラスは 196）
     }
