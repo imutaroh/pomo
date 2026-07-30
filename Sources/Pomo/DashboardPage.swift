@@ -299,7 +299,7 @@ struct DashboardPage: View {
                     .padding(.vertical, 8)
                     .pomoCard()
             } else {
-                SessionListCard(entries: recent)
+                SessionListCard(entries: recent, onChanged: { store.reload() })
             }
         }
     }
