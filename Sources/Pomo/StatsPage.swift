@@ -55,7 +55,8 @@ struct StatsPage: View {
         VStack(alignment: .leading, spacing: 12) {
             sectionLabel("つみあげ（直近26週）")
             VStack(alignment: .leading, spacing: 4) {
-                // monthLabels と cell HStack を一緒にスクロールして縦の位置を同期する
+                // monthLabels と cell HStack を一緒にスクロールして縦の位置を同期する。
+                // 初期位置は右端＝最新週（狭い幅で最古の週から見えると、開くたびに右へスクロールする羽目になる）
                 ScrollView(.horizontal, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 4) {
                         monthLabels
@@ -74,6 +75,7 @@ struct StatsPage: View {
                         }
                     }
                 }
+                .defaultScrollAnchor(.trailing)
                 heatLegend
             }
             .pomoCard()
