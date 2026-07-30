@@ -16,9 +16,10 @@ struct SettingsPage: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 28) {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
+                sectionEyebrow("SETTINGS")
                 Text("設定")
-                    .pomoFont(28, weight: .semibold)
+                    .pomoFont(24, weight: .semibold)
                     .foregroundStyle(Tokens.sumi)
                 Text("タイマーの形式、休憩のふるまい、音。")
                     .pomoFont(13)
