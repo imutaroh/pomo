@@ -28,6 +28,8 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 @MainActor
 final class MainWindowState: ObservableObject {
     @Published var selection: SidebarItem = .dashboard
+    /// 検索フィールドへのフォーカス要求（Cmd+F）。インクリメントが1回の要求を表す
+    @Published var searchFocusToken = 0
 }
 
 /// 母艦ウィンドウ。メニューバーに潜らず設定・操作・振り返りができる「Pomo の家」。
@@ -74,6 +76,12 @@ final class MainWindowController: NSObject, NSWindowDelegate {
         NSApp.activate(ignoringOtherApps: true)
         window?.makeKeyAndOrderFront(nil)
         panelController.hide()
+    }
+
+    /// Cmd+F: セッションページを開いて検索フィールドにフォーカスする
+    func showAndFocusSearch() {
+        show(page: .sessions)
+        state.searchFocusToken += 1
     }
 
     // MARK: - 排他切替（「母艦が可視でなければパネルを出す」が唯一の真実）
@@ -182,7 +190,7 @@ struct MainWindowView: View {
                 enterFocus: { engine.startWork(); shrinkToPanel() }
             )
         case .sessions:
-            SessionsPage(store: store)
+            SessionsPage(store: store, focusToken: state.searchFocusToken)
         case .stats:
             StatsPage(store: store)
         case .settings:

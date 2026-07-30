@@ -3,9 +3,13 @@ import SwiftUI
 /// 直近14日のセッションを日別に一覧。メモ付き JSONL がこのアプリの差別化資産 — 見返す場所
 struct SessionsPage: View {
     @ObservedObject var store: SessionStore
+    /// Cmd+F のフォーカス要求トークン（MainWindowState.searchFocusToken）。値が変わったら検索欄にフォーカス
+    var focusToken: Int = 0
     @State private var searchText = ""
     @State private var period: PeriodFilter = .days14
     @State private var interruptedOnly = false
+    @State private var seenFocusToken = 0
+    @FocusState private var searchFocused: Bool
 
     enum PeriodFilter: Int, CaseIterable, Identifiable {
         case days14 = 14, days30 = 30, all = 0
@@ -47,6 +51,7 @@ struct SessionsPage: View {
                     .textFieldStyle(.plain)
                     .pomoFont(14)
                     .foregroundStyle(Tokens.sumi)
+                    .focused($searchFocused)
                 if !searchText.isEmpty {
                     Button {
                         searchText = ""
@@ -125,6 +130,15 @@ struct SessionsPage: View {
         }
         .animation(.easeOut(duration: 0.25), value: period)
         .animation(.easeOut(duration: 0.25), value: interruptedOnly)
+        // Cmd+F: 別ページから遷移してきた直後（onAppear）と、表示中の再要求（onChange）の両方を拾う
+        .onAppear { consumeFocusToken() }
+        .onChange(of: focusToken) { _, _ in consumeFocusToken() }
+    }
+
+    private func consumeFocusToken() {
+        guard focusToken != seenFocusToken else { return }
+        seenFocusToken = focusToken
+        searchFocused = true
     }
 
     /// 期間カットオフ日（.all なら nil）

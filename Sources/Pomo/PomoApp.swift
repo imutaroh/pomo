@@ -20,7 +20,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panelController.openMainWindow = { [weak self] in self?.mainWindow.show() }
         menuActions = AppMenuActions(
             openSettings: { [weak self] in self?.mainWindow.show(page: .settings) },
-            openPage: { [weak self] page in self?.mainWindow.show(page: page) }
+            openPage: { [weak self] page in self?.mainWindow.show(page: page) },
+            openFind: { [weak self] in self?.mainWindow.showAndFocusSearch() }
         )
         NSApp.mainMenu = AppMenu.build(actions: menuActions)
         breakOverlay = BreakOverlayController(engine: engine)

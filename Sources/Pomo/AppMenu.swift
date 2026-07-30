@@ -6,11 +6,15 @@ import AppKit
 final class AppMenuActions: NSObject {
     private let openSettings: () -> Void
     private let openPage: (SidebarItem) -> Void
+    private let openFind: () -> Void
 
-    init(openSettings: @escaping () -> Void, openPage: @escaping (SidebarItem) -> Void) {
+    init(openSettings: @escaping () -> Void, openPage: @escaping (SidebarItem) -> Void, openFind: @escaping () -> Void) {
         self.openSettings = openSettings
         self.openPage = openPage
+        self.openFind = openFind
     }
+
+    @objc func findTapped() { openFind() }
 
     @objc func openSettingsTapped() {
         openSettings()
@@ -46,7 +50,7 @@ enum AppMenu {
 
         mainMenu.addItem(appMenuItem(actions: actions))
         mainMenu.addItem(fileMenuItem())
-        mainMenu.addItem(editMenuItem())
+        mainMenu.addItem(editMenuItem(actions: actions))
         mainMenu.addItem(viewMenuItem(actions: actions))
         let windowItem = windowMenuItem()
         mainMenu.addItem(windowItem)
@@ -114,7 +118,7 @@ enum AppMenu {
         return item
     }
 
-    private static func editMenuItem() -> NSMenuItem {
+    private static func editMenuItem(actions: AppMenuActions) -> NSMenuItem {
         let item = NSMenuItem()
         let menu = NSMenu(title: "編集")
 
@@ -129,6 +133,12 @@ enum AppMenu {
         menu.addItem(NSMenuItem(title: "貼り付け", action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
         menu.addItem(NSMenuItem(title: "削除", action: #selector(NSText.delete(_:)), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "すべてを選択", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
+        menu.addItem(.separator())
+
+        // セッションのメモ検索へ（どのページ・母艦が閉じた状態からでも届く）
+        let find = NSMenuItem(title: "検索", action: #selector(AppMenuActions.findTapped), keyEquivalent: "f")
+        find.target = actions
+        menu.addItem(find)
 
         item.submenu = menu
         return item
