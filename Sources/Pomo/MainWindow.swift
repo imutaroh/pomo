@@ -62,18 +62,22 @@ final class MainWindowController: NSObject, NSWindowDelegate {
             )
             let w = NSWindow(contentViewController: host)
             w.title = "Pomo"
-            w.setContentSize(NSSize(width: 880, height: 620))
-            // 最小を 560×440 まで下げ、狭く畳んでも崩れないようにした（ページは ViewThatFits/ScrollView で追従）
-            w.contentMinSize = NSSize(width: 560, height: 440)
+            // 固定サイズ（Issue #53）: 余白はこの寸法基準で調整済み。内蔵 13インチ（1440×900）にも収まる。
+            // .resizable を持たないためズーム/フルスクリーンも無効。min/max を一致させ、
+            // 過去に保存されたリサイズ済みフレームからの復元でもこの寸法を維持する。
+            let fixedSize = NSSize(width: 880, height: 620)
             // fullSizeContentView でサイドバーをタイトルバー下まで届かせる（トラフィックライトの分は上余白で逃がす）
-            w.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
+            w.styleMask = [.titled, .closable, .miniaturizable, .fullSizeContentView]
+            w.contentMinSize = fixedSize
+            w.contentMaxSize = fixedSize
             w.isReleasedWhenClosed = false
             // 白ベース方針: ダークモードでも常にライト・和紙背景
             w.appearance = NSAppearance(named: .aqua)
             w.backgroundColor = NSColor(red: 0xFA / 255, green: 0xFB / 255, blue: 0xFC / 255, alpha: 1) // Tokens.canvas と一致
             w.titlebarAppearsTransparent = true
             w.titleVisibility = .hidden
-            w.setFrameAutosaveName("PomoMainWindow")
+            w.setFrameAutosaveName("PomoMainWindow") // 位置の記憶（サイズは直後の setContentSize が上書き）
+            w.setContentSize(fixedSize)
             w.center()
             w.delegate = self
             window = w
