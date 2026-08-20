@@ -1,63 +1,76 @@
 import Foundation
 
-/// ヘッドレス自己テスト（GUI 不要の E2E 検証用）。
-/// このマシンは完全な Xcode が無く `swift test`(XCTest) が使えないため、実物の Settings＋TimerEngine を
-/// アプリ起動経路で直接動かして検証する。`POMO_SELFTEST=1 .build/debug/Pomo` で実行し、結果を出力して exit。
-/// 通常起動（env 未設定）では一切作動しない。
+/// GUI 不要の自己テスト。`POMO_SELFTEST=1 .build/debug/Pomo` で実行する。
 enum SelfTest {
     @MainActor
     static func runIfRequested() {
         guard ProcessInfo.processInfo.environment["POMO_SELFTEST"] == "1" else { return }
 
         var failures = 0
-        func check(_ ok: Bool, _ msg: String) {
-            print((ok ? "✅ PASS" : "❌ FAIL") + " — " + msg)
+        func check(_ ok: Bool, _ message: String) {
+            print((ok ? "✅ PASS" : "❌ FAIL") + " — " + message)
             if !ok { failures += 1 }
         }
 
-        // ダッシュボードの timerSetup が叩くのと同じ経路: settings 変更 → engine.settingsChanged()
-        // 注意: Settings.shared は実 UserDefaults なので、触った値は必ず元に戻す
-        // （以前は書きっぱなしで、テスト実行のたびにユーザーの設定が classic/50分 に化けていた）
-        let s = Settings.shared
-        let savedMode = s.mode
-        let savedClassicWorkMin = s.classicWorkMin
-        let savedSimpleTimerMinutes = s.simpleTimerMinutes
+        let settings = Settings.shared
+        let savedMode = settings.mode
+        let savedPomodoroMinutes = settings.pomodoroWorkMinutes
+        let savedTimerMinutes = settings.timerMinutes
+        let savedAutoStartBreak = settings.autoStartBreak
         defer {
-            s.mode = savedMode
-            s.classicWorkMin = savedClassicWorkMin
-            s.simpleTimerMinutes = savedSimpleTimerMinutes
+            settings.mode = savedMode
+            settings.pomodoroWorkMinutes = savedPomodoroMinutes
+            settings.timerMinutes = savedTimerMinutes
+            settings.autoStartBreak = savedAutoStartBreak
         }
-        let e = TimerEngine() // 起動直後 = idle
 
-        s.mode = .classic; s.classicWorkMin = 40; e.settingsChanged()
-        check(e.timeString == "40:00", "クラシック40分 → \(e.timeString)（期待 40:00）")
+        let engine = TimerEngine()
 
-        s.classicWorkMin = 25; e.settingsChanged()
-        check(e.timeString == "25:00", "時間を25分へ変更 → \(e.timeString)（期待 25:00）")
+        settings.mode = .pomodoro
+        settings.pomodoroWorkMinutes = 40
+        engine.settingsChanged()
+        check(engine.timeString == "40:00", "ポモドーロ40分の待機表示")
 
-        s.mode = .simple; s.simpleTimerMinutes = 15; e.settingsChanged()
-        check(e.timeString == "15:00", "タイマーモード15分 → \(e.timeString)（期待 15:00）")
+        settings.mode = .timer
+        settings.timerMinutes = 15
+        engine.settingsChanged()
+        check(engine.timeString == "15:00", "タイマー15分の待機表示")
+        engine.startWork()
+        check(engine.phase == .work && engine.activeMode == .timer, "タイマーを開始できる")
+        engine.reset()
 
-        s.mode = .flow; e.settingsChanged()
-        check(e.timeString == "00:00", "フロー待機 → \(e.timeString)（期待 00:00）")
+        settings.mode = .flow
+        engine.settingsChanged()
+        check(engine.timeString == "00:00", "フローは0から始まる")
+        engine.startWork()
+        check(engine.phase == .work && engine.activeMode == .flow, "フローを開始できる")
+        engine.reset()
 
-        // 開始すると選んだ時間でカウントが始まる（変更が実タイマーに効く）。
-        // simple モードで検証する: classic だと reset() が実 sessions.jsonl に
-        // completed:false のジャンク行を追記してしまう（simple は無記録）
-        s.mode = .simple; s.simpleTimerMinutes = 50; e.settingsChanged(); e.startWork()
-        check(e.phase == .work && e.timeString == "50:00", "開始 → \(e.phase) \(e.timeString)（期待 work 50:00）")
-        e.reset()
+        settings.mode = .clock
+        engine.settingsChanged()
+        let clockParts = engine.timeString.split(separator: ":")
+        check(clockParts.count == 3, "時計はHH:MM:SSで表示する")
+        engine.startWork()
+        check(engine.phase == .idle, "時計モードには開始操作がない")
 
-        // 一時停止まわりの回帰チェック（Issue #26: 一時停止中の+5分が無反応だったバグ）。
-        // 休憩状態のまま exit する（skipBreak/reset は実 sessions.jsonl に記録してしまうため呼ばない）
-        e.startBreak(duration: 300)
-        check(e.phase == .breakTime, "休憩開始 → \(e.phase)（期待 breakTime）")
-        e.togglePause()
-        check(e.isPaused, "休憩を一時停止 → isPaused \(e.isPaused)（期待 true）")
-        e.extendFiveMinutes()
-        check(e.timeString == "10:00", "一時停止中に+5分 → \(e.timeString)（期待 10:00）")
-        e.togglePause()
-        check(!e.isPaused, "再開 → isPaused \(e.isPaused)（期待 false）")
+        settings.mode = .pomodoro
+        settings.autoStartBreak = true
+        engine.settingsChanged()
+        engine.startWork()
+        engine.finishWork()
+        check(engine.phase == .breakTime, "ポモドーロ終了後に休憩へ進む")
+        check(engine.lastWorkString != nil, "休憩中に今回の集中時間を保持する")
+        engine.skipBreak()
+        engine.startWork()
+        check(engine.lastWorkString == nil, "次の作業開始で直前の集中時間を消す")
+        engine.reset()
+        check(engine.lastWorkString == nil, "リセットで今回の集中時間を消す")
+
+        engine.startBreak(duration: 300)
+        engine.togglePause()
+        engine.extendFiveMinutes()
+        check(engine.timeString == "10:00", "一時停止中も休憩を5分延長できる")
+        engine.reset()
 
         print(failures == 0 ? "ALL PASS ✅" : "\(failures) FAILED ❌")
         exit(failures == 0 ? 0 : 1)

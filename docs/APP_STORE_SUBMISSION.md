@@ -14,7 +14,7 @@ GUI 挙動・署名・公証は Claude Code から検証できないため、最
 | Dock 常時表示（メニューバー常駐） | ✅ `setActivationPolicy(.regular)` + `LSUIElement=false` + `NSApp.mainMenu` 新設（2026-07-30、旧 Dock 非表示方針から転換） |
 | アプリアイコン | ✅ `Resources/Assets.xcassets/AppIcon.appiconset`（16〜1024px 揃い）。`assets/AppIcon.icns` も再生成済み |
 | Xcode プロジェクト生成 | ✅ `project.yml`（XcodeGen）。`xcodegen generate` で `Pomo.xcodeproj` を生成（生成物は .gitignore 済み） |
-| Sandbox 下での JSONL パス | ✅ コード変更不要。`~/Library/Containers/com.imutaakihiro.pomo/Data/...` へ OS が自動リダイレクト |
+| 計測データ | ✅ 設定以外は保存しない。旧JSONL/SQLiteファイルにもアクセスしない |
 | データ収集 | ✅ なし（外部送信・テレメトリ・アカウント・URLSession いずれも不使用）。App Privacy は「データを収集しない」で申告できる |
 | localhost API | ✅ 削除済み（Sandbox と衝突するため） |
 
@@ -63,7 +63,7 @@ ditto -c -k --keepParent build/Pomo.app Pomo.zip
 xcrun notarytool submit Pomo.zip --apple-id <id> --team-id <TEAMID> --password <app専用pw> --wait
 xcrun stapler staple build/Pomo.app
 ```
-配布は .dmg か zip。自動更新は将来 Sparkle を検討（MARKET.md P0）。
+配布は .dmg か zip。自動更新には実装済みの Sparkle を使う。
 
 ### B. Mac App Store
 ```sh
@@ -84,15 +84,15 @@ Xcode で:
 Claude Code は GUI を確認できない。`./scripts/build.sh && open build/Pomo.app` で起動し、以下を目視:
 
 **回帰・基本**
-- [ ] Dock にアイコンが出ない（メニューバー 🍅 のみ）
+- [ ] Dock にアイコンが常時表示され、メニューバーにもダイヤルアイコンが出る
 - [ ] 初回起動（`defaults delete com.imutaakihiro.pomo didOnboard` でリセット可）で母艦ウィンドウが自動で開く
 - [ ] フルスクリーンの別アプリ上にパネルが追従する（§10-1,2,3）
 
 **今回の変更点**
-- [ ] 母艦ウィンドウを**横幅いっぱい〜最小(760)まで伸縮**して、各ページ（ダッシュボード/セッション/統計/設定）が崩れない
-- [ ] 統計のヒートマップが、狭いとき横スクロールで見られる（はみ出し・クリップなし）
+- [ ] 母艦ウィンドウの各ページ（タイマー/設定/願い）が崩れない
+- [ ] 4モードの選択と時計モードの開始操作なしを確認する
 - [ ] 設定ページのピッカー/スライダーが最小幅でもラベルを潰さない
-- [ ] クラシック/単純タイマーで**残り1分**になるとパネルの進捗バーが濃い琥珀に変わる
+- [ ] ポモドーロ/タイマーで**残り1分**になるとパネルの進捗バーが濃い琥珀に変わる
 - [ ] 作業/休憩おわりに**システム通知**が出る（初回は許可ダイアログ→以後アクションボタン）。通知の音とアプリ音が二重に鳴らない
 - [ ] 会議（マイク使用）中に休憩へ入ると全画面オーバーレイが出ず、通話終了後に出る
 - [ ] システム設定で「視差効果を減らす(Reduce Motion)」ON 時、休憩オーバーレイの呼吸アニメと一覧のスライドが止まる

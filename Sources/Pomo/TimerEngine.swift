@@ -8,53 +8,38 @@ enum Phase: Equatable {
     case breakTime
 }
 
-/// タイマーの心臓部。tick 積算ではなく Date 差分で計算する（§2-5）。
-/// フローモード: 作業はカウントアップ、停止時に「作業時間 ÷ 比率」で休憩を自動算出。
-/// クラシックモード: 固定カウントダウン。
-/// 単純タイマーモード: 任意分数のカウントダウンのみ。JSONL に記録しない。
+/// Date 差分で計測するタイマーの心臓部。
+/// 計測結果はメモリ上の「今回」だけを扱い、ファイルやデータベースへ保存しない。
 @MainActor
 final class TimerEngine: ObservableObject {
     @Published private(set) var phase: Phase = .idle
     @Published private(set) var isPaused = false
-    /// startWork() 時点の settings.mode スナップショット。セッション内のロジック（表示・終了・ログ）はこちらを参照する
     @Published private(set) var activeMode: TimerMode
-    /// 表示用の秒数（フロー作業中=経過、その他=残り）
     @Published private(set) var displaySeconds = 0
-    /// 0...1。クラシック作業・休憩の進捗。フロー作業中は基準25分に対する進捗（満タンで止まる）
+    @Published private(set) var workElapsedSeconds = 0
+    /// 直前に終えた作業時間。次の作業開始またはリセットで消える。
+    @Published private(set) var lastWorkSeconds: Int?
     @Published private(set) var progress: Double = 0
-    /// フロー作業中に貯まっている休憩秒数（ライブ表示用 = 動機づけ）
     @Published private(set) var bankedBreakSeconds = 0
-    /// 終了直後の合図（パネルの視覚変化トリガー）
     @Published private(set) var justFinished = false
-    /// 終了予定の60秒前（カウントダウン作業＝クラシック/単純のみ）。パネルが事前に色温度を上げ、
-    /// 全画面オーバーレイが「突然落ちてくる」体験を避ける（BACKLOG: オーバーレイ事前警告）
     @Published private(set) var isApproachingEnd = false
-    @Published private(set) var classicCompletedInSet = 0
-    /// 進行中の作業セッションに付けるメモ（メニュー/API から設定、ログ記録時に保存）
-    @Published var currentMemo: String?
+    @Published private(set) var pendingBreakDuration: TimeInterval?
 
     private let settings = Settings.shared
     private var ticker: Timer?
-
-    // 進行中セッションの状態（Date ベース）
-    private var phaseStart: Date?            // 現フェーズの開始時刻（ログ用）
-    private var segmentStart: Date?          // 現在の連続計測区間の開始（pause で区切る）
-    private var accumulated: TimeInterval = 0 // pause までに積んだ作業時間（フロー/クラシック共通）
-    private var endDate: Date?               // カウントダウンの終了予定時刻
+    private var segmentStart: Date?
+    private var accumulated: TimeInterval = 0
+    private var endDate: Date?
     private var countdownTotal: TimeInterval = 0
-    /// 一時停止中に凍結した残り時間。countdownTotal（進捗の分母）とは役割を分ける
-    /// （以前は countdownTotal を残りで上書きしており、休憩の進捗バーが 0 に飛ぶバグの原因だった）
     private var pausedRemaining: TimeInterval?
-    /// 進捗バーの分母スナップショット。クラシック実行中に設定を変えても分母がズレないよう startWork() 時点で確定
     private var workCountdownTotal: TimeInterval = 0
     private var lastTick = Date()
-    /// フロー上限の合図は1セッション1回だけ（無視して続ける自由は保つ）
     private var flowLimitSignaled = false
+    private var finishedClearTask: Task<Void, Never>?
 
     var onPhaseChange: (() -> Void)?
 
     init() {
-        // activeMode は宣言時に Settings.shared を参照すると MainActor 初期化順の問題が起きるため init 内で代入する
         activeMode = Settings.shared.mode
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
@@ -62,36 +47,39 @@ final class TimerEngine: ObservableObject {
             Task { @MainActor in self?.handleWake() }
         }
         startTicker()
-        refresh() // 起動直後の待機表示（クラシックなら次の作業時間の予告）
+        refresh()
     }
 
     // MARK: - 操作
 
     func startWork() {
-        guard phase != .work else { return }
-        // 開始時点のモードを確定。セッション内はこの値を参照する
+        guard phase == .idle, settings.mode != .clock else { return }
         activeMode = settings.mode
         phase = .work
         isPaused = false
         justFinished = false
         flowLimitSignaled = false
-        pendingBreakDuration = nil // 休憩せず次の作業へ進んだら破棄（罪悪感なし）
-        currentMemo = nil
-        phaseStart = Date()
+        pendingBreakDuration = nil
+        lastWorkSeconds = nil
         segmentStart = Date()
         accumulated = 0
+        workElapsedSeconds = 0
+
         switch activeMode {
         case .flow:
             endDate = nil
+            countdownTotal = 0
             workCountdownTotal = 0
-        case .classic:
-            workCountdownTotal = TimeInterval(settings.classicWorkMin * 60)
+        case .pomodoro:
+            workCountdownTotal = TimeInterval(settings.pomodoroWorkMinutes * 60)
             countdownTotal = workCountdownTotal
             endDate = Date().addingTimeInterval(countdownTotal)
-        case .simple:
-            workCountdownTotal = TimeInterval(settings.simpleTimerMinutes * 60)
+        case .timer:
+            workCountdownTotal = TimeInterval(settings.timerMinutes * 60)
             countdownTotal = workCountdownTotal
             endDate = Date().addingTimeInterval(countdownTotal)
+        case .clock:
+            return
         }
         refresh()
         onPhaseChange?()
@@ -100,22 +88,22 @@ final class TimerEngine: ObservableObject {
     func togglePause() {
         switch phase {
         case .idle:
-            startWork()
+            startWork() // 時計モードでは何もしない
         case .work, .breakTime:
-            if isPaused { resume() } else { pause() }
+            isPaused ? resume() : pause()
         }
     }
 
     private func pause() {
         guard !isPaused else { return }
         isPaused = true
-        if let seg = segmentStart {
-            accumulated += Date().timeIntervalSince(seg)
-            segmentStart = nil
+        if let segmentStart {
+            accumulated += Date().timeIntervalSince(segmentStart)
+            self.segmentStart = nil
         }
-        if let end = endDate {
-            pausedRemaining = end.timeIntervalSince(Date()) // 残りを凍結（分母 countdownTotal は触らない）
-            endDate = nil
+        if let endDate {
+            pausedRemaining = endDate.timeIntervalSince(Date())
+            self.endDate = nil
         }
         refresh()
     }
@@ -124,7 +112,6 @@ final class TimerEngine: ObservableObject {
         guard isPaused else { return }
         isPaused = false
         segmentStart = Date()
-        // simple もカウントダウンなので .classic と同じく endDate を再設定する
         if phase == .breakTime || activeMode != .flow {
             endDate = Date().addingTimeInterval(countdownRemaining())
         }
@@ -132,77 +119,75 @@ final class TimerEngine: ObservableObject {
         refresh()
     }
 
-    /// フローの核: 作業を止める → 休憩を自動算出して開始
+    /// フロー/ポモドーロの作業を終え、今回の作業時間だけを休憩中に引き継ぐ。
+    /// タイマーは終了通知だけで待機へ戻り、休憩や作業時間には結び付けない。
     func finishWork() {
         guard phase == .work else { return }
 
-        // simple: 音＋合図＋idle 復帰のみ。JSONL 記録なし・休憩算出なし
-        if activeMode == .simple {
+        if activeMode == .timer {
             playSound(named: settings.workSound)
             signalFinished()
-            NotificationManager.shared.notifySimpleTimerEnded()
-            goIdle()
+            if Bundle.main.bundleIdentifier != nil {
+                NotificationManager.shared.notifyTimerEnded()
+            }
+            goIdle(clearLastWork: true)
             onPhaseChange?()
             return
         }
 
         let worked = currentWorkedSeconds()
-        logWork(completed: true, interrupted: false)
+        lastWorkSeconds = Int(worked.rounded())
+        workElapsedSeconds = Int(worked)
         playSound(named: settings.workSound)
         signalFinished()
-        // クラシックの長休憩判定用。フローの完了で進めるとモードを行き来した時にセット周期がズレる
-        if activeMode == .classic { classicCompletedInSet += 1 }
 
         let breakDuration: TimeInterval
         if activeMode == .flow {
             breakDuration = max(60, worked / Double(settings.flowRatio))
         } else {
-            let isLong = classicCompletedInSet % settings.classicSetCount == 0
-            breakDuration = TimeInterval((isLong ? settings.classicLongBreakMin : settings.classicShortBreakMin) * 60)
+            breakDuration = TimeInterval(settings.pomodoroBreakMinutes * 60)
         }
 
         if settings.autoStartBreak {
             startBreak(duration: breakDuration)
-            NotificationManager.shared.notifyWorkEndedBreakStarted(breakSeconds: Int(breakDuration))
+            if Bundle.main.bundleIdentifier != nil {
+                NotificationManager.shared.notifyWorkEndedBreakStarted(breakSeconds: Int(breakDuration))
+            }
         } else {
             pendingBreakDuration = breakDuration
-            goIdle()
-            NotificationManager.shared.notifyWorkEndedBreakPending(breakSeconds: Int(breakDuration))
+            goIdle(clearLastWork: false)
+            if Bundle.main.bundleIdentifier != nil {
+                NotificationManager.shared.notifyWorkEndedBreakPending(breakSeconds: Int(breakDuration))
+            }
         }
         onPhaseChange?()
     }
 
-    /// autoStartBreak=OFF 時、算出済みでまだ開始していない休憩（パネル/メニューから開始できる）
-    @Published private(set) var pendingBreakDuration: TimeInterval?
-
     func startBreak(duration: TimeInterval? = nil) {
-        guard let dur = duration ?? pendingBreakDuration else { return }
+        guard let duration = duration ?? pendingBreakDuration else { return }
         pendingBreakDuration = nil
         phase = .breakTime
         isPaused = false
-        phaseStart = Date()
         segmentStart = Date()
         accumulated = 0
-        countdownTotal = dur
-        endDate = Date().addingTimeInterval(dur)
+        countdownTotal = duration
+        endDate = Date().addingTimeInterval(duration)
+        pausedRemaining = nil
         refresh()
         onPhaseChange?()
     }
 
-    /// 休憩をスキップ（罪悪感なし・M4）
     func skipBreak() {
         guard phase == .breakTime else { return }
-        logBreak(completed: false)
         finishBreak(playChime: false)
     }
 
-    /// +5分延長（M4）。一時停止中でも効く（endDate が無い間は凍結残りに足す）
     func extendFiveMinutes() {
         guard phase == .breakTime else { return }
-        if let end = endDate {
-            endDate = end.addingTimeInterval(300)
-        } else if let remaining = pausedRemaining {
-            pausedRemaining = remaining + 300
+        if let endDate {
+            self.endDate = endDate.addingTimeInterval(300)
+        } else if let pausedRemaining {
+            self.pausedRemaining = pausedRemaining + 300
         } else {
             return
         }
@@ -211,10 +196,8 @@ final class TimerEngine: ObservableObject {
     }
 
     func reset() {
-        // simple は記録しない。手動停止は無音・無記録で idle へ
-        if phase == .work, activeMode != .simple { logWork(completed: false, interrupted: false) }
-        if phase == .breakTime { logBreak(completed: false) }
-        goIdle()
+        pendingBreakDuration = nil
+        goIdle(clearLastWork: true)
         onPhaseChange?()
     }
 
@@ -222,96 +205,104 @@ final class TimerEngine: ObservableObject {
 
     private func finishBreak(playChime: Bool = true) {
         if playChime {
-            logBreak(completed: true)
             playSound(named: settings.breakSound)
             signalFinished()
-            NotificationManager.shared.notifyBreakEnded(autoWork: settings.autoStartWork)
+            if Bundle.main.bundleIdentifier != nil {
+                NotificationManager.shared.notifyBreakEnded(autoWork: settings.autoStartWork)
+            }
         }
-        goIdle()
+        goIdle(clearLastWork: false)
         if settings.autoStartWork { startWork() }
         onPhaseChange?()
     }
 
-    private func goIdle() {
+    private func goIdle(clearLastWork: Bool) {
         phase = .idle
         isPaused = false
-        phaseStart = nil
         segmentStart = nil
         accumulated = 0
         endDate = nil
         countdownTotal = 0
         pausedRemaining = nil
+        workCountdownTotal = 0
+        workElapsedSeconds = 0
         bankedBreakSeconds = 0
+        isApproachingEnd = false
+        if clearLastWork { lastWorkSeconds = nil }
         refresh()
     }
 
     // MARK: - tick / 計算
 
     private func startTicker() {
-        let t = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
         }
-        t.tolerance = 0.2
-        RunLoop.main.add(t, forMode: .common)
-        ticker = t
+        timer.tolerance = 0.2
+        RunLoop.main.add(timer, forMode: .common)
+        ticker = timer
     }
 
     private func tick() {
         lastTick = Date()
-        guard phase != .idle, !isPaused else { return }
+        if phase == .idle {
+            if settings.mode == .clock { refresh() }
+            return
+        }
+        guard !isPaused else { return }
         refresh()
-        // カウントダウン終了判定（simple もカウントダウンなので flow 以外すべてが対象）
-        if let end = endDate, Date() >= end {
+
+        if let endDate, Date() >= endDate {
             if phase == .breakTime {
                 finishBreak()
-            } else if phase == .work, activeMode != .flow {
+            } else if phase == .work, activeMode == .pomodoro || activeMode == .timer {
                 finishWork()
             }
         }
-        // フロー上限: 届いても止めない。合図（音・グロー・通知）を1回だけ出す
+
         if phase == .work, activeMode == .flow, !flowLimitSignaled,
            settings.flowMaxMinutes > 0,
            currentWorkedSeconds() >= TimeInterval(settings.flowMaxMinutes * 60) {
             flowLimitSignaled = true
             playSound(named: settings.workSound)
             signalFinished()
-            NotificationManager.shared.notifyFlowLimit(minutes: settings.flowMaxMinutes)
+            if Bundle.main.bundleIdentifier != nil {
+                NotificationManager.shared.notifyFlowLimit(minutes: settings.flowMaxMinutes)
+            }
         }
     }
 
     private func refresh() {
         switch phase {
         case .idle:
-            // 待機中は次のセッションを予告表示。settings.mode（ユーザーの現選択値）を参照する
+            activeMode = settings.mode
             switch settings.mode {
-            case .classic:
-                displaySeconds = settings.classicWorkMin * 60
-            case .simple:
-                displaySeconds = settings.simpleTimerMinutes * 60
-            case .flow:
-                displaySeconds = 0
+            case .flow: displaySeconds = 0
+            case .pomodoro: displaySeconds = settings.pomodoroWorkMinutes * 60
+            case .timer: displaySeconds = settings.timerMinutes * 60
+            case .clock:
+                let parts = Calendar.current.dateComponents([.hour, .minute, .second], from: Date())
+                displaySeconds = (parts.hour ?? 0) * 3600 + (parts.minute ?? 0) * 60 + (parts.second ?? 0)
             }
             progress = 0
             isApproachingEnd = false
         case .work:
+            let worked = currentWorkedSeconds()
+            workElapsedSeconds = Int(worked)
             if activeMode == .flow {
-                let worked = currentWorkedSeconds()
-                displaySeconds = Int(worked)
+                displaySeconds = workElapsedSeconds
                 bankedBreakSeconds = Int(max(60, worked / Double(settings.flowRatio)))
                 if settings.flowMaxMinutes > 0 {
-                    // 上限設定時: リングの分母は上限（満ちる＝上限到達、計器として意味を持つ）。
-                    // 上限1分前からは色温度で予告（クラシックと同じ言語）
                     let limit = TimeInterval(settings.flowMaxMinutes * 60)
-                    progress = min(1.0, worked / limit)
+                    progress = min(1, worked / limit)
                     isApproachingEnd = !isPaused && worked >= limit - 60 && worked < limit
                 } else {
-                    progress = min(1.0, worked / (25 * 60)) // 基準25分に対する充足感の演出
-                    isApproachingEnd = false // 上限なし: 終了予定時刻がない（停止はユーザー操作）
+                    progress = min(1, worked / (25 * 60))
+                    isApproachingEnd = false
                 }
             } else {
                 let remaining = countdownRemaining()
                 displaySeconds = Int(remaining.rounded(.up))
-                // 分母は startWork() 時点の workCountdownTotal を使う（設定変更による分母ズレを防ぐ）
                 progress = workCountdownTotal > 0 ? 1 - remaining / workCountdownTotal : 0
                 isApproachingEnd = !isPaused && remaining > 0 && remaining <= 60
             }
@@ -325,59 +316,33 @@ final class TimerEngine: ObservableObject {
 
     private func currentWorkedSeconds() -> TimeInterval {
         var total = accumulated
-        if let seg = segmentStart, !isPaused {
-            total += Date().timeIntervalSince(seg)
-        }
+        if let segmentStart, !isPaused { total += Date().timeIntervalSince(segmentStart) }
         return total
     }
 
     private func countdownRemaining() -> TimeInterval {
-        if let end = endDate { return max(0, end.timeIntervalSince(Date())) }
-        if let remaining = pausedRemaining { return max(0, remaining) } // paused: 凍結した残り
-        return max(0, countdownTotal) // 開始直後など endDate 未設定の瞬間
+        if let endDate { return max(0, endDate.timeIntervalSince(Date())) }
+        if let pausedRemaining { return max(0, pausedRemaining) }
+        return max(0, countdownTotal)
     }
 
-    /// スリープ復帰: 5分以上のギャップを跨いだ作業セッションは「中断」として中立に記録（§9）。
-    /// 一時停止中は計時が凍結していて歪まないので対象外（意図的な停止をスリープで殺さない）
     private func handleWake() {
         let gap = Date().timeIntervalSince(lastTick)
         if phase == .work, !isPaused, gap > 5 * 60 {
-            // simple は記録しない。スリープ5分超は無音キャンセル（20分後の誤報より良い）
-            if activeMode != .simple { logWork(completed: false, interrupted: true) }
-            goIdle()
+            goIdle(clearLastWork: true)
             onPhaseChange?()
         } else {
             refresh()
         }
     }
 
-    // MARK: - ログ・音
-
-    private func logWork(completed: Bool, interrupted: Bool) {
-        guard let start = phaseStart else { return }
-        let end = interrupted ? start.addingTimeInterval(currentWorkedSeconds()) : Date()
-        // activeMode: 実行開始時点のモードを記録する（セッション中のモード変更に影響されない）
-        SessionLogger.shared.log(start: start, end: end, kind: "work", mode: activeMode,
-                                 completed: completed, interrupted: interrupted, memo: currentMemo)
-        currentMemo = nil
-    }
-
-    private func logBreak(completed: Bool) {
-        guard let start = phaseStart else { return }
-        SessionLogger.shared.log(start: start, end: Date(), kind: "break", mode: activeMode,
-                                 completed: completed, interrupted: false)
-    }
+    // MARK: - 音と表示
 
     private func playSound(named name: String) {
-        guard settings.soundEnabled else { return }
-        guard let sound = NSSound(named: name) else { return }
+        guard settings.soundEnabled, let sound = NSSound(named: name) else { return }
         sound.volume = Float(settings.soundVolume)
         sound.play()
     }
-
-    /// 終了の合図は6秒で自動消灯する。点きっぱなしだと不透明度が 1.0 に固定され
-    /// 3段階存在感制御（このアプリの肝）が死ぬため。ホバーでの消灯は冗長系として残す
-    private var finishedClearTask: Task<Void, Never>?
 
     private func signalFinished() {
         justFinished = true
@@ -394,33 +359,38 @@ final class TimerEngine: ObservableObject {
         justFinished = false
     }
 
-    /// モード/プリセット変更時に待機中の表示を更新（クラシックは次の作業時間を予告表示）
     func settingsChanged() {
         if phase == .idle { refresh() }
     }
 
-    // MARK: - 表示ヘルパ
-
     var timeString: String {
-        let s = displaySeconds
-        if s >= 3600 {
-            return String(format: "%d:%02d:%02d", s / 3600, (s % 3600) / 60, s % 60)
+        let seconds = displaySeconds
+        if phase == .idle, settings.mode == .clock {
+            return String(format: "%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, seconds % 60)
         }
-        return String(format: "%02d:%02d", s / 60, s % 60)
+        return Self.durationString(seconds)
     }
+
+    var workElapsedString: String { Self.durationString(workElapsedSeconds) }
+    var lastWorkString: String? { lastWorkSeconds.map(Self.durationString) }
 
     var bankedBreakString: String {
-        let s = bankedBreakSeconds
-        return String(format: "%d:%02d", s / 60, s % 60)
+        String(format: "%d:%02d", bankedBreakSeconds / 60, bankedBreakSeconds % 60)
     }
 
-    /// 待機中に貯まっている休憩の日本語表記（"5分" / "5分30秒" / "45秒"）。無ければ nil。
-    /// M2「貯まった休憩をライブ表示して動機づけ」の待機時版（パネル・母艦の待機ラベルで使用）
     var pendingBreakLabel: String? {
-        guard let dur = pendingBreakDuration else { return nil }
-        let s = Int(dur)
-        let m = s / 60, r = s % 60
-        if m > 0 { return r > 0 ? "\(m)分\(r)秒" : "\(m)分" }
-        return "\(s)秒"
+        guard let pendingBreakDuration else { return nil }
+        let seconds = Int(pendingBreakDuration)
+        let minutes = seconds / 60
+        let rest = seconds % 60
+        if minutes > 0 { return rest > 0 ? "\(minutes)分\(rest)秒" : "\(minutes)分" }
+        return "\(seconds)秒"
+    }
+
+    private static func durationString(_ seconds: Int) -> String {
+        if seconds >= 3600 {
+            return String(format: "%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, seconds % 60)
+        }
+        return String(format: "%02d:%02d", seconds / 60, seconds % 60)
     }
 }

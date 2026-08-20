@@ -2,10 +2,10 @@ import AppKit
 import UserNotifications
 
 /// M5 第2合図: システム通知（アクションボタン付き）。第1合図（パネルの視覚変化＋サウンド）の冗長系。
-/// 別 Space やフルスクリーンで作業していてもセッション終了に気づけるようにする。
+/// 別 Space やフルスクリーンで作業していてもタイマー終了に気づけるようにする。
 ///
 /// 設計上の約束:
-/// - 許可は**初回のセッション完了直前**に要求する（§9。起動直後には求めない）。拒否されても
+/// - 許可は**初回のタイマー完了直前**に要求する（§9。起動直後には求めない）。拒否されても
 ///   サウンド＋パネルの視覚変化で全機能が成立する。
 /// - 通知自体には音を付けない（TimerEngine が NSSound を鳴らすため、二重音を避ける）。
 /// - アクションは現在の状態に一致するものだけを出す（罪悪感ゼロ: 「スキップ」「+5分」は失敗ではない）。
@@ -65,9 +65,9 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                 category: catBreakPending, id: "pomo.work")
     }
 
-    /// 単純タイマー終了（記録なし・休憩なし）
-    func notifySimpleTimerEnded() {
-        deliver(title: "タイマー終了", body: "時間になりました。", category: nil, id: "pomo.simple")
+    /// タイマーモード終了（記録なし・休憩なし）
+    func notifyTimerEnded() {
+        deliver(title: "タイマー終了", body: "時間になりました。", category: nil, id: "pomo.timer")
     }
 
     /// フロー上限に到達（止めてはいない — 続ける自由は保ちつつ、休憩の受け取りを勧める）

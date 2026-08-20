@@ -1,8 +1,8 @@
 import Foundation
 
 /// はじまりの合図（Issue #37）: 設定時刻を過ぎたら「今日をはじめますか」を1日1回だけ通知する。
-/// 看守にしない設計: opt-in（デフォルトOFF）・その日すでに作業していれば鳴らない・
-/// 実行中も鳴らない・無視しても何も起きない・記録もしない。
+/// 看守にしない設計: opt-in（デフォルトOFF）・実行中は鳴らない・
+/// 無視しても何も起きない・作業履歴は参照しない。
 /// 時刻ベースの implementation intention（習慣科学では行動アンカーより弱い形）なので、
 /// 本筋は「ログイン起動でパネルがそこにいる」こと。これはその補助輪。
 @MainActor
@@ -32,7 +32,6 @@ final class DayStartCue {
 
     private func check() {
         guard settings.dayStartEnabled, engine.phase == .idle else { return }
-        guard SessionLogger.shared.todayWorkCount == 0 else { return } // すでに始めた日は鳴らさない
         let now = Date()
         let cal = Calendar.current
         let minutesNow = cal.component(.hour, from: now) * 60 + cal.component(.minute, from: now)
