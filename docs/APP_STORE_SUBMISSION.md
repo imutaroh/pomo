@@ -1,4 +1,4 @@
-# Pomo 配布・提出ガイド（2026-06-13）
+# Fika 配布・提出ガイド（2026-06-13）
 
 このドキュメントは「コードはどこまで提出可能な状態か」「ご主人様が外部でやる作業は何か」をまとめたもの。
 GUI 挙動・署名・公証は Claude Code から検証できないため、最後の確認は人間の手で行う必要がある。
@@ -53,15 +53,15 @@ GUI 挙動・署名・公証は Claude Code から検証できないため、最
 
 ### A. Developer ID 直販（近道）
 ```sh
-./scripts/build.sh                       # build/Pomo.app を生成
+./scripts/build.sh                       # build/Fika.app を生成
 # Developer ID で署名し直す（ad-hoc を上書き）:
 codesign --force --deep --options runtime \
   --sign "Developer ID Application: <Your Name> (<TEAMID>)" \
-  --entitlements Pomo.entitlements build/Pomo.app
+  --entitlements Pomo.entitlements build/Fika.app
 # 公証:
-ditto -c -k --keepParent build/Pomo.app Pomo.zip
-xcrun notarytool submit Pomo.zip --apple-id <id> --team-id <TEAMID> --password <app専用pw> --wait
-xcrun stapler staple build/Pomo.app
+ditto -c -k --keepParent build/Fika.app Fika.zip
+xcrun notarytool submit Fika.zip --apple-id <id> --team-id <TEAMID> --password <app専用pw> --wait
+xcrun stapler staple build/Fika.app
 ```
 配布は .dmg か zip。自動更新には実装済みの Sparkle を使う。
 
@@ -71,7 +71,7 @@ xcodegen generate                        # Pomo.xcodeproj
 open Pomo.xcodeproj
 ```
 Xcode で:
-1. Pomo ターゲット → Signing & Capabilities → Team を選択（自動署名）。`project.yml` の `DEVELOPMENT_TEAM` に Team ID を入れてもよい。
+1. `Pomo` ターゲット（Xcode 上のターゲット名は `Sources/Pomo` に合わせて据え置き。生成物は `PRODUCT_NAME: Fika` により Fika.app）→ Signing & Capabilities → Team を選択（自動署名）。`project.yml` の `DEVELOPMENT_TEAM` に Team ID を入れてもよい。
 2. App Sandbox が付いていることを確認（`Pomo.entitlements` 由来）。
 3. Product → Archive → Distribute App → App Store Connect。
 4. App Store Connect で新規 App 作成（Bundle ID = com.imutaakihiro.pomo）、スクリーンショット・説明文・価格・**App Privacy =「データを収集しない」**を設定。
@@ -81,7 +81,7 @@ Xcode で:
 
 ## 4. 提出前の手動 GUI 確認チェックリスト（必須）
 
-Claude Code は GUI を確認できない。`./scripts/build.sh && open build/Pomo.app` で起動し、以下を目視:
+Claude Code は GUI を確認できない。`./scripts/build.sh && open build/Fika.app` で起動し、以下を目視:
 
 **回帰・基本**
 - [ ] Dock にアイコンが常時表示され、メニューバーにもダイヤルアイコンが出る
