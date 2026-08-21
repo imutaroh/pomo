@@ -1,9 +1,18 @@
 # Fika — フローティング・フロータイマー（macOS native）
 
-**表示名は Fika、バンドルとリポジトリは pomo のまま**（2026-08-21 に改名）。
-`CFBundleName` / `CFBundleDisplayName` と UI 文言だけが Fika で、bundle identifier
-（`com.imutaakihiro.pomo`）・`PRODUCT_NAME`・`build/Pomo.app`・`SUFeedURL`・リポジトリ名は
-**Pomo のまま変えない**。既存ユーザーの Sparkle 自動アップデートがこの3つで紐づいているため。
+**表示名も成果物名も Fika、bundle id とリポジトリは pomo のまま**（2026-08-21 に改名、成果物名は #59）。
+UI 文言・`CFBundleName` / `CFBundleDisplayName`・`PRODUCT_NAME`・成果物（`build/Fika.app` /
+`Fika.dmg`）・実行ファイル名が Fika。一方 **bundle identifier（`com.imutaakihiro.pomo`）・
+`SUFeedURL`・リポジトリ名・Swift ターゲット名（`Sources/Pomo`）は Pomo のまま変えない**。
+
+成果物名を変えても Sparkle の自動アップデートが壊れないのは、Sparkle が更新アーカイブ内の
+アプリを **①旧バンドルのファイル名 → ②`CFBundleName`.app → ③bundle identifier 一致** の順で
+探すため（`SUInstaller.m`）。①②が外れても③の `com.imutaakihiro.pomo` で必ず見つかる。
+ただし**インストール先は既存パスのまま**（`SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME = 0`
+なので `installationPath = host.bundlePath`）。つまり **v0.9.3 以前からの既存ユーザーは
+`/Applications/Pomo.app` のまま中身だけ Fika になる**。Finder は Pomo.app、Dock とメニューバーは
+Fika という混在は仕様。新規インストールだけが `Fika.app` になる。名前またぎ更新は挙動ムラの
+報告があるため、次のリリースでは **v0.9.3 からの実機アップデートテストを必須**とする。
 
 要件定義は `REQUIREMENTS.md`（これが地図。変更時は修正履歴に追記）。
 
@@ -11,9 +20,9 @@
 
 ```sh
 swift build                 # デバッグビルド（コンパイル確認）
-./scripts/build.sh          # release ビルド → build/Pomo.app（ad-hoc 署名）
-open build/Pomo.app         # 起動（メニューバーにダイヤルアイコン常駐・Dock 常時表示）
-pkill -f "build/Pomo.app"   # 停止
+./scripts/build.sh          # release ビルド → build/Fika.app（ad-hoc 署名）
+open build/Fika.app         # 起動（メニューバーにダイヤルアイコン常駐・Dock 常時表示）
+pkill -f "build/Fika.app"   # 停止
 ```
 
 GUI 挙動（フルスクリーン追従・透明化・ウィンドウのレスポンシブ）は Claude Code から確認できない。変更したら必ずユーザーに手動確認を依頼すること（受け入れ基準は REQUIREMENTS.md §10）。
@@ -34,6 +43,11 @@ GUI 挙動（フルスクリーン追従・透明化・ウィンドウのレス�
 
 また `install.sh` でインストールしたビルドは、バージョン採番前だと Info.plist の
 表記が旧版のまま残る。動作確認用インストールとリリース用ビルドは別物として報告する。
+
+**LP には配布ファイル名（`Fika.dmg` 等）を書かない。** 2 のリリースは 1 のマージと別操作なので、
+LP に実物のファイル名を書くと「マージ済みだがまだリリースしていない」期間だけ LP が嘘になる
+（#59 で実際に踏みかけた）。手順は「ダウンロードした .dmg を開き」のように名前非依存で書き、
+LP のマージがリリース順序に縛られないようにする。
 
 ## アーキテクチャ（Sources/Pomo/）
 

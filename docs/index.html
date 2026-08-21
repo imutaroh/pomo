@@ -234,13 +234,13 @@
     <h2>無料配布のため、初回だけ手動で開きます。</h2>
     <div class="install">
       <ol>
-        <li><strong>Pomo.dmg</strong> を開き、Pomo を「アプリケーション」へドラッグ</li>
-        <li>Pomo をダブルクリック。「悪質なソフトウェアがないか確認できない」と警告が出たら、<strong>「完了」を押す</strong>（ゴミ箱には入れない）</li>
+        <li>ダウンロードした <strong>.dmg</strong> を開き、中のアプリを「アプリケーション」へドラッグ</li>
+        <li>ダブルクリックで起動。「悪質なソフトウェアがないか確認できない」と警告が出たら、<strong>「完了」を押す</strong>（ゴミ箱には入れない）</li>
         <li><strong>システム設定 → プライバシーとセキュリティ</strong> を開き、下へスクロールして<strong>「このまま開く」→「開く」</strong></li>
-        <li>それでも開けないときは、ターミナルに1行：<br><code>xattr -dr com.apple.quarantine /Applications/Pomo.app</code></li>
+        <li>それでも開けないときは、ターミナルに1行：<br><code>xattr -dr com.apple.quarantine /Applications/Fika.app</code><br><span class="fine">v0.9.3 以前をお使いの方は、末尾を <code>Pomo.app</code> に読み替えてください</span></li>
         <li>起動すると、メニューバーと Dock にアイコンが表示されます</li>
       </ol>
-      <p class="fine">Apple の公証(notarize)を行っていないための手順です（macOS 13 以前は右クリック→「開く」でも開けます）。会社支給などの管理対象(MDM)Macでは起動できない場合があります。アプリ名は Fika に変わりましたが、配布ファイル名は Pomo のままです。</p>
+      <p class="fine">Apple の公証(notarize)を行っていないための手順です（macOS 13 以前は右クリック→「開く」でも開けます）。会社支給などの管理対象(MDM)Macでは起動できない場合があります。v0.9.3 以前からアップデートした場合、アプリの中身は Fika になりますが、アプリケーションフォルダ上の名前は Pomo のまま残ります（自動アップデートの仕様です）。</p>
     </div>
   </section>
 

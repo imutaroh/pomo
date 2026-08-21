@@ -1,4 +1,4 @@
-# Pomo
+# Fika
 
 **A floating focus timer for macOS that never gets in your way — and never disappears.**
 
@@ -21,7 +21,8 @@ cd pomo
 ./scripts/install.sh
 ```
 
-Pomo はDockとメニューバーに常駐します。
+Fika はDockとメニューバーに常駐します。リポジトリ名と bundle identifier だけは、既存ユーザーの
+自動アップデートを維持するため `pomo` のままです。
 
 ## Use
 

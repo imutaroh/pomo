@@ -11,7 +11,7 @@ cd "$(dirname "$0")/.."
 
 VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Pomo-Info.plist)
 BUILDNUM=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" Pomo-Info.plist)
-NOTES="${1:-Pomo v$VERSION}"
+NOTES="${1:-Fika v$VERSION}"
 SIGN_UPDATE=".build/artifacts/sparkle/Sparkle/bin/sign_update"
 [ -x "$SIGN_UPDATE" ] || { echo "sign_update が見つからない（swift build を先に）"; exit 1; }
 
@@ -23,19 +23,19 @@ fi
 ./scripts/dmg.sh
 
 # EdDSA 署名（出力例: sparkle:edSignature="..." length="..."）
-SIGNATURE=$("$SIGN_UPDATE" build/Pomo.dmg)
+SIGNATURE=$("$SIGN_UPDATE" build/Fika.dmg)
 echo "signature: $SIGNATURE"
 
-DMG_URL="https://github.com/imutaroh/pomo/releases/download/v$VERSION/Pomo.dmg"
+DMG_URL="https://github.com/imutaroh/pomo/releases/download/v$VERSION/Fika.dmg"
 PUBDATE=$(LC_ALL=en_US.UTF-8 date -u "+%a, %d %b %Y %H:%M:%S +0000")
 
 cat > build/appcast.xml <<XML
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
-    <title>Pomo</title>
+    <title>Fika</title>
     <item>
-      <title>Pomo v$VERSION</title>
+      <title>Fika v$VERSION</title>
       <pubDate>$PUBDATE</pubDate>
       <sparkle:version>$BUILDNUM</sparkle:version>
       <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
@@ -46,7 +46,7 @@ cat > build/appcast.xml <<XML
 </rss>
 XML
 
-gh release create "v$VERSION" build/Pomo.dmg build/appcast.xml \
-  --title "Pomo v$VERSION" --notes "$NOTES"
+gh release create "v$VERSION" build/Fika.dmg build/appcast.xml \
+  --title "Fika v$VERSION" --notes "$NOTES"
 echo "公開完了: https://github.com/imutaroh/pomo/releases/tag/v$VERSION"
 echo "appcast: https://github.com/imutaroh/pomo/releases/latest/download/appcast.xml"
