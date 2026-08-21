@@ -303,7 +303,7 @@ struct SettingsPage: View {
                         .foregroundStyle(Tokens.sumiTertiary)
                 }
                 let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
-                Text("Fika v\(version)")
+                Text("Quiet v\(version)")
                     .pomoFont(12)
                     .foregroundStyle(Tokens.sumiTertiary)
             }

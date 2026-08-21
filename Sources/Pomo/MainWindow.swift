@@ -32,7 +32,7 @@ final class MainWindowState: ObservableObject {
     @Published var selection: SidebarItem = .dashboard
 }
 
-/// 母艦ウィンドウ。メニューバーに潜らずタイマー操作と設定ができる「Fika の家」。
+/// 母艦ウィンドウ。メニューバーに潜らずタイマー操作と設定ができる「Quiet の家」。
 /// パネルとの関係（Issue #39 で意図を分離）:
 /// - 母艦が見えている間はパネルをしまう
 /// - 「パネルで始める」/フォーカスモード経由の close → パネル復帰（明示的にパネルが欲しい操作）
@@ -62,7 +62,7 @@ final class MainWindowController: NSObject, NSWindowDelegate {
                 })
             )
             let w = NSWindow(contentViewController: host)
-            w.title = "Fika"
+            w.title = "Quiet"
             // 固定サイズ（Issue #53 / 2026-08-20 にミニマム化）: 縦長カード 420×540。
             // .resizable を持たないためズーム/フルスクリーンも無効。min/max を一致させ、
             // 過去に保存されたリサイズ済みフレームからの復元でもこの寸法を維持する。

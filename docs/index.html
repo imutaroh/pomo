@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fika — 作業画面を、一切邪魔しない。でも、ちゃんとそこにいる。</title>
+<title>Quiet — 作業画面を、一切邪魔しない。でも、ちゃんとそこにいる。</title>
 <meta name="description" content="全Space・フルスクリーンに追従する macOS のフロータイマー。集中したら溶け込み、必要なときだけ戻ってくる。ローカル完結・アカウント不要・無料。" />
-<meta property="og:title" content="Fika — 作業画面を、一切邪魔しない。" />
+<meta property="og:title" content="Quiet — 作業画面を、一切邪魔しない。" />
 <meta property="og:description" content="全Space・フルスクリーンに追従する macOS のフロータイマー。集中したら溶け込み、必要なときだけ戻ってくる。" />
 <meta property="og:type" content="website" />
-<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🍅&lt;/text&gt;&lt;/svg&gt;" />
+<!-- アプリのダイヤル（リング）と同じ形。旧 🍅 はポモドーロの記号だったので外した -->
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;circle cx='50' cy='50' r='34' fill='none' stroke='%230087A8' stroke-width='11'/&gt;&lt;/svg&gt;" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700&family=IBM+Plex+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -138,7 +139,7 @@
 <div class="wrap">
 
   <nav class="nav">
-    <div class="brand"><span class="mark">☕️</span>Fika</div>
+    <div class="brand">Quiet</div>
     <a class="ghost" href="https://github.com/imutaroh/pomo">GitHub ↗</a>
   </nav>
 
@@ -148,7 +149,7 @@
       <h1><span class="nb">作業画面を、</span><span class="nb">一切邪魔しない。</span><span class="dim"><span class="nb">でも、ちゃんと</span><span class="nb">そこにいる。</span></span></h1>
       <p class="lead">全Space・フルスクリーンに追従する macOS のフロータイマー。集中している間は静かに溶け込み、手を止めた瞬間に戻ってくる。</p>
       <div class="actions">
-        <a class="btn" href="https://github.com/imutaroh/pomo/releases/latest"><span class="mark">☕️</span>ダウンロード（無料）</a>
+        <a class="btn" href="https://github.com/imutaroh/pomo/releases/latest">ダウンロード（無料）</a>
         <span class="req">macOS 14+ ・ ローカル完結 ・ アカウント不要</span>
       </div>
     </div>
@@ -237,10 +238,10 @@
         <li>ダウンロードした <strong>.dmg</strong> を開き、中のアプリを「アプリケーション」へドラッグ</li>
         <li>ダブルクリックで起動。「悪質なソフトウェアがないか確認できない」と警告が出たら、<strong>「完了」を押す</strong>（ゴミ箱には入れない）</li>
         <li><strong>システム設定 → プライバシーとセキュリティ</strong> を開き、下へスクロールして<strong>「このまま開く」→「開く」</strong></li>
-        <li>それでも開けないときは、ターミナルに1行：<br><code>xattr -dr com.apple.quarantine /Applications/Fika.app</code><br><span class="fine">v0.9.3 以前をお使いの方は、末尾を <code>Pomo.app</code> に読み替えてください</span></li>
+        <li>それでも開けないときは、ターミナルに1行：<br><code>xattr -dr com.apple.quarantine /Applications/Quiet.app</code><br><span class="fine">v0.9.3 以前をお使いの方は、末尾を <code>Pomo.app</code> に読み替えてください</span></li>
         <li>起動すると、メニューバーと Dock にアイコンが表示されます</li>
       </ol>
-      <p class="fine">Apple の公証(notarize)を行っていないための手順です（macOS 13 以前は右クリック→「開く」でも開けます）。会社支給などの管理対象(MDM)Macでは起動できない場合があります。v0.9.3 以前からアップデートした場合、アプリの中身は Fika になりますが、アプリケーションフォルダ上の名前は Pomo のまま残ります（自動アップデートの仕様です）。</p>
+      <p class="fine">Apple の公証(notarize)を行っていないための手順です（macOS 13 以前は右クリック→「開く」でも開けます）。会社支給などの管理対象(MDM)Macでは起動できない場合があります。v0.9.3 以前からアップデートした場合、アプリの中身は Quiet になりますが、アプリケーションフォルダ上の名前は Pomo のまま残ります（自動アップデートの仕様です）。</p>
     </div>
   </section>
 
@@ -248,7 +249,7 @@
     <div class="eyebrow">そろそろ、始めよう</div>
     <h2>視界から消えない、ひとつのタイマー。</h2>
     <div class="actions">
-      <a class="btn" href="https://github.com/imutaroh/pomo/releases/latest"><span class="mark">☕️</span>ダウンロード（無料）</a>
+      <a class="btn" href="https://github.com/imutaroh/pomo/releases/latest">ダウンロード（無料）</a>
       <span class="req">macOS 14+</span>
     </div>
   </section>
@@ -256,7 +257,7 @@
 </div>
 
 <footer>
-  <div>Fika — macOS のフロータイマー</div>
+  <div>Quiet — macOS のフロータイマー</div>
   <div class="creed">ローカル完結 ・ アカウント不要 ・ テレメトリなし ・ 罪悪感なし</div>
   <div style="margin-top:10px"><a href="https://github.com/imutaroh/pomo">GitHub</a> ・ <a href="https://github.com/imutaroh/pomo/releases/latest">Releases</a></div>
 </footer>

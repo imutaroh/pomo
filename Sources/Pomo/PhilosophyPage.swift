@@ -33,7 +33,7 @@ struct PhilosophyPage: View {
             VStack(alignment: .leading, spacing: 22) {
                 storyText("「25分たったので、集中を切ってください」——\nタイマーにそう言われて、戸惑ったことはありませんか。せっかく乗ってきたところなのに。ポモドーロは素晴らしい発明ですが、いちばん大切なものを守ってくれないことがあります。あなたの、流れです。")
                 storyText("それでも、タイマーなしで働くと、もっと悪いことが起きます。気づけば3時間。目は乾き、肩は固まり、それでも「キリのいいところまで」と続けてしまう。がんばるひとほど、休むのが下手なのです。")
-                storyText("だから Fika は、順番を逆にしました。作業は、好きなだけ。止めたそのとき、働いた時間に応じた休憩が「貯まって」います。休憩は義務ではなく、報酬。ストリークも、点数も、説教もありません。道具が人を責めるのは、間違っていると思うからです。")
+                storyText("だから Quiet は、順番を逆にしました。作業は、好きなだけ。止めたそのとき、働いた時間に応じた休憩が「貯まって」います。休憩は義務ではなく、報酬。ストリークも、点数も、説教もありません。道具が人を責めるのは、間違っていると思うからです。")
             }
             .staggeredAppear(2)
 
@@ -57,10 +57,10 @@ struct PhilosophyPage: View {
 
             VStack(alignment: .leading, spacing: 16) {
                 Divider().overlay(Tokens.line)
-                storyText("集中して、ちゃんと休む。\nそれを静かに支えるだけの道具として、Fika はここにいます。", size: 15, weight: .medium)
+                storyText("集中して、ちゃんと休む。\nそれを静かに支えるだけの道具として、Quiet はここにいます。", size: 15, weight: .medium)
                 HStack(spacing: 12) {
                     let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
-                    Text("Fika v\(version)")
+                    Text("Quiet v\(version)")
                     Text("local-first flow timer")
                 }
                 .font(.system(size: 11, weight: .medium, design: .monospaced))
