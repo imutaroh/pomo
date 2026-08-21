@@ -66,15 +66,6 @@ final class Settings: ObservableObject {
     @Published var flowMaxMinutes: Int {
         didSet { d.set(flowMaxMinutes, forKey: "flowMaxMinutes") }
     }
-    /// はじまりの合図（opt-in・デフォルトOFF）。1日1回だけ「今日をはじめますか」を通知する。
-    /// 作業履歴とは結び付けない（ルーティンの入口、看守にしない）。
-    @Published var dayStartEnabled: Bool {
-        didSet { d.set(dayStartEnabled, forKey: "dayStartEnabled") }
-    }
-    /// はじまりの合図の時刻（0時からの分）。デフォルト 9:30 = 570
-    @Published var dayStartMinutes: Int {
-        didSet { d.set(dayStartMinutes, forKey: "dayStartMinutes") }
-    }
 
     private init() {
         let d = UserDefaults.standard
@@ -108,9 +99,6 @@ final class Settings: ObservableObject {
         timerMinutes = clampedMigrating("timerMinutes", legacy: "simpleTimerMinutes", 5...120, default: 10)
         let fm = d.integer(forKey: "flowMaxMinutes")
         flowMaxMinutes = (30...180).contains(fm) ? fm : 0 // 0 = なし（デフォルト）
-        dayStartEnabled = d.object(forKey: "dayStartEnabled") as? Bool ?? false
-        let dsm = d.integer(forKey: "dayStartMinutes")
-        dayStartMinutes = (0...(24 * 60 - 1)).contains(dsm) && dsm != 0 ? dsm : 570 // 9:30
 
         func clampedMigrating(_ key: String, legacy: String, _ range: ClosedRange<Int>, default def: Int) -> Int {
             let source = d.object(forKey: key) == nil ? legacy : key
