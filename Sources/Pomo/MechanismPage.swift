@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 「仕組み」ページ。フロータイマーという手法そのものと、Fika がそれをどう実装しているかを説明する。
+/// 「仕組み」ページ。フロータイマーという手法そのものと、Quiet がそれをどう実装しているかを説明する。
 /// 「願い」が作り手の声（明朝）で語るのに対し、こちらは説明なので本文は sans のまま。
 /// 唯一の例外が結び（名前の由来）で、そこだけ声色を明朝に切り替える。
 struct MechanismPage: View {
@@ -21,7 +21,7 @@ struct MechanismPage: View {
             }
             .staggeredAppear(0)
 
-            Text("Fika の中心にあるのは、フロータイマー——決められた時間で区切るのではなく、集中が続くかぎり測りつづけるタイマーです。")
+            Text("Quiet の中心にあるのは、フロータイマー——決められた時間で区切るのではなく、集中が続くかぎり測りつづけるタイマーです。")
                 .pomoFont(14)
                 .foregroundStyle(Tokens.sumi.opacity(0.85))
                 .lineSpacing(6)
@@ -46,12 +46,12 @@ struct MechanismPage: View {
 
             VStack(alignment: .leading, spacing: 16) {
                 Divider().overlay(Tokens.line)
-                bodyText("時間割で休憩を割り込ませるアプリとも、集中の統計を積み上げるフロータイマーとも、Fika は少し違います。休憩はスケジュールではなく報酬として届き、記録は増えるのではなく消えていきます。")
+                bodyText("時間割で休憩を割り込ませるアプリとも、集中の統計を積み上げるフロータイマーとも、Quiet は少し違います。休憩はスケジュールではなく報酬として届き、記録は増えるのではなく消えていきます。")
             }
             .staggeredAppear(4)
 
             // 名前の由来だけは説明ではなく「声」なので、願いのページと同じ明朝に切り替える
-            Text("スウェーデンには、仕事の手を止めてコーヒーを飲む時間に名前があります——fika（フィーカ）。義務ではなく、文化としての休憩。このアプリが目指すものに、いちばん近い言葉でした。")
+            Text("25分で鳴るタイマーも、積み上がっていく記録も、「今日は何分できた？」という問いかけも、集中にとってはノイズでした。ひとつずつ消していって、最後に残ったのが静けさです。名前は、その結果からとりました。")
                 .font(.system(size: 14.5, weight: .regular, design: .serif))
                 .foregroundStyle(Tokens.sumi.opacity(0.85))
                 .lineSpacing(7)

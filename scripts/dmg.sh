@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Fika を release ビルドして配布用 .dmg を作る（無料・ad-hoc 署名のまま）。
+# Quiet を release ビルドして配布用 .dmg を作る（無料・ad-hoc 署名のまま）。
 # 注意: 公証(notarize)していないので、受け取った人は初回だけ Gatekeeper を回避する必要がある
 #       （右クリック→開く / システム設定→プライバシーとセキュリティ→「このまま開く」）。
 #       dmg は「入れ物」であって、警告そのものを消すものではない。
@@ -9,14 +9,14 @@ cd "$(dirname "$0")/.."
 ./scripts/build.sh
 
 STAGE=$(mktemp -d)
-cp -R build/Fika.app "$STAGE/Fika.app"
+cp -R build/Quiet.app "$STAGE/Quiet.app"
 ln -s /Applications "$STAGE/Applications"
 
 cat > "$STAGE/はじめにお読みください.txt" <<'TXT'
-Fika のインストール方法
+Quiet のインストール方法
 ─────────────────────────
-1. 「Fika.app」を、右の「Applications」フォルダにドラッグしてコピー
-2. 初回だけ: アプリケーションフォルダの Fika を「右クリック →『開く』→『開く』」
+1. 「Quiet.app」を、右の「Applications」フォルダにドラッグしてコピー
+2. 初回だけ: アプリケーションフォルダの Quiet を「右クリック →『開く』→『開く』」
    ※「開発元を確認できないため開けません」と出たら:
      システム設定 → プライバシーとセキュリティ → 下のほうの「このまま開く」
 3. 起動すると、メニューバーと Dock にアイコンが出ます
@@ -24,7 +24,7 @@ Fika のインストール方法
 必要環境: macOS 14 (Sonoma) 以降
 TXT
 
-rm -f build/Fika.dmg
-hdiutil create -volname "Fika" -srcfolder "$STAGE" -ov -format UDZO build/Fika.dmg >/dev/null
+rm -f build/Quiet.dmg
+hdiutil create -volname "Quiet" -srcfolder "$STAGE" -ov -format UDZO build/Quiet.dmg >/dev/null
 rm -rf "$STAGE"
-echo "Built: build/Fika.dmg"
+echo "Built: build/Quiet.dmg"
