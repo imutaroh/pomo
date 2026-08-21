@@ -1,9 +1,10 @@
 import Foundation
 
 enum TimerMode: String, Codable, CaseIterable {
-    case flow      // 作業カウントアップ → 停止で休憩を比率算出（主役）
-    case classic   // 固定カウントダウン（従）
-    case simple    // 単純タイマー: 任意分数のカウントダウンのみ。記録なし
+    case flow       // 作業カウントアップ → 停止で休憩を比率算出
+    case pomodoro   // 固定カウントダウン → 固定休憩
+    case timer      // 任意分数のカウントダウンのみ
+    case clock      // 現在時刻の表示のみ
 }
 
 @MainActor
@@ -19,17 +20,11 @@ final class Settings: ObservableObject {
     @Published var flowRatio: Int {
         didSet { d.set(flowRatio, forKey: "flowRatio") }
     }
-    @Published var classicWorkMin: Int {
-        didSet { d.set(classicWorkMin, forKey: "classicWorkMin") }
+    @Published var pomodoroWorkMinutes: Int {
+        didSet { d.set(pomodoroWorkMinutes, forKey: "pomodoroWorkMinutes") }
     }
-    @Published var classicShortBreakMin: Int {
-        didSet { d.set(classicShortBreakMin, forKey: "classicShortBreakMin") }
-    }
-    @Published var classicLongBreakMin: Int {
-        didSet { d.set(classicLongBreakMin, forKey: "classicLongBreakMin") }
-    }
-    @Published var classicSetCount: Int {
-        didSet { d.set(classicSetCount, forKey: "classicSetCount") }
+    @Published var pomodoroBreakMinutes: Int {
+        didSet { d.set(pomodoroBreakMinutes, forKey: "pomodoroBreakMinutes") }
     }
     /// 集中時（タイマー実行中・非ホバー）のパネル不透明度。Flow の苦情対策で下限を持つ
     @Published var focusOpacity: Double {
@@ -53,10 +48,6 @@ final class Settings: ObservableObject {
     @Published var deferOverlayInCall: Bool {
         didSet { d.set(deferOverlayInCall, forKey: "deferOverlayInCall") }
     }
-    /// 休憩のはじめに「何してた？」を聞く（interstitial journaling。スキップ自由）
-    @Published var askMemoOnBreak: Bool {
-        didSet { d.set(askMemoOnBreak, forKey: "askMemoOnBreak") }
-    }
     @Published var workSound: String {
         didSet { d.set(workSound, forKey: "workSound") }
     }
@@ -66,9 +57,9 @@ final class Settings: ObservableObject {
     @Published var soundVolume: Double {
         didSet { d.set(soundVolume, forKey: "soundVolume") }
     }
-    /// 単純タイマーの計測時間（分）。範囲: 5〜120
-    @Published var simpleTimerMinutes: Int {
-        didSet { d.set(simpleTimerMinutes, forKey: "simpleTimerMinutes") }
+    /// タイマーモードの計測時間（分）。範囲: 5〜120
+    @Published var timerMinutes: Int {
+        didSet { d.set(timerMinutes, forKey: "timerMinutes") }
     }
     /// フローの上限リマインド（分）。0 = なし。届いても止めない（看守ではなく秘書）—
     /// 合図（音・グロー・通知）だけ出す。設定時はリング/バーの分母がこの値になる
@@ -76,7 +67,7 @@ final class Settings: ObservableObject {
         didSet { d.set(flowMaxMinutes, forKey: "flowMaxMinutes") }
     }
     /// はじまりの合図（opt-in・デフォルトOFF）。1日1回だけ「今日をはじめますか」を通知する。
-    /// その日すでに作業していれば鳴らない。ストリークにしない・記録しない（ルーティンの入口、看守にしない）
+    /// 作業履歴とは結び付けない（ルーティンの入口、看守にしない）。
     @Published var dayStartEnabled: Bool {
         didSet { d.set(dayStartEnabled, forKey: "dayStartEnabled") }
     }
@@ -93,12 +84,16 @@ final class Settings: ObservableObject {
             let v = d.integer(forKey: key)
             return range.contains(v) ? v : def
         }
-        mode = TimerMode(rawValue: d.string(forKey: "mode") ?? "") ?? .flow
+        // v0.9.3 以前の rawValue を新しいモード名へ移行する。既存の時間設定も下で引き継ぐ。
+        switch d.string(forKey: "mode") {
+        case "classic": mode = .pomodoro
+        case "simple": mode = .timer
+        case let raw?: mode = TimerMode(rawValue: raw) ?? .flow
+        case nil: mode = .flow
+        }
         flowRatio = clamped("flowRatio", 3...6, default: 5)
-        classicWorkMin = clamped("classicWorkMin", 5...120, default: 25)
-        classicShortBreakMin = clamped("classicShortBreakMin", 1...30, default: 5)
-        classicLongBreakMin = clamped("classicLongBreakMin", 5...60, default: 15)
-        classicSetCount = clamped("classicSetCount", 2...8, default: 4)
+        pomodoroWorkMinutes = clampedMigrating("pomodoroWorkMinutes", legacy: "classicWorkMin", 5...120, default: 25)
+        pomodoroBreakMinutes = clampedMigrating("pomodoroBreakMinutes", legacy: "classicShortBreakMin", 1...30, default: 5)
         let fo = d.double(forKey: "focusOpacity")
         focusOpacity = (0.15...1.0).contains(fo) ? fo : 0.3
         autoStartBreak = d.object(forKey: "autoStartBreak") as? Bool ?? true
@@ -106,16 +101,20 @@ final class Settings: ObservableObject {
         soundEnabled = d.object(forKey: "soundEnabled") as? Bool ?? true
         breakFullscreen = d.object(forKey: "breakFullscreen") as? Bool ?? true
         deferOverlayInCall = d.object(forKey: "deferOverlayInCall") as? Bool ?? true
-        askMemoOnBreak = d.object(forKey: "askMemoOnBreak") as? Bool ?? true
         workSound = d.string(forKey: "workSound") ?? "Glass"
         breakSound = d.string(forKey: "breakSound") ?? "Tink"
         let vol = d.object(forKey: "soundVolume") as? Double ?? 0.7
         soundVolume = (0.1...1.0).contains(vol) ? vol : 0.7
-        simpleTimerMinutes = clamped("simpleTimerMinutes", 5...120, default: 10)
+        timerMinutes = clampedMigrating("timerMinutes", legacy: "simpleTimerMinutes", 5...120, default: 10)
         let fm = d.integer(forKey: "flowMaxMinutes")
         flowMaxMinutes = (30...180).contains(fm) ? fm : 0 // 0 = なし（デフォルト）
         dayStartEnabled = d.object(forKey: "dayStartEnabled") as? Bool ?? false
         let dsm = d.integer(forKey: "dayStartMinutes")
         dayStartMinutes = (0...(24 * 60 - 1)).contains(dsm) && dsm != 0 ? dsm : 570 // 9:30
+
+        func clampedMigrating(_ key: String, legacy: String, _ range: ClosedRange<Int>, default def: Int) -> Int {
+            let source = d.object(forKey: key) == nil ? legacy : key
+            return clamped(source, range, default: def)
+        }
     }
 }

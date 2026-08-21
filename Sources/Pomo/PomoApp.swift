@@ -21,8 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panelController.openMainWindow = { [weak self] in self?.mainWindow.show() }
         menuActions = AppMenuActions(
             openSettings: { [weak self] in self?.mainWindow.show(page: .settings) },
-            openPage: { [weak self] page in self?.mainWindow.show(page: page) },
-            openFind: { [weak self] in self?.mainWindow.showAndFocusSearch() }
+            openPage: { [weak self] page in self?.mainWindow.show(page: page) }
         )
         NSApp.mainMenu = AppMenu.build(actions: menuActions)
         breakOverlay = BreakOverlayController(engine: engine)
@@ -71,7 +70,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
         let menu = NSMenu()
         if engine.phase == .idle {
-            menu.addItem(dockItem("作業を開始", #selector(dockStartWork)))
+            if Settings.shared.mode == .clock {
+                let clock = NSMenuItem(title: "時計モード", action: nil, keyEquivalent: "")
+                clock.isEnabled = false
+                menu.addItem(clock)
+            } else {
+                menu.addItem(dockItem(Settings.shared.mode == .timer ? "タイマーを開始" : "作業を開始", #selector(dockStartWork)))
+            }
         } else {
             menu.addItem(dockItem(engine.isPaused ? "再開" : "一時停止", #selector(dockTogglePause)))
         }

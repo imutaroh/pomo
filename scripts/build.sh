@@ -25,8 +25,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>CFBundleDevelopmentRegion</key><string>ja</string>
     <key>CFBundleExecutable</key><string>Pomo</string>
     <key>CFBundleIdentifier</key><string>com.imutaakihiro.pomo</string>
-    <key>CFBundleName</key><string>Pomo</string>
-    <key>CFBundleDisplayName</key><string>Pomo</string>
+    <key>CFBundleName</key><string>Fika</string>
+    <key>CFBundleDisplayName</key><string>Fika</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleShortVersionString</key><string>0.9.3</string>
     <key>CFBundleVersion</key><string>6</string>
@@ -47,7 +47,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 </plist>
 PLIST
 
-# ローカル開発は ad-hoc 署名・非サンドボックス（既存の ~/Library/Application Support/Pomo を読むため）。
+# ローカル開発は ad-hoc 署名・非サンドボックス。計測データは保存せず、旧Application Support内の記録にもアクセスしない。
 # Mac App Store / Developer ID 配布の署名は project.yml（XcodeGen → Xcode）側で行う。
 # Sparkle は入れ子バンドル（XPC/Updater.app）を持つので先に deep で署名してから外殻を署名する
 codesign --force --deep --sign - "$APP/Contents/Frameworks/Sparkle.framework"

@@ -111,6 +111,38 @@ final class PanelController: NSObject, NSWindowDelegate {
         }
     }
 
+    // MARK: - 母艦との位置共有（右上角を共通アンカーにする）
+
+    /// パネルと母艦が入れ替わっても視線が飛ばないよう、両者はこの角を共有する
+    var topRight: NSPoint {
+        NSPoint(x: panel.frame.maxX, y: panel.frame.maxY)
+    }
+
+    /// パネルが載っているスクリーン（またがっていれば最初に交差したもの）。どこにも無ければ主ディスプレイ
+    var currentScreen: NSScreen? {
+        let frame = panel.frame
+        return NSScreen.screens.first { $0.visibleFrame.intersects(frame) } ?? NSScreen.main
+    }
+
+    /// 母艦がいた右上角にパネルを移す。macOS の原点は左下なので、origin は幅と高さを引いた点になる
+    func alignTopRight(to topRight: NSPoint) {
+        let size = Self.panelSize
+        var origin = NSPoint(x: topRight.x - size.width, y: topRight.y - size.height)
+
+        // 画面の外に出てしまうときだけ引き戻す（多少はみ出す程度なら macOS 標準どおり許容する）
+        if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(NSRect(origin: origin, size: size)) }) {
+            let host = NSScreen.screens.first { $0.frame.contains(topRight) } ?? NSScreen.main
+            if let vf = host?.visibleFrame {
+                origin.x = min(max(origin.x, vf.minX), max(vf.minX, vf.maxX - size.width))
+                origin.y = min(max(origin.y, vf.minY), max(vf.minY, vf.maxY - size.height))
+            }
+        }
+
+        panel.setFrameOrigin(origin)
+        // 非表示中の移動では windowDidMove が飛ばないので、保存は自前で行う
+        UserDefaults.standard.set(NSStringFromRect(panel.frame), forKey: frameKey)
+    }
+
     // MARK: - 位置の保存・復元（フルスクリーン遷移でシステムが位置を動かす罠への対処 §7-A）
 
     func windowDidMove(_ notification: Notification) {

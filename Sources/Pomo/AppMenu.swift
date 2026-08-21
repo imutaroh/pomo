@@ -1,31 +1,26 @@
 import AppKit
 import Sparkle
 
-/// 「設定…」「Pomoについて」メニュー項目の action 先。NSMenuItem の target は weak 参照のため、
+/// 「設定…」「Fikaについて」メニュー項目の action 先。NSMenuItem の target は weak 参照のため、
 /// このオブジェクトを AppDelegate がプロパティとして保持し続ける必要がある。
 @MainActor
 final class AppMenuActions: NSObject {
     private let openSettings: () -> Void
     private let openPage: (SidebarItem) -> Void
-    private let openFind: () -> Void
 
-    init(openSettings: @escaping () -> Void, openPage: @escaping (SidebarItem) -> Void, openFind: @escaping () -> Void) {
+    init(openSettings: @escaping () -> Void, openPage: @escaping (SidebarItem) -> Void) {
         self.openSettings = openSettings
         self.openPage = openPage
-        self.openFind = openFind
     }
-
-    @objc func findTapped() { openFind() }
 
     @objc func openSettingsTapped() {
         openSettings()
     }
 
     @objc func openDashboardTapped() { openPage(.dashboard) }
-    @objc func openSessionsTapped() { openPage(.sessions) }
-    @objc func openStatsTapped() { openPage(.stats) }
     @objc func openSettingsPageTapped() { openPage(.settings) }
     @objc func openPhilosophyTapped() { openPage(.philosophy) }
+    @objc func openMechanismTapped() { openPage(.mechanism) }
 
     /// Info.plist の CFBundleName/Version/Copyright は標準Aboutパネルが自動で拾うため、
     /// ここでは一言添えるだけ（罪悪感ゼロ・ローカル完結の哲学を伝える最小限のクレジット）
@@ -52,7 +47,7 @@ enum AppMenu {
 
         mainMenu.addItem(appMenuItem(actions: actions))
         mainMenu.addItem(fileMenuItem())
-        mainMenu.addItem(editMenuItem(actions: actions))
+        mainMenu.addItem(editMenuItem())
         mainMenu.addItem(viewMenuItem(actions: actions))
         let windowItem = windowMenuItem()
         mainMenu.addItem(windowItem)
@@ -62,7 +57,7 @@ enum AppMenu {
     }
 
     /// 閉じる＝すべてしまう（メニューバー🍅のみ残る。復帰は ⌃⌥T / メニューバー / Dock）。
-    /// パネルが欲しいときはサイドバー「パネルに戻る」かフォーカスモード（Issue #39 で意図分離）
+    /// パネルが欲しいときはダッシュボード右肩の「パネルで始める / パネルへ」（Issue #39 で意図分離）
     private static func fileMenuItem() -> NSMenuItem {
         let item = NSMenuItem()
         let menu = NSMenu(title: "ファイル")
@@ -71,16 +66,15 @@ enum AppMenu {
         return item
     }
 
-    /// サイドバー4ページへのキーボード移動（Cmd+1〜4）。母艦が閉じていても開いて遷移する
+    /// 母艦4ページへのキーボード移動（Cmd+1〜4）。母艦が閉じていても開いて遷移する
     private static func viewMenuItem(actions: AppMenuActions) -> NSMenuItem {
         let item = NSMenuItem()
         let menu = NSMenu(title: "表示")
         let pages: [(String, Selector, String)] = [
             ("ダッシュボード", #selector(AppMenuActions.openDashboardTapped), "1"),
-            ("セッション", #selector(AppMenuActions.openSessionsTapped), "2"),
-            ("統計", #selector(AppMenuActions.openStatsTapped), "3"),
-            ("設定", #selector(AppMenuActions.openSettingsPageTapped), "4"),
-            ("願い", #selector(AppMenuActions.openPhilosophyTapped), "5"),
+            ("設定", #selector(AppMenuActions.openSettingsPageTapped), "2"),
+            ("願い", #selector(AppMenuActions.openPhilosophyTapped), "3"),
+            ("フロータイマーとは", #selector(AppMenuActions.openMechanismTapped), "4"),
         ]
         for (title, action, key) in pages {
             let i = NSMenuItem(title: title, action: action, keyEquivalent: key)
@@ -95,7 +89,7 @@ enum AppMenu {
         let item = NSMenuItem()
         let menu = NSMenu()
 
-        let about = NSMenuItem(title: "Pomoについて", action: #selector(AppMenuActions.aboutTapped), keyEquivalent: "")
+        let about = NSMenuItem(title: "Fikaについて", action: #selector(AppMenuActions.aboutTapped), keyEquivalent: "")
         about.target = actions
         menu.addItem(about)
         // Sparkle 標準の更新確認（target は UpdaterManager が保持する controller）
@@ -113,7 +107,7 @@ enum AppMenu {
         menu.addItem(settings)
         menu.addItem(.separator())
 
-        menu.addItem(NSMenuItem(title: "Pomoを隠す", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
+        menu.addItem(NSMenuItem(title: "Fikaを隠す", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
         let hideOthers = NSMenuItem(
             title: "他を隠す", action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h"
         )
@@ -124,13 +118,13 @@ enum AppMenu {
         ))
         menu.addItem(.separator())
 
-        menu.addItem(NSMenuItem(title: "Pomoを終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Fikaを終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
         item.submenu = menu
         return item
     }
 
-    private static func editMenuItem(actions: AppMenuActions) -> NSMenuItem {
+    private static func editMenuItem() -> NSMenuItem {
         let item = NSMenuItem()
         let menu = NSMenu(title: "編集")
 
@@ -145,13 +139,6 @@ enum AppMenu {
         menu.addItem(NSMenuItem(title: "貼り付け", action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
         menu.addItem(NSMenuItem(title: "削除", action: #selector(NSText.delete(_:)), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "すべてを選択", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
-        menu.addItem(.separator())
-
-        // セッションのメモ検索へ（どのページ・母艦が閉じた状態からでも届く）
-        let find = NSMenuItem(title: "検索", action: #selector(AppMenuActions.findTapped), keyEquivalent: "f")
-        find.target = actions
-        menu.addItem(find)
-
         item.submenu = menu
         return item
     }

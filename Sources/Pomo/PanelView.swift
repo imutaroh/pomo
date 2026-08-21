@@ -35,23 +35,25 @@ struct PanelView: View {
     private var phaseLabel: String {
         switch engine.phase {
         case .idle:
-            // 待機中のホバーは「今日の積み上げ」を見せる場所として使う
-            if hovering {
-                let logger = SessionLogger.shared
-                if logger.todayWorkCount > 0 {
-                    let h = logger.todayWorkSeconds / 3600
-                    let m = (logger.todayWorkSeconds % 3600) / 60
-                    return "今日 \(logger.todayWorkCount)回 · \(h > 0 ? "\(h)時間" : "")\(m)分"
-                }
-            }
+            if settings.mode == .clock { return "現在時刻" }
             // 貯まった休憩は待機中も見せる（M2 の動機づけ。カップボタンを押せば受け取れる）
             if let pending = engine.pendingBreakLabel {
                 return "☕️ \(pending)の休憩が待っています"
             }
             return "いつでもどうぞ"
-        case .work: return engine.isPaused ? "一時停止" : (engine.activeMode == .simple ? "タイマー" : "集中")
+        case .work: return engine.isPaused ? "一時停止" : (engine.activeMode == .timer ? "タイマー" : "集中")
         case .breakTime: return engine.isPaused ? "一時停止" : "休憩"
         }
+    }
+
+    private var detailLabel: String? {
+        if engine.phase == .work, engine.activeMode == .pomodoro {
+            return "今回の経過 \(engine.workElapsedString)"
+        }
+        if engine.phase == .breakTime, let worked = engine.lastWorkString {
+            return "今回の集中 \(worked)"
+        }
+        return nil
     }
 
     var body: some View {
@@ -155,14 +157,25 @@ struct PanelView: View {
 
                 // 巨大な丸ゴシック数字（P0-1: ウィンドウ幅の約6割）
                 Text(engine.timeString)
-                    // サイズ分岐だと 1:00:00 到達の瞬間に数字がガクッと縮む → 固定+自動縮小
-                    .font(.system(size: 54, weight: .medium, design: .monospaced))
+                    // サイズ分岐だと 1:00:00 到達の瞬間に数字がガクッと縮む → 固定+自動縮小。
+                    // ただし時計モードは常に8桁（HH:MM:SS）で 54pt×縮小0.7 でも 170pt に入らず
+                    // 末尾が「…」に切られるため、母艦と同じ流儀でモード分岐だけ一段小さくする
+                    // （時計⇄他モードの切替は待機中しか起きないので、実行中のガクッは発生しない）
+                    .font(.system(size: engine.phase == .idle && settings.mode == .clock ? 40 : 54,
+                                  weight: .medium, design: .monospaced))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .frame(maxWidth: 170)
                     .monospacedDigit()
                     .foregroundStyle(Tokens.sumi) // 白ベース化に伴い数字は墨色（2026-06-11 の方針転換）
                     .contentTransition(.numericText())
+
+                if let detailLabel {
+                    Text(detailLabel)
+                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .foregroundStyle(Tokens.kohakuDeep)
+                        .contentTransition(.numericText())
+                }
 
                 // フロー実行中: 貯まった休憩をライブ表示（動機づけ＝追加要件の核）
                 // 報酬（貯めた休憩）自体をボタンにする: 押せば受け取れる構造で核メカニクスを説明なしで伝える
@@ -192,7 +205,7 @@ struct PanelView: View {
                 // ホバー時のみ出現する操作列（P1-4）
                 // 待機中は常時表示（初見で操作がわかるように）。作業/休憩中はホバー時のみ
                 controls
-                    .opacity(hovering || engine.phase == .idle ? 1 : 0)
+                    .opacity((hovering || engine.phase == .idle) && !(engine.phase == .idle && settings.mode == .clock) ? 1 : 0)
                     .padding(.bottom, 14)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -209,26 +222,29 @@ struct TimerControlsView: View {
     @ObservedObject var engine: TimerEngine
     @ObservedObject var settings: Settings
     var large = false
-    /// 母艦のタイマーカードは独自の「モード＋時間」設定UIを持つので、simple の ±5分ボタンを重複表示しない
-    var hideSimpleAdjust = false
+    /// 母艦のタイマーカードは独自の「モード＋時間」設定UIを持つので、タイマーの ±5分を重複表示しない
+    var hideTimerAdjust = false
 
     var body: some View {
         HStack(spacing: large ? 18 : 14) {
             switch engine.phase {
             case .idle:
-                // simple 選択時はタイマー時間の ±5分ボタンを出す（テキスト入力なし原則を維持）
-                if settings.mode == .simple && !hideSimpleAdjust {
+                if settings.mode == .clock {
+                    EmptyView()
+                } else {
+                // タイマー選択時は時間の ±5分ボタンを出す（テキスト入力なし原則を維持）
+                if settings.mode == .timer && !hideTimerAdjust {
                     CircleButton(symbol: "minus", large: large, accessibilityLabel: "5分減らす") {
-                        settings.simpleTimerMinutes = max(5, settings.simpleTimerMinutes - 5)
+                        settings.timerMinutes = max(5, settings.timerMinutes - 5)
                         engine.settingsChanged()
                     }
                     .help("5分減らす")
                 }
-                CircleButton(symbol: "play.fill", prominent: true, large: large, accessibilityLabel: settings.mode == .simple ? "タイマーを開始" : "作業を開始") { engine.startWork() }
-                    .help(settings.mode == .simple ? "タイマーを開始（⌃⌥P）" : "作業を開始（⌃⌥P）")
-                if settings.mode == .simple && !hideSimpleAdjust {
+                CircleButton(symbol: "play.fill", prominent: true, large: large, accessibilityLabel: settings.mode == .timer ? "タイマーを開始" : "作業を開始") { engine.startWork() }
+                    .help(settings.mode == .timer ? "タイマーを開始（⌃⌥P）" : "作業を開始（⌃⌥P）")
+                if settings.mode == .timer && !hideTimerAdjust {
                     CircleButton(symbol: "plus", large: large, accessibilityLabel: "5分増やす") {
-                        settings.simpleTimerMinutes = min(120, settings.simpleTimerMinutes + 5)
+                        settings.timerMinutes = min(120, settings.timerMinutes + 5)
                         engine.settingsChanged()
                     }
                     .help("5分増やす")
@@ -236,13 +252,14 @@ struct TimerControlsView: View {
                     CircleButton(symbol: "cup.and.saucer.fill", large: large, accessibilityLabel: "貯めた休憩を開始") { engine.startBreak() }
                         .help("貯めた休憩を開始")
                 }
+                }
             case .work:
-                CircleButton(symbol: "arrow.counterclockwise", large: large, accessibilityLabel: engine.activeMode == .simple ? "タイマーを止める" : "リセット") { engine.reset() }
-                    .help(engine.activeMode == .simple ? "タイマーを止める" : "リセット")
+                CircleButton(symbol: "arrow.counterclockwise", large: large, accessibilityLabel: engine.activeMode == .timer ? "タイマーを止める" : "リセット") { engine.reset() }
+                    .help(engine.activeMode == .timer ? "タイマーを止める" : "リセット")
                 CircleButton(symbol: engine.isPaused ? "play.fill" : "pause.fill", prominent: true, large: large, accessibilityLabel: engine.isPaused ? "再開" : "一時停止") { engine.togglePause() }
                     .help(engine.isPaused ? "再開（⌃⌥P）" : "一時停止（⌃⌥P）")
-                // フローの核: ここを押すと作業時間に応じた休憩が自動で始まる（simple では表示しない）
-                if engine.activeMode != .simple {
+                // フロー/ポモドーロだけ、作業を終えて休憩へ進める
+                if engine.activeMode == .flow || engine.activeMode == .pomodoro {
                     CircleButton(symbol: "cup.and.saucer.fill", large: large, accessibilityLabel: "作業を終えて休憩へ") { engine.finishWork() }
                         .help("作業を終えて休憩へ（貯めた分だけ休める）")
                 }
@@ -289,8 +306,8 @@ struct CircleButton: View {
     let action: () -> Void
     @State private var hovered = false
 
-    private var diameter: CGFloat { large ? (prominent ? 64 : 44) : (prominent ? 40 : 32) }
-    private var iconSize: CGFloat { large ? (prominent ? 22 : 15) : (prominent ? 15 : 12) }
+    private var diameter: CGFloat { large ? (prominent ? 56 : 44) : (prominent ? 40 : 32) }
+    private var iconSize: CGFloat { large ? (prominent ? 20 : 15) : (prominent ? 15 : 12) }
 
     var body: some View {
         if large {

@@ -1,6 +1,6 @@
 import AppKit
 
-/// メニューバー常駐（M6）: 残り時間/経過時間テキスト＋今日の完了数。
+/// メニューバー常駐（M6）: 現在の残り時間・経過時間・現在時刻だけを表示する。
 /// メニューは「操作の場」— 主操作とモード切替だけを置き、詳細設定は母艦ウィンドウの設定ページに一本化
 /// （二重管理は状態不整合と保守コストの源。モードだけは作業フローの一部なので例外的に残す）
 @MainActor
@@ -23,7 +23,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         statusItem.button?.font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
         statusItem.button?.imagePosition = .imageLeading
-        statusItem.button?.toolTip = "Pomo"
+        statusItem.button?.toolTip = "Fika"
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
@@ -63,7 +63,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         switch engine.phase {
         case .idle:
             button.image = Self.dialIcon
-            button.title = ""
+            button.title = settings.mode == .clock ? " " + engine.timeString : ""
         case .work:
             button.image = engine.isPaused ? Self.pauseIcon : Self.dialIcon
             button.title = " " + engine.timeString
@@ -78,45 +78,28 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
 
-        // 状態表示
-        let logger = SessionLogger.shared
-        let summary = NSMenuItem(
-            title: "今日: \(logger.todayWorkCount) セッション（\(hmString(logger.todayWorkSeconds))）",
-            action: nil, keyEquivalent: ""
-        )
-        summary.isEnabled = false
-        menu.addItem(summary)
-        let week = logger.weekStats()
-        let weekItem = NSMenuItem(
-            title: "今週: \(week.count) セッション（\(hmString(week.seconds))）",
-            action: nil, keyEquivalent: ""
-        )
-        weekItem.isEnabled = false
-        menu.addItem(weekItem)
-        menu.addItem(.separator())
-
         // 主操作
         switch engine.phase {
         case .idle:
-            let startLabel: String
-            if settings.mode == .simple {
-                startLabel = "タイマーを開始（\(settings.simpleTimerMinutes)分）"
+            if settings.mode == .clock {
+                let clockItem = NSMenuItem(title: "現在時刻  \(engine.timeString)", action: nil, keyEquivalent: "")
+                clockItem.isEnabled = false
+                menu.addItem(clockItem)
             } else {
-                startLabel = "作業を開始"
+                let startLabel = settings.mode == .timer
+                    ? "タイマーを開始（\(settings.timerMinutes)分）"
+                    : "作業を開始"
+                menu.addItem(item(startLabel, #selector(startWork), key: "s"))
             }
-            menu.addItem(item(startLabel, #selector(startWork), key: "s"))
             if let pending = engine.pendingBreakDuration {
                 menu.addItem(item("休憩を開始（\(Int(pending) / 60)分\(Int(pending) % 60 > 0 ? "\(Int(pending) % 60)秒" : "")）", #selector(startPendingBreak)))
             }
         case .work:
             menu.addItem(item(engine.isPaused ? "再開" : "一時停止", #selector(togglePause), key: "p"))
-            if engine.activeMode == .simple {
-                // simple は記録しないのでメモ項目は出さない
+            if engine.activeMode == .timer {
                 menu.addItem(item("タイマーを止める", #selector(resetTimer)))
             } else {
                 menu.addItem(item(engine.activeMode == .flow ? "作業を終えて休憩へ" : "作業を終える", #selector(finishWork), key: "b"))
-                let memoTitle = engine.currentMemo.map { "メモ: \($0)" } ?? "この作業にメモを付ける…"
-                menu.addItem(item(memoTitle, #selector(editMemo), key: "m"))
                 menu.addItem(item("リセット", #selector(resetTimer)))
             }
         case .breakTime:
@@ -129,7 +112,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             }
         }
         menu.addItem(.separator())
-        menu.addItem(item("Pomo を開く", #selector(openMainWindow), key: "d"))
+        menu.addItem(item("Fika を開く", #selector(openMainWindow), key: "d"))
         menu.addItem(item(panelController.isShown ? "パネルを隠す" : "パネルを表示", #selector(togglePanel), key: "t"))
         menu.addItem(.separator())
 
@@ -138,12 +121,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let flowItem = item("フロー（作業した時間の 1/\(settings.flowRatio) が休憩になる）", #selector(setModeFlow))
         flowItem.state = settings.mode == .flow ? .on : .off
         modeMenu.addItem(flowItem)
-        let classicItem = item("クラシック（\(settings.classicWorkMin)分作業 → \(settings.classicShortBreakMin)分休憩）", #selector(setModeClassic))
-        classicItem.state = settings.mode == .classic ? .on : .off
-        modeMenu.addItem(classicItem)
-        let simpleItem = item("タイマー（好きな時間を測るだけ）", #selector(setModeSimple))
-        simpleItem.state = settings.mode == .simple ? .on : .off
-        modeMenu.addItem(simpleItem)
+        let pomodoroItem = item("ポモドーロ（\(settings.pomodoroWorkMinutes)分作業 → \(settings.pomodoroBreakMinutes)分休憩）", #selector(setModePomodoro))
+        pomodoroItem.state = settings.mode == .pomodoro ? .on : .off
+        modeMenu.addItem(pomodoroItem)
+        let timerItem = item("タイマー（好きな時間を測る）", #selector(setModeTimer))
+        timerItem.state = settings.mode == .timer ? .on : .off
+        modeMenu.addItem(timerItem)
+        let clockItem = item("時計（現在時刻を表示）", #selector(setModeClock))
+        clockItem.state = settings.mode == .clock ? .on : .off
+        modeMenu.addItem(clockItem)
         let modeRoot = NSMenuItem(title: "モード", action: nil, keyEquivalent: "")
         menu.addItem(modeRoot)
         menu.setSubmenu(modeMenu, for: modeRoot)
@@ -151,10 +137,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(item("設定…", #selector(openSettings), key: ","))
         menu.addItem(.separator())
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
-        let versionItem = NSMenuItem(title: "Pomo v\(version)", action: nil, keyEquivalent: "")
+        let versionItem = NSMenuItem(title: "Fika v\(version)", action: nil, keyEquivalent: "")
         versionItem.isEnabled = false
         menu.addItem(versionItem)
-        menu.addItem(item("Pomo を終了", #selector(quit), key: "q"))
+        menu.addItem(item("Fika を終了", #selector(quit), key: "q"))
     }
 
     private func item(_ title: String, _ action: Selector, key: String = "") -> NSMenuItem {
@@ -168,25 +154,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func startWork() { engine.startWork() }
     @objc private func startPendingBreak() { engine.startBreak() }
 
-    /// メモはパネルではなくダイアログで入力する（パネルにテキスト入力を置かない原則 §8）
-    @objc private func editMemo() {
-        NSApp.activate(ignoringOtherApps: true)
-        let alert = NSAlert()
-        alert.messageText = "この作業、何をしてる？"
-        alert.informativeText = "セッション記録（JSONL）に保存されます"
-        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
-        field.stringValue = engine.currentMemo ?? ""
-        field.placeholderString = "例: Go の学習、ブログ執筆"
-        alert.accessoryView = field
-        alert.addButton(withTitle: "保存")
-        alert.addButton(withTitle: "キャンセル")
-        alert.window.initialFirstResponder = field
-        if alert.runModal() == .alertFirstButtonReturn {
-            let text = field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-            engine.currentMemo = text.isEmpty ? nil : text
-        }
-    }
-
     @objc private func openMainWindow() { mainWindow.show() }
     @objc private func openSettings() { mainWindow.show(page: .settings) }
     @objc private func togglePause() { engine.togglePause() }
@@ -197,7 +164,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func expandBreak() { breakOverlay.expand() }
     @objc private func togglePanel() { panelController.toggleVisibility() }
     @objc private func setModeFlow() { settings.mode = .flow; engine.settingsChanged() }
-    @objc private func setModeClassic() { settings.mode = .classic; engine.settingsChanged() }
-    @objc private func setModeSimple() { settings.mode = .simple; engine.settingsChanged() }
+    @objc private func setModePomodoro() { settings.mode = .pomodoro; engine.settingsChanged() }
+    @objc private func setModeTimer() { settings.mode = .timer; engine.settingsChanged() }
+    @objc private func setModeClock() { settings.mode = .clock; engine.settingsChanged() }
     @objc private func quit() { NSApp.terminate(nil) }
 }

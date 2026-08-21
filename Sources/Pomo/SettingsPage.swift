@@ -3,26 +3,33 @@ import ServiceManagement
 import SwiftUI
 
 /// 設定ページ。Settings は ObservableObject + 全項目 @Published なので双方向バインド直結。
-/// メニューバー側の詳細設定はここに一本化した（メニューは「操作の場」、母艦は「設定と振り返りの場」）。
+/// メニューバー側の詳細設定はここに一本化した（メニューは「操作の場」、母艦は「タイマーと設定の場」）。
 struct SettingsPage: View {
     @ObservedObject var engine: TimerEngine
     @ObservedObject private var settings = Settings.shared
     @State private var loginEnabled = SMAppService.mainApp.status == .enabled || LoginLaunch.agentInstalled
     @State private var loginNote: String?
+    /// ダッシュボードへ戻る（母艦はサイドバーを持たないので、戻り道はページ側が抱える）
+    private let back: () -> Void
 
-    init(engine: TimerEngine) {
+    init(engine: TimerEngine, back: @escaping () -> Void) {
         self.engine = engine
+        self.back = back
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 28) {
-            VStack(alignment: .leading, spacing: 8) {
-                sectionEyebrow("SETTINGS")
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    sectionEyebrow("SETTINGS")
+                    Spacer()
+                    BackToTimerLink(action: back)
+                }
                 Text("設定")
-                    .pomoFont(24, weight: .semibold)
+                    .pomoFont(18, weight: .semibold)
                     .foregroundStyle(Tokens.sumi)
                 Text("タイマーの形式、休憩のふるまい、音。")
-                    .pomoFont(13)
+                    .pomoFont(12)
                     .foregroundStyle(Tokens.sumiSecondary)
             }
             .staggeredAppear(0)
@@ -35,10 +42,10 @@ struct SettingsPage: View {
             shortcutSection.staggeredAppear(6)
             generalSection.staggeredAppear(7)
         }
-        // モード・時間の変更を待機中の表示（クラシックの予告時間等）へ反映
+        // モード・時間の変更を待機中の表示へ反映
         .onChange(of: settings.mode) { _, _ in engine.settingsChanged() }
-        .onChange(of: settings.classicWorkMin) { _, _ in engine.settingsChanged() }
-        .onChange(of: settings.simpleTimerMinutes) { _, _ in engine.settingsChanged() }
+        .onChange(of: settings.pomodoroWorkMinutes) { _, _ in engine.settingsChanged() }
+        .onChange(of: settings.timerMinutes) { _, _ in engine.settingsChanged() }
     }
 
     // MARK: - タイマー
@@ -49,8 +56,9 @@ struct SettingsPage: View {
             VStack(alignment: .leading, spacing: 16) {
                 Picker("", selection: $settings.mode) {
                     Text("フロー").tag(TimerMode.flow)
-                    Text("クラシック").tag(TimerMode.classic)
-                    Text("タイマー").tag(TimerMode.simple)
+                    Text("ポモドーロ").tag(TimerMode.pomodoro)
+                    Text("タイマー").tag(TimerMode.timer)
+                    Text("時計").tag(TimerMode.clock)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
@@ -88,23 +96,21 @@ struct SettingsPage: View {
                                 .foregroundStyle(Tokens.sumiSecondary)
                                 .transition(.opacity)
                         }
-                    case .classic:
+                    case .pomodoro:
                         settingRow("作業") {
-                            stepper(value: $settings.classicWorkMin, range: 5...120, step: 5, unit: "分")
+                            stepper(value: $settings.pomodoroWorkMinutes, range: 5...120, step: 5, unit: "分")
                         }
-                        settingRow("短い休憩") {
-                            stepper(value: $settings.classicShortBreakMin, range: 1...30, step: 1, unit: "分")
+                        settingRow("休憩") {
+                            stepper(value: $settings.pomodoroBreakMinutes, range: 1...30, step: 1, unit: "分")
                         }
-                        settingRow("長い休憩") {
-                            stepper(value: $settings.classicLongBreakMin, range: 5...60, step: 5, unit: "分")
-                        }
-                        settingRow("長い休憩までのセット数") {
-                            stepper(value: $settings.classicSetCount, range: 2...8, step: 1, unit: "セット")
-                        }
-                    case .simple:
+                    case .timer:
                         settingRow("計測時間") {
-                            stepper(value: $settings.simpleTimerMinutes, range: 5...120, step: 5, unit: "分")
+                            stepper(value: $settings.timerMinutes, range: 5...120, step: 5, unit: "分")
                         }
+                    case .clock:
+                        Text("現在時刻を表示するだけのモードです。開始・一時停止・記録はありません。")
+                            .pomoFont(12)
+                            .foregroundStyle(Tokens.sumiSecondary)
                     }
                 }
                 .transition(.opacity)
@@ -117,8 +123,9 @@ struct SettingsPage: View {
     private var modeDescription: String {
         switch settings.mode {
         case .flow: return "作業はカウントアップ。終えると、作業した時間に応じた休憩が自動で算出されます。"
-        case .classic: return "決まった時間で作業と休憩を繰り返す、いわゆるポモドーロ。"
-        case .simple: return "好きな時間を測るだけのキッチンタイマー。記録には残りません。"
+        case .pomodoro: return "残り時間と今回の経過時間を見ながら、決まった長さで集中と休憩を切り替えます。"
+        case .timer: return "好きな時間を測るだけのカウントダウンタイマーです。"
+        case .clock: return "現在時刻を表示します。開始操作はありません。"
         }
     }
 
@@ -133,8 +140,6 @@ struct SettingsPage: View {
                 toggleRow("休憩は全画面で（休憩モード）", isOn: $settings.breakFullscreen)
                 if settings.breakFullscreen {
                     toggleRow("通話・会議中は全画面にしない", isOn: $settings.deferOverlayInCall)
-                        .transition(.opacity)
-                    toggleRow("休憩のはじめにメモを聞く", isOn: $settings.askMemoOnBreak)
                         .transition(.opacity)
                 }
             }
@@ -158,7 +163,7 @@ struct SettingsPage: View {
                     }
                     .transition(.opacity)
                 }
-                Text("設定した時刻に「今日をはじめますか」を1日1回だけ。その日すでに作業していれば鳴りません。無視しても何も起きません。")
+                Text("設定した時刻に「今日をはじめますか」を1日1回だけ。作業履歴とは結び付けず、無視しても何も起きません。")
                     .pomoFont(12)
                     .foregroundStyle(Tokens.sumiSecondary)
             }
@@ -337,24 +342,8 @@ struct SettingsPage: View {
                         .pomoFont(12)
                         .foregroundStyle(Tokens.sumiTertiary)
                 }
-                // 記録はユーザーのもの（ローカル完結）。実体へ1クリックで辿り着けるようにする
-                Button {
-                    let file = SessionLogger.shared.fileURL
-                    if FileManager.default.fileExists(atPath: file.path) {
-                        NSWorkspace.shared.activateFileViewerSelecting([file])
-                    } else {
-                        NSWorkspace.shared.open(file.deletingLastPathComponent())
-                    }
-                } label: {
-                    Text("記録ファイルを Finder で表示")
-                        .pomoFont(12, weight: .medium)
-                        .foregroundStyle(Tokens.kohakuText)
-                }
-                .buttonStyle(.plain)
-                .help("セッション記録（sessions.jsonl）の保存場所を開く")
-
                 let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
-                Text("Pomo v\(version)")
+                Text("Fika v\(version)")
                     .pomoFont(12)
                     .foregroundStyle(Tokens.sumiTertiary)
             }

@@ -15,7 +15,7 @@ enum Tokens {
     static let kohakuText = Color(red: 0x00 / 255, green: 0x5F / 255, blue: 0x77 / 255)
     /// bg #FAFBFC — ページ・パネルの下敷き（旧 washi）
     static let washi = Color(red: 0xFA / 255, green: 0xFB / 255, blue: 0xFC / 255)
-    /// code-bg #F0F3F6 — 淡い面（サイドバー・hover背景・チップ地。塗ってよい唯一の面）（旧 usugumo）
+    /// code-bg #F0F3F6 — 淡い面（hover背景・チップ地・セグメント地。塗ってよい唯一の面）（旧 usugumo）
     static let usugumo = Color(red: 0xF0 / 255, green: 0xF3 / 255, blue: 0xF6 / 255)
     /// ページ背景も bg に統一（カードは面で浮かせず、ヘアライン罫線で区切る）
     static let canvas = Color(red: 0xFA / 255, green: 0xFB / 255, blue: 0xFC / 255)

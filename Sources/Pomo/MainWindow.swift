@@ -2,27 +2,27 @@ import AppKit
 import Combine
 import SwiftUI
 
+/// 母艦の3ページ。サイドバーは廃止し、フッターのリンクと ⌘1〜3 で行き来する
+/// （型名は AppMenu / PomoApp / MenuBarController からの参照互換のため据え置き）。
 enum SidebarItem: String, CaseIterable, Identifiable {
-    case dashboard, sessions, stats, settings, philosophy
+    case dashboard, settings, philosophy, mechanism
     var id: String { rawValue }
 
+    /// ページの名前（メニューの項目名と揃える）
     var title: String {
         switch self {
-        case .dashboard: return "ダッシュボード"
-        case .sessions: return "セッション"
-        case .stats: return "統計"
+        case .dashboard: return "タイマー"
         case .settings: return "設定"
         case .philosophy: return "願い"
+        case .mechanism: return "フロータイマーとは"
         }
     }
 
-    var symbol: String {
+    /// フッターの細いリンクに出す短い名前（420 幅に3つ並ぶので、ページ名より詰める）
+    var footerLabel: String {
         switch self {
-        case .dashboard: return "house"
-        case .sessions: return "list.bullet"
-        case .stats: return "chart.bar"
-        case .settings: return "gearshape"
-        case .philosophy: return "heart"
+        case .mechanism: return "仕組み"
+        default: return title
         }
     }
 }
@@ -30,14 +30,12 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 @MainActor
 final class MainWindowState: ObservableObject {
     @Published var selection: SidebarItem = .dashboard
-    /// 検索フィールドへのフォーカス要求（Cmd+F）。インクリメントが1回の要求を表す
-    @Published var searchFocusToken = 0
 }
 
-/// 母艦ウィンドウ。メニューバーに潜らず設定・操作・振り返りができる「Pomo の家」。
+/// 母艦ウィンドウ。メニューバーに潜らずタイマー操作と設定ができる「Fika の家」。
 /// パネルとの関係（Issue #39 で意図を分離）:
 /// - 母艦が見えている間はパネルをしまう
-/// - 「パネルに戻る」/フォーカスモード経由の close → パネル復帰（明示的にパネルが欲しい操作）
+/// - 「パネルで始める」/フォーカスモード経由の close → パネル復帰（明示的にパネルが欲しい操作）
 /// - 赤バツ/⌘W の close → すべてしまう（macOS 標準の「閉じる」。復帰は ⌃⌥T・メニューバー・Dock）
 @MainActor
 final class MainWindowController: NSObject, NSWindowDelegate {
@@ -54,6 +52,9 @@ final class MainWindowController: NSObject, NSWindowDelegate {
     }
 
     func show(page: SidebarItem? = nil) {
+        // すでに開いている窓は動かさない（⌘1〜3 のページ切替でも show が来るため、
+        // ユーザーがドラッグした位置を奪わないように「開くとき」だけ合わせる）
+        let alreadyOpen = window?.isVisible ?? false
         if window == nil {
             let host = NSHostingController(
                 rootView: MainWindowView(engine: engine, state: state, shrinkToPanel: { [weak self] in
@@ -61,12 +62,14 @@ final class MainWindowController: NSObject, NSWindowDelegate {
                 })
             )
             let w = NSWindow(contentViewController: host)
-            w.title = "Pomo"
-            // 固定サイズ（Issue #53）: 余白はこの寸法基準で調整済み。内蔵 13インチ（1440×900）にも収まる。
+            w.title = "Fika"
+            // 固定サイズ（Issue #53 / 2026-08-20 にミニマム化）: 縦長カード 420×540。
             // .resizable を持たないためズーム/フルスクリーンも無効。min/max を一致させ、
             // 過去に保存されたリサイズ済みフレームからの復元でもこの寸法を維持する。
-            let fixedSize = NSSize(width: 880, height: 620)
-            // fullSizeContentView でサイドバーをタイトルバー下まで届かせる（トラフィックライトの分は上余白で逃がす）
+            // 高さはダッシュボード最長状態（待機中＋時間設定 UI 表示）がスクロールなしで収まる寸法
+            let fixedSize = NSSize(width: 420, height: 540)
+            // fullSizeContentView で地（canvas）を窓の一番上まで届かせる。
+            // トラフィックライトの分は MainWindowView 側の上余白で逃がす
             w.styleMask = [.titled, .closable, .miniaturizable, .fullSizeContentView]
             w.contentMinSize = fixedSize
             w.contentMaxSize = fixedSize
@@ -76,22 +79,18 @@ final class MainWindowController: NSObject, NSWindowDelegate {
             w.backgroundColor = NSColor(red: 0xFA / 255, green: 0xFB / 255, blue: 0xFC / 255, alpha: 1) // Tokens.canvas と一致
             w.titlebarAppearsTransparent = true
             w.titleVisibility = .hidden
-            w.setFrameAutosaveName("PomoMainWindow") // 位置の記憶（サイズは直後の setContentSize が上書き）
+            // 位置は覚えない（frameAutosave も center もしない）。母艦はパネルの右上角に呼び出されるだけで、
+            // 「どこに出るか」の記憶はパネル側の panelFrame 一本に統一する
             w.setContentSize(fixedSize)
-            w.center()
             w.delegate = self
             window = w
         }
+        // 開くたびに合わせ直す（前回からパネルを動かしていても、必ずパネルのいた角に出る）
+        if !alreadyOpen { alignToPanel() }
         if let page { state.selection = page }
         NSApp.activate(ignoringOtherApps: true)
         window?.makeKeyAndOrderFront(nil)
         panelController.hide()
-    }
-
-    /// Cmd+F: セッションページを開いて検索フィールドにフォーカスする
-    func showAndFocusSearch() {
-        show(page: .sessions)
-        state.searchFocusToken += 1
     }
 
     /// 「パネルに戻る」/フォーカスモード用: 母艦を閉じてパネルを出す（明示的なパネル導線）
@@ -100,9 +99,36 @@ final class MainWindowController: NSObject, NSWindowDelegate {
         window?.performClose(nil)
     }
 
+    // MARK: - 位置の共有（パネルと母艦は右上角を共通アンカーにする）
+
+    /// 母艦をパネルの右上角に合わせる。titled なので frame 高 ≠ content 高（タイトルバー分ずれる）
+    private func alignToPanel() {
+        guard let window else { return }
+        let size = window.frame.size
+        let anchor = panelController.topRight
+        var origin = NSPoint(x: anchor.x - size.width, y: anchor.y - size.height)
+
+        // パネルより背が高いぶん、そのまま合わせると下がはみ出しやすい。ここは常に画面内へ収める
+        guard let vf = panelController.currentScreen?.visibleFrame else {
+            window.center()
+            return
+        }
+        origin.x = min(max(origin.x, vf.minX), max(vf.minX, vf.maxX - size.width))
+        origin.y = min(max(origin.y, vf.minY), max(vf.minY, vf.maxY - size.height))
+        window.setFrameOrigin(origin)
+    }
+
+    /// 母艦がいた右上角をパネルへ引き継ぐ。赤バツで閉じた場合も引き継ぐので、
+    /// 次に ⌃⌥T で呼び出したパネルは母艦のあった場所に現れる
+    private func handOverPositionToPanel() {
+        guard let window else { return }
+        panelController.alignTopRight(to: NSPoint(x: window.frame.maxX, y: window.frame.maxY))
+    }
+
     // MARK: - 閉じ方の意図分離（Issue #39）
 
     func windowWillClose(_ notification: Notification) {
+        handOverPositionToPanel()
         // 赤バツ/⌘W はすべてしまう。「パネルに戻る」経由のときだけパネルを出す
         if showPanelOnClose {
             panelController.show()
@@ -111,6 +137,7 @@ final class MainWindowController: NSObject, NSWindowDelegate {
     }
 
     func windowDidMiniaturize(_ notification: Notification) {
+        handOverPositionToPanel()
         panelController.show()
     }
 
@@ -119,78 +146,31 @@ final class MainWindowController: NSObject, NSWindowDelegate {
     }
 }
 
+/// 母艦の骨格: 上余白（トラフィックライトの逃げ場）＋ ページ本体 ＋ フッターバー。
+/// ページ切替はフッターのリンクと、ページ側ヘッダーの「タイマーへ」で行う（サイドバーは持たない）。
 struct MainWindowView: View {
     @ObservedObject var engine: TimerEngine
     @ObservedObject var state: MainWindowState
     var shrinkToPanel: () -> Void
-    @StateObject private var store = SessionStore()
-    @Namespace private var pillNS
 
     var body: some View {
-        HStack(spacing: 0) {
-            sidebar
+        VStack(spacing: 0) {
+            // fullSizeContentView なので中身が窓の一番上から始まる。トラフィックライトに被らせない
+            Color.clear.frame(height: 32)
             page
+            footer
         }
-        .frame(minWidth: 560, minHeight: 440)
-        .onAppear { store.reload() }
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
-            store.reload() // ウィンドウを開き直すたびに最新化
-        }
-        .onReceive(engine.$phase) { _ in
-            store.reload() // セッション記録直後（finishWork 等）に即時反映
-        }
-    }
-
-    private var sidebar: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            // トラフィックライトと衝突しない上余白 + ロゴ
-            Text("Pomo")
-                .pomoFont(21, weight: .semibold)
-                .foregroundStyle(Tokens.sumi)
-                .padding(.top, 52)
-                .padding(.leading, 14)
-                .padding(.bottom, 18)
-
-            ForEach(SidebarItem.allCases) { item in
-                SidebarRow(item: item, selected: state.selection == item, ns: pillNS) {
-                    withAnimation(.easeOut(duration: 0.25)) {
-                        state.selection = item
-                    }
-                }
-            }
-            Spacer()
-
-            // 排他切替: パネルに戻る（母艦を閉じる → デリゲートがパネルを復帰させる）
-            Button(action: shrinkToPanel) {
-                HStack(spacing: 10) {
-                    Image(systemName: "rectangle.bottomthird.inset.filled")
-                        .font(.system(size: 13, weight: .medium))
-                        .frame(width: 20)
-                    Text("パネルに戻る")
-                        .pomoFont(13, weight: .medium)
-                    Spacer()
-                }
-                .foregroundStyle(Tokens.sumi.opacity(0.55))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 9)
-                .contentShape(RoundedRectangle(cornerRadius: Tokens.radiusPill))
-            }
-            .buttonStyle(SidebarHoverStyle())
-            .help("ウィンドウを閉じて、フローティングパネルで続ける")
-            .padding(.bottom, 14)
-        }
-        .padding(.horizontal, 12)
-        .frame(width: 200)
-        .frame(maxHeight: .infinity)
-        .background(Tokens.usugumo)
+        .frame(minWidth: 420, minHeight: 540)
+        .background(Tokens.canvas)
     }
 
     private var page: some View {
         ScrollView {
             pageContent
-                .padding(40)
-                .frame(maxWidth: 980)
-                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.horizontal, state.selection == .dashboard ? 32 : 22)
+                .padding(.top, 10)
+                .padding(.bottom, 20)
+                .frame(maxWidth: .infinity)
                 .id(state.selection)
                 .transition(.opacity.combined(with: .offset(y: 8)))
         }
@@ -204,76 +184,47 @@ struct MainWindowView: View {
         case .dashboard:
             DashboardPage(
                 engine: engine,
-                store: store,
-                openSessions: { withAnimation(.easeOut(duration: 0.25)) { state.selection = .sessions } },
-                openSettings: { withAnimation(.easeOut(duration: 0.25)) { state.selection = .settings } },
-                enterFocus: { engine.startWork(); shrinkToPanel() }
+                enterFocus: { engine.startWork(); shrinkToPanel() },
+                shrinkToPanel: shrinkToPanel
             )
-        case .sessions:
-            SessionsPage(store: store, focusToken: state.searchFocusToken)
-        case .stats:
-            StatsPage(store: store)
         case .settings:
-            SettingsPage(engine: engine)
+            SettingsPage(engine: engine, back: { select(.dashboard) })
         case .philosophy:
-            PhilosophyPage()
+            PhilosophyPage(back: { select(.dashboard) })
+        case .mechanism:
+            MechanismPage(back: { select(.dashboard) })
         }
     }
-}
 
-private struct SidebarRow: View {
-    let item: SidebarItem
-    let selected: Bool
-    let ns: Namespace.ID
-    let action: () -> Void
-    @State private var hovered = false
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Image(systemName: item.symbol)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(selected ? Tokens.kohakuDeep : Tokens.sumi.opacity(0.55))
-                    .frame(width: 20)
-                Text(item.title)
-                    .pomoFont(13, weight: selected ? .semibold : .medium)
-                    .foregroundStyle(selected ? Tokens.sumi : Tokens.sumi.opacity(0.6))
-                Spacer()
+    /// 下端の細いバー。左に他ページへのリンク、右にパネル復帰のキーの覚え書き
+    private var footer: some View {
+        VStack(spacing: 0) {
+            Rectangle().fill(Tokens.line).frame(height: 1)
+            HStack(spacing: 16) {
+                footerLink(.settings)
+                footerLink(.philosophy)
+                footerLink(.mechanism)
+                Spacer(minLength: 12)
+                Text("⌃⌥T")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(Tokens.sumiTertiary)
+                    .help("パネルを表示 / 隠す（どのアプリにいても効く）")
+                    .accessibilityLabel("パネルの表示切り替えは コントロール オプション T")
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 9)
-            .background {
-                if selected {
-                    // 選択ピルは matchedGeometryEffect で行間を滑って移動する（影→ヘアライン罫線）
-                    RoundedRectangle(cornerRadius: Tokens.radiusPill)
-                        .fill(Color.white)
-                        .overlay(RoundedRectangle(cornerRadius: Tokens.radiusPill).strokeBorder(Tokens.line, lineWidth: 1))
-                        .matchedGeometryEffect(id: "sidebar.pill", in: ns)
-                } else if hovered {
-                    RoundedRectangle(cornerRadius: Tokens.radiusPill)
-                        .fill(Tokens.sumi.opacity(0.04))
-                }
-            }
-            .contentShape(RoundedRectangle(cornerRadius: Tokens.radiusPill))
-            .animation(.easeOut(duration: 0.15), value: hovered)
+            .padding(.horizontal, 22)
+            .padding(.vertical, 11)
         }
-        .buttonStyle(.plain)
-        .onHover { hovered = $0 }
     }
-}
 
-/// サイドバー下部ボタン用: ホバーで薄く沈むだけの控えめなスタイル
-private struct SidebarHoverStyle: ButtonStyle {
-    @State private var hovered = false
+    private func footerLink(_ item: SidebarItem) -> some View {
+        InlineLink(title: item.footerLabel, weight: .medium, current: state.selection == item) {
+            select(item)
+        }
+    }
 
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(
-                RoundedRectangle(cornerRadius: Tokens.radiusPill)
-                    .fill(Tokens.sumi.opacity(hovered ? 0.04 : 0))
-            )
-            .opacity(configuration.isPressed ? 0.6 : 1)
-            .animation(.easeOut(duration: 0.15), value: hovered)
-            .onHover { hovered = $0 }
+    private func select(_ item: SidebarItem) {
+        withAnimation(.easeOut(duration: 0.25)) {
+            state.selection = item
+        }
     }
 }

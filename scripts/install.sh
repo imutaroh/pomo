@@ -9,4 +9,4 @@ sleep 1
 rm -rf /Applications/Pomo.app
 cp -R build/Pomo.app /Applications/Pomo.app
 open /Applications/Pomo.app
-echo "インストール完了: /Applications/Pomo.app（Spotlight で「Pomo」と打てば起動できます）"
+echo "インストール完了: /Applications/Pomo.app（Spotlight で「Fika」と打てば起動できます）"
