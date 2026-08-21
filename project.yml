@@ -33,15 +33,17 @@ targets:
     entitlements:
       path: Pomo.entitlements
       properties:
-        # Mac App Store 必須。Pomo はネットワーク不使用・外部ファイルアクセスなし・録音なし
+        # Mac App Store 必須。Fika はネットワーク不使用・外部ファイルアクセスなし・録音なし
         # （MeetingGuard は CoreAudio の公開プロパティを読むだけ）なので、必要なのはこの1つだけ。
         com.apple.security.app-sandbox: true
     info:
       path: Pomo-Info.plist
       properties:
         CFBundleDevelopmentRegion: ja
-        # 表示名だけ Fika（2026-08-21）。バンドル名・実行ファイル名・bundle id は Pomo のまま:
-        # 既存ユーザーの Sparkle 自動アップデート（SUFeedURL と bundle id で紐づく）を壊さないため
+        # 表示名・バンドル名・実行ファイル名は Fika（2026-08-21）。bundle id と SUFeedURL は
+        # com.imutaakihiro.pomo のまま変えない: 既存ユーザーの Sparkle 自動アップデートが
+        # この2つで紐づいており、バンドル名が変わっても bundle id 一致で更新先を見つけられる
+        # （Sparkle SUInstaller.m のフォールバック。詳細は CLAUDE.md「成果物名」節）
         CFBundleName: Fika
         CFBundleDisplayName: Fika
         CFBundleShortVersionString: "0.9.3"
@@ -60,7 +62,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.imutaakihiro.pomo
-        PRODUCT_NAME: Pomo
+        PRODUCT_NAME: Fika
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_HARDENED_RUNTIME: YES
         COMBINE_HIDPI_IMAGES: YES
