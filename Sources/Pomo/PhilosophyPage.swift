@@ -57,7 +57,7 @@ struct PhilosophyPage: View {
 
             VStack(alignment: .leading, spacing: 16) {
                 Divider().overlay(Tokens.line)
-                storyText("集中して、ちゃんと休む。\nそれを静かに支えるだけの道具として、Quiet はここにいます。", size: 15, weight: .medium)
+                storyText("集中を止めるものを、ひとつずつ消していきました。\n最後に残った静けさが、この道具の名前です。", size: 15, weight: .medium)
                 HStack(spacing: 12) {
                     let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
                     Text("Quiet v\(version)")
