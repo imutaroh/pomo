@@ -44,7 +44,22 @@ enum SelfTest {
         check(engine.timeString == "00:00", "フローは0から始まる")
         engine.startWork()
         check(engine.phase == .work && engine.activeMode == .flow, "フローを開始できる")
+        engine.handleWake(now: Date().addingTimeInterval(60))
+        check(engine.phase == .work && !engine.isPaused, "5分以内のスリープ復帰では止めない")
+        engine.handleWake(now: Date().addingTimeInterval(10 * 60))
+        check(engine.phase == .work && engine.isPaused && engine.pausedBySleep, "5分超のスリープ復帰では作業を捨てずに一時停止する")
+        engine.togglePause()
+        check(engine.phase == .work && !engine.isPaused && !engine.pausedBySleep, "スリープ一時停止から再開できる")
         engine.reset()
+
+        settings.mode = .pomodoro
+        settings.pomodoroWorkMinutes = 40
+        engine.settingsChanged()
+        engine.startWork()
+        engine.handleWake(now: Date().addingTimeInterval(10 * 60))
+        check(engine.isPaused && engine.timeString == "40:00", "ポモドーロもスリープ時点の残り時間で凍結する")
+        engine.reset()
+        check(!engine.pausedBySleep, "リセットでスリープ一時停止の印を消す")
 
         settings.mode = .clock
         engine.settingsChanged()

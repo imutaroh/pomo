@@ -214,7 +214,7 @@ NSApp.setActivationPolicy(.regular)                              // Dock 常時�
 | 項目 | 要件 |
 |------|------|
 | リソース | アイドル時 CPU 1% 未満・メモリ 100MB 以下（ネイティブなら 20-50MB が常識値）。タイマー表示の更新は秒1回に制限 |
-| 時刻管理 | 終了予定時刻（Date）ベース＋ NSWorkspace.didWakeNotification で復帰時に再計算。5分以上のスリープを跨いだ作業は無音で待機へ戻し、結果を保存しない。時計変更が気になる場合の最堅牢解は mach_continuous_time だが MVP は Date 差分で十分 |
+| 時刻管理 | 終了予定時刻（Date）ベース＋ NSWorkspace.didWakeNotification で復帰時に再計算。5分超のスリープを跨いだ作業は捨てず、**眠った時点で一時停止した扱い**にして保持する（眠っていた時間は集中にも休憩の貯金にも数えない。再開か休憩かはユーザーが選ぶ。#65。2026-09-07 までは無音で待機へ戻していた）。時計変更が気になる場合の最堅牢解は mach_continuous_time だが MVP は Date 差分で十分 |
 | 通知権限 | 初回タイマー完了の直前に要求（起動直後に求めない）。拒否されてもパネルの視覚変化＋サウンドで全機能が成立する設計（M5） |
 | データ | 設定以外は保存しない。外部送信なし。クラッシュ・アプリ終了時に進行中の計測と直前の作業時間は破棄する。旧 `sessions.jsonl` / `sessions.db` は削除しないがアクセスしない |
 | 配布 | **当面は自分の Mac のみ**。ad-hoc 署名のローカルビルドで完結（Apple Developer Program 不要）。他人に配布する時点で Developer ID 署名＋ notarization（$99/年）を別案件として起こす。※macOS Sequoia 以降、未署名アプリの Ctrl+クリック起動バイパスは廃止済み（自己ビルドなら無関係） |
@@ -301,3 +301,4 @@ Claude Code は GUI 挙動を直接確認できないため、フローティン
 | 2026-08-20 | Claude | **母艦を 880×700 → 420×540 の縦長カードへミニマム化**。サイドバー（200px・ロゴ・ページ行・「パネルに戻る」）を廃止し、3ページの行き来は下端のフッターリンク（設定 / Pomo の考え方）と ⌘1〜3、戻りは各ページ右肩の「タイマーへ」に一本化。ダッシュボードは白カードと大見出しをやめてリング（226→190px）を地に直置きし、状態とパネル導線をヘッダー1行に集約 | 承認済みデザイン「A案 縦長カード」。持ち物が減った母艦に 880 幅は余白が勝ちすぎるため |
 | 2026-08-21 | Claude | **成果物名も Fika へ統一**（`build/Fika.app` / `Fika.dmg` / 実行ファイル `MacOS/Fika` / `PRODUCT_NAME: Fika`）。bundle identifier `com.imutaakihiro.pomo`・`SUFeedURL`・リポジトリ名・Swift ターゲット名（`Sources/Pomo`）は据え置き。既存ユーザーは Sparkle 更新後も `/Applications/Pomo.app` のまま中身だけ Fika になる（`SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME = 0` により `installationPath = host.bundlePath`）ため、Finder は Pomo.app・Dock とメニューバーは Fika という混在が残る。新規インストールのみ `Fika.app` | #59。名前またぎ更新が壊れないことは Sparkle `SUInstaller.m` のアプリ探索が ①旧ファイル名 → ②`CFBundleName`.app → ③bundle identifier 一致 の3段構えで、③が不変なため成立すると確認済み。ただし実機での v0.9.3 → 次版アップデートテストを次リリースの必須条件とする |
 | 2026-08-21 | Claude | **「はじまりの合図」をまるごと削除**（#61、#37 で追加した機能の撤回）。`DayStartCue.swift`・設定の「リズム」セクション・`dayStartEnabled` / `dayStartMinutes`・通知カテゴリ `pomo.cat.dayStart` と `notifyDayStart()` を削除。`actStartWork` は「休憩おわり」通知でも使うため残す。UserDefaults に残る旧キー（`dayStartEnabled` / `dayStartMinutes` / `lastDayStartSignal`）は読み書きしなくなるだけで、消しにいくコードは足さない（旧 `sessions.jsonl` と同じ扱い） | ご主人様の判断「これまるごといらない」。`DayStartCue.swift` 自身が「本筋はログイン起動でパネルがそこにいること。これはその補助輪」と書いていた通り設計の芯ではなく、時刻を見張る常駐タイマーと通知は「看守にしない」原則とも方向が逆だった |
+| 2026-09-07 | Claude | **スリープ復帰時に作業を捨てない**（#65）。`TimerEngine.handleWake` は 5 分超のスリープを跨いだ作業を `goIdle` で破棄していたが、眠った時点（直前 tick）で一時停止した扱いに変更。作業時間・残り時間はスリープ直前の値で凍結し、母艦とパネルの状態文言を「スリープで一時停止」にして理由を見せる。再開か休憩を受け取るかはユーザーが選ぶ | ユーザー報告「フローが75分で勝手に途切れる」。コードに 75 分の閾値はなく、`pmset` の `sleep 1` 設定で短い離席がスリープになり、復帰時のリセットで作業が消えていた。看守ではなく秘書の原則に合わせ、黙って捨てる挙動をやめる |

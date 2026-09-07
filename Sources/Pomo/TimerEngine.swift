@@ -23,6 +23,8 @@ final class TimerEngine: ObservableObject {
     @Published private(set) var bankedBreakSeconds = 0
     @Published private(set) var justFinished = false
     @Published private(set) var isApproachingEnd = false
+    /// 5分超のスリープを跨いだため、眠った時点で自動的に一時停止した（#65）。再開・待機で消える
+    @Published private(set) var pausedBySleep = false
     @Published private(set) var pendingBreakDuration: TimeInterval?
 
     private let settings = Settings.shared
@@ -57,11 +59,13 @@ final class TimerEngine: ObservableObject {
         activeMode = settings.mode
         phase = .work
         isPaused = false
+        pausedBySleep = false
         justFinished = false
         flowLimitSignaled = false
         pendingBreakDuration = nil
         lastWorkSeconds = nil
-        segmentStart = Date()
+        let now = Date() // 開始時刻と終了予定時刻は同じ瞬間から測る
+        segmentStart = now
         accumulated = 0
         workElapsedSeconds = 0
 
@@ -73,11 +77,11 @@ final class TimerEngine: ObservableObject {
         case .pomodoro:
             workCountdownTotal = TimeInterval(settings.pomodoroWorkMinutes * 60)
             countdownTotal = workCountdownTotal
-            endDate = Date().addingTimeInterval(countdownTotal)
+            endDate = now.addingTimeInterval(countdownTotal)
         case .timer:
             workCountdownTotal = TimeInterval(settings.timerMinutes * 60)
             countdownTotal = workCountdownTotal
-            endDate = Date().addingTimeInterval(countdownTotal)
+            endDate = now.addingTimeInterval(countdownTotal)
         case .clock:
             return
         }
@@ -94,15 +98,18 @@ final class TimerEngine: ObservableObject {
         }
     }
 
-    private func pause() {
+    /// `moment` は「止めたことにする時刻」。通常は今だが、スリープ復帰時は眠った時点に遡る
+    private func pause(at moment: Date = Date()) {
         guard !isPaused else { return }
         isPaused = true
+        // 区間の開始より前には遡らない（復帰直後に再開→即スリープのような順序でも負にしない）
+        let moment = max(moment, segmentStart ?? moment)
         if let segmentStart {
-            accumulated += Date().timeIntervalSince(segmentStart)
+            accumulated += max(0, moment.timeIntervalSince(segmentStart))
             self.segmentStart = nil
         }
         if let endDate {
-            pausedRemaining = endDate.timeIntervalSince(Date())
+            pausedRemaining = max(0, endDate.timeIntervalSince(moment))
             self.endDate = nil
         }
         refresh()
@@ -111,6 +118,7 @@ final class TimerEngine: ObservableObject {
     private func resume() {
         guard isPaused else { return }
         isPaused = false
+        pausedBySleep = false
         segmentStart = Date()
         if phase == .breakTime || activeMode != .flow {
             endDate = Date().addingTimeInterval(countdownRemaining())
@@ -219,6 +227,7 @@ final class TimerEngine: ObservableObject {
     private func goIdle(clearLastWork: Bool) {
         phase = .idle
         isPaused = false
+        pausedBySleep = false
         segmentStart = nil
         accumulated = 0
         endDate = nil
@@ -326,10 +335,14 @@ final class TimerEngine: ObservableObject {
         return max(0, countdownTotal)
     }
 
-    private func handleWake() {
-        let gap = Date().timeIntervalSince(lastTick)
+    /// スリープ復帰。5分超眠っていたら、作業を捨てずに「眠った時点で一時停止した」扱いにする（#65）。
+    /// 眠っていた時間は集中にも休憩の貯金にも数えない。再開するか休憩を受け取るかはユーザーが選ぶ。
+    /// `now` は自己テスト用（通常は現在時刻）。
+    func handleWake(now: Date = Date()) {
+        let gap = now.timeIntervalSince(lastTick)
         if phase == .work, !isPaused, gap > 5 * 60 {
-            goIdle(clearLastWork: true)
+            pause(at: min(lastTick, now))
+            pausedBySleep = true
             onPhaseChange?()
         } else {
             refresh()
