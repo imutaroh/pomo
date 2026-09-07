@@ -90,7 +90,7 @@ struct DashboardPage: View {
             if let pending = engine.pendingBreakLabel { return "\(pending)の休憩が待っています" }
             return "いつでもどうぞ"
         case .work:
-            if engine.isPaused { return "一時停止" }
+            if engine.isPaused { return engine.pausedBySleep ? "スリープで一時停止" : "一時停止" }
             return engine.activeMode == .timer ? "タイマー" : "集中"
         case .breakTime: return engine.isPaused ? "休憩を一時停止" : "休憩"
         }
