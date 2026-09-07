@@ -61,15 +61,19 @@ struct DashboardPage: View {
         if engine.phase == .idle, settings.mode != .clock {
             InlineLink(title: "パネルで始める", symbol: "rectangle.bottomthird.inset.filled", action: enterFocus)
                 .help("母艦を閉じて、パネルだけで計測を始める")
-        } else if let detailLabel {
-            Text(detailLabel)
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .foregroundStyle(Tokens.kohakuText)
-                .contentTransition(.numericText())
         } else {
-            // 「パネルで始める」も副情報も出ない状態（時計・フロー作業中など）でも、パネルへの戻り道は絶やさない
-            InlineLink(title: "パネルへ", symbol: "rectangle.bottomthird.inset.filled", action: shrinkToPanel)
-                .help("ウィンドウを閉じて、フローティングパネルで続ける")
+            // 副情報（ポモドーロの経過・休憩中の集中時間）があっても、パネルへの戻り道は絶やさない（#66）。
+            // 以前は排他で、ポモドーロ実行中だけ「パネルへ」が消えていた
+            HStack(spacing: 12) {
+                if let detailLabel {
+                    Text(detailLabel)
+                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .foregroundStyle(Tokens.kohakuText)
+                        .contentTransition(.numericText())
+                }
+                InlineLink(title: "パネルへ", symbol: "rectangle.bottomthird.inset.filled", action: shrinkToPanel)
+                    .help("ウィンドウを閉じて、フローティングパネルで続ける")
+            }
         }
     }
 
