@@ -94,7 +94,7 @@ struct DashboardPage: View {
             if let pending = engine.pendingBreakLabel { return "\(pending)の休憩が待っています" }
             return "いつでもどうぞ"
         case .work:
-            if engine.isPaused { return engine.pausedBySleep ? "スリープで一時停止" : "一時停止" }
+            if engine.isPaused { return "一時停止" }
             return engine.activeMode == .timer ? "タイマー" : "集中"
         case .breakTime: return engine.isPaused ? "休憩を一時停止" : "休憩"
         }
@@ -107,7 +107,8 @@ struct DashboardPage: View {
         if engine.phase == .breakTime, let worked = engine.lastWorkString {
             return "今回の集中 \(worked)"
         }
-        return nil
+        // フロー中にスリープを跨いだら、除いた時間を見せる（黙って数字を操作しない #69）
+        return engine.sleepExcludedLabel
     }
 
     // MARK: - リング・モード選択・操作

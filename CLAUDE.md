@@ -53,7 +53,7 @@ LP のマージがリリース順序に縛られないようにする。
 
 - `TimerEngine.swift` — 心臓部。Date 差分ベース。フロー（今回の経過時間をカウントアップ→休憩自動算出）・ポモドーロ（残り時間＋今回の経過時間）・タイマー（任意分数カウントダウン）・時計（現在時刻のみ）の4モード。計測結果はメモリだけに保持し、永続化しない
 - `FloatingPanel.swift` — NSPanel の検証済みレシピ（nonactivating + canJoinAllSpaces + fullScreenAuxiliary）。**このフラグ構成を崩さないこと**
-- `PanelView.swift` — パネルの SwiftUI。白基調の Liquid Glass ＋墨色文字＋ティール（フィールドノートトーン。imutaro リポジトリ DESIGN.md 準拠、2026-07-30 に琥珀の和テイストから刷新）。**テキスト入力を置かない**（フォーカス奪取の罠 §8）
+- `PanelView.swift` — パネルの SwiftUI。白基調の Liquid Glass ＋墨色文字＋ティール（フィールドノートトーン。imutaro リポジトリ DESIGN.md 準拠、2026-07-30 に琥珀の和テイストから刷新）。**テキスト入力を置かない**（フォーカス奪取の罠 §8）。ボタンはホバーが 0.35 秒続いてから押せる（`armed`。通りすがりのクリックで「リセット」「休憩へ」が発火した対策 #69。`opacity(0)` はヒットテストを止めないので `allowsHitTesting` が必要）
 - `MainWindow.swift` — 母艦ウィンドウ（通常 NSWindow）。**固定 420×540 の縦長カード、サイドバーなし**。4ページの行き来はフッターリンク（設定 / 願い / 仕組み）と ⌘1〜4、戻りは各ページ右肩の「タイマーへ」。母艦が見える間はパネルをしまう。**位置はパネルと右上角を共有**（開くときはパネルの角へ、閉じる/しまうときは母艦の角をパネルへ引き継ぐ。記憶は `panelFrame` 一本で、母艦は frameAutosave を持たない）。閉じ方で意図分離: 「パネルで始める」/フォーカスモード→パネル復帰、赤バツ/⌘W→すべてしまう（復帰は ⌃⌥T・メニューバー・Dock）
 - `DashboardPage / SettingsPage / PhilosophyPage / MechanismPage.swift` — 母艦の4ページ（⌘1〜4）。`MechanismPage` はフロータイマーという手法と名前 fika の由来の説明ページで、本文は sans、結びだけ明朝（`PhilosophyPage` は全編明朝の「声」）。ダッシュボードはタイマーだけを主役にし、履歴・統計・メモ・検索を持たない。白カードで囲わず 190px のリングを地に直置きする（420 幅では枠が窓枠と二重に見えるため）。`CardStyle.swift` がヘアラインカード・eyebrow・SelectChip・InlineLink を提供
 - `BreakOverlay.swift` — 全画面休憩モード（全ディスプレイ、クリック遮断、キーボードは奪わない）。`MeetingGuard.swift` でマイク使用中は全画面化を見送る

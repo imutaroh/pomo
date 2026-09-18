@@ -23,6 +23,13 @@ struct PanelView: View {
     @State private var hovering = false
     @State private var pillHovered = false
     @State private var expandHovered = false
+    /// ボタンが押せる状態か。ホバーが `armDelay` だけ続いてから true になる（#69）。
+    /// パネルは全ウィンドウの上に浮くので、下のウィンドウを触るつもりの通りすがりのクリックが
+    /// 「リセット」「休憩へ」に当たると、作業が消えたり全画面の休憩が始まったりする。
+    /// 見えてから押せる（opacity 0 でもヒットテストは生きているため、opacity だけでは防げない）
+    @State private var armed = false
+    @State private var armTask: Task<Void, Never>?
+    private let armDelay: Duration = .milliseconds(350)
 
     // 存在感の3段階制御（§7-B）: 操作=1.0 / 待機=1.0(要素少) / 集中=focusOpacity
     private var panelOpacity: Double {
@@ -42,7 +49,7 @@ struct PanelView: View {
             }
             return "いつでもどうぞ"
         case .work:
-            if engine.isPaused { return engine.pausedBySleep ? "スリープで一時停止" : "一時停止" }
+            if engine.isPaused { return "一時停止" }
             return engine.activeMode == .timer ? "タイマー" : "集中"
         case .breakTime: return engine.isPaused ? "一時停止" : "休憩"
         }
@@ -55,7 +62,8 @@ struct PanelView: View {
         if engine.phase == .breakTime, let worked = engine.lastWorkString {
             return "今回の集中 \(worked)"
         }
-        return nil
+        // フロー中にスリープを跨いだら、除いた時間を見せる（黙って数字を操作しない #69）
+        return engine.sleepExcludedLabel
     }
 
     var body: some View {
@@ -82,6 +90,7 @@ struct PanelView: View {
                     .onHover { expandHovered = $0 }
                     .help("ダッシュボードを開く（パネルはしまわれる）")
                     .accessibilityLabel("ダッシュボードを開く")
+                    .allowsHitTesting(armed)
                     .padding(10)
                 }
             }
@@ -92,6 +101,17 @@ struct PanelView: View {
             .onHover { h in
                 hovering = h
                 if h { engine.clearFinishedFlag() }
+                // ホバーが落ち着いてからボタンを有効にする。離れたら即座に無効へ戻す
+                armTask?.cancel()
+                if h {
+                    armTask = Task { [armDelay] in
+                        try? await Task.sleep(for: armDelay)
+                        guard !Task.isCancelled else { return }
+                        armed = true
+                    }
+                } else {
+                    armed = false
+                }
             }
             // 右クリック: パネル自身から完結できる最小限の導線（テキスト入力なし原則は維持）
             .contextMenu {
@@ -198,6 +218,7 @@ struct PanelView: View {
                     .buttonStyle(.plain)
                     .onHover { pillHovered = $0 }
                     .help("作業を終えて、この長さの休憩を始める")
+                    .allowsHitTesting(armed)
                 } else {
                     Color.clear.frame(height: 23)
                 }
@@ -208,6 +229,7 @@ struct PanelView: View {
                 // 待機中は常時表示（初見で操作がわかるように）。作業/休憩中はホバー時のみ
                 controls
                     .opacity((hovering || engine.phase == .idle) && !(engine.phase == .idle && settings.mode == .clock) ? 1 : 0)
+                    .allowsHitTesting(armed)
                     .padding(.bottom, 14)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
