@@ -44,22 +44,27 @@ enum SelfTest {
         check(engine.timeString == "00:00", "フローは0から始まる")
         engine.startWork()
         check(engine.phase == .work && engine.activeMode == .flow, "フローを開始できる")
-        engine.handleWake(now: Date().addingTimeInterval(60))
-        check(engine.phase == .work && !engine.isPaused, "5分以内のスリープ復帰では止めない")
-        engine.handleWake(now: Date().addingTimeInterval(10 * 60))
-        check(engine.phase == .work && engine.isPaused && engine.pausedBySleep, "5分超のスリープ復帰では作業を捨てずに一時停止する")
+        engine.tick(now: Date().addingTimeInterval(30))
+        check(engine.phase == .work && !engine.isPaused && engine.sleepExcludedSeconds == 0, "1分未満の空白はスリープ扱いにしない")
+        engine.tick(now: Date().addingTimeInterval(10 * 60 + 30))
+        check(engine.phase == .work && !engine.isPaused, "スリープを跨いでも止めずに続ける")
+        check(engine.sleepExcludedSeconds >= 10 * 60 && engine.sleepExcludedLabel != nil, "スリープしていた時間を集中から除いて見せる")
         engine.togglePause()
-        check(engine.phase == .work && !engine.isPaused && !engine.pausedBySleep, "スリープ一時停止から再開できる")
+        engine.tick(now: Date().addingTimeInterval(20 * 60))
+        engine.togglePause()
+        let excludedBefore = engine.sleepExcludedSeconds
+        engine.tick()
+        check(engine.sleepExcludedSeconds == excludedBefore, "手動の一時停止中の空白はスリープに数えない")
         engine.reset()
+        check(engine.sleepExcludedSeconds == 0 && engine.sleepExcludedLabel == nil, "リセットで除外時間を消す")
 
         settings.mode = .pomodoro
         settings.pomodoroWorkMinutes = 40
         engine.settingsChanged()
         engine.startWork()
-        engine.handleWake(now: Date().addingTimeInterval(10 * 60))
-        check(engine.isPaused && engine.timeString == "40:00", "ポモドーロもスリープ時点の残り時間で凍結する")
+        engine.tick(now: Date().addingTimeInterval(10 * 60))
+        check(engine.phase == .work && !engine.isPaused && engine.sleepExcludedSeconds >= 10 * 60, "ポモドーロもスリープ分だけ終了予定を後ろへずらして続ける")
         engine.reset()
-        check(!engine.pausedBySleep, "リセットでスリープ一時停止の印を消す")
 
         settings.mode = .clock
         engine.settingsChanged()

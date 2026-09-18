@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import Foundation
+import os
 
 enum Phase: Equatable {
     case idle
@@ -23,9 +24,19 @@ final class TimerEngine: ObservableObject {
     @Published private(set) var bankedBreakSeconds = 0
     @Published private(set) var justFinished = false
     @Published private(set) var isApproachingEnd = false
-    /// 5分超のスリープを跨いだため、眠った時点で自動的に一時停止した（#65）。再開・待機で消える
-    @Published private(set) var pausedBySleep = false
+    /// この作業中に Fika が動いていなかった（スリープしていた）合計秒数。集中には数えていない（#69）。
+    /// 次の作業開始・待機で消える
+    @Published private(set) var sleepExcludedSeconds = 0
     @Published private(set) var pendingBreakDuration: TimeInterval?
+
+    /// tick の間隔がこれを超えたら「Fika が動いていなかった」＝スリープとみなし、その時間を集中から除く。
+    /// 通常の tick は 0.5 秒。App Nap で間引かれても数十秒には届かないので、1 分で線を引く（#69）
+    static let sleepGapThreshold: TimeInterval = 60
+
+    /// 状態遷移の記録。「勝手に止まった／休憩になった」の再発時に
+    /// `log show --predicate 'subsystem == "com.imutaakihiro.pomo"' --last 1h` で引き金を辿るため（#69）。
+    /// 計測結果は書かない（ローカル完結・履歴なしの原則はそのまま）
+    private static let log = Logger(subsystem: "com.imutaakihiro.pomo", category: "timer")
 
     private let settings = Settings.shared
     private var ticker: Timer?
@@ -43,28 +54,34 @@ final class TimerEngine: ObservableObject {
 
     init() {
         activeMode = Settings.shared.mode
+        // 復帰の瞬間に表示を追いつかせる。スリープ分の除外は tick の間隔で検出するので、ここでは tick を呼ぶだけ
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.handleWake() }
+            Task { @MainActor in self?.tick() }
         }
         startTicker()
         refresh()
     }
 
     // MARK: - 操作
+    //
+    // 操作系の `file` / `line` は呼び出し元で自動的に埋まる（#fileID / #line は呼び出し側で評価される）。
+    // 呼ぶ側は何も渡さなくてよい。ログに「どのボタン・メニュー・通知が引き金か」を残すためだけの引数
 
-    func startWork() {
+    func startWork(file: StaticString = #fileID, line: UInt = #line) {
         guard phase == .idle, settings.mode != .clock else { return }
+        Self.log.info("startWork mode=\(self.settings.mode.rawValue, privacy: .public) from \(file, privacy: .public):\(line)")
         activeMode = settings.mode
         phase = .work
         isPaused = false
-        pausedBySleep = false
         justFinished = false
         flowLimitSignaled = false
         pendingBreakDuration = nil
         lastWorkSeconds = nil
+        sleepExcludedSeconds = 0
         let now = Date() // 開始時刻と終了予定時刻は同じ瞬間から測る
+        lastTick = now
         segmentStart = now
         accumulated = 0
         workElapsedSeconds = 0
@@ -89,27 +106,26 @@ final class TimerEngine: ObservableObject {
         onPhaseChange?()
     }
 
-    func togglePause() {
+    func togglePause(file: StaticString = #fileID, line: UInt = #line) {
         switch phase {
         case .idle:
-            startWork() // 時計モードでは何もしない
+            startWork(file: file, line: line) // 時計モードでは何もしない
         case .work, .breakTime:
+            Self.log.info("\(self.isPaused ? "resume" : "pause", privacy: .public) from \(file, privacy: .public):\(line)")
             isPaused ? resume() : pause()
         }
     }
 
-    /// `moment` は「止めたことにする時刻」。通常は今だが、スリープ復帰時は眠った時点に遡る
-    private func pause(at moment: Date = Date()) {
+    private func pause() {
         guard !isPaused else { return }
         isPaused = true
-        // 区間の開始より前には遡らない（復帰直後に再開→即スリープのような順序でも負にしない）
-        let moment = max(moment, segmentStart ?? moment)
+        let now = Date()
         if let segmentStart {
-            accumulated += max(0, moment.timeIntervalSince(segmentStart))
+            accumulated += max(0, now.timeIntervalSince(segmentStart))
             self.segmentStart = nil
         }
         if let endDate {
-            pausedRemaining = max(0, endDate.timeIntervalSince(moment))
+            pausedRemaining = max(0, endDate.timeIntervalSince(now))
             self.endDate = nil
         }
         refresh()
@@ -118,10 +134,11 @@ final class TimerEngine: ObservableObject {
     private func resume() {
         guard isPaused else { return }
         isPaused = false
-        pausedBySleep = false
-        segmentStart = Date()
+        let now = Date()
+        lastTick = now // 停止中の空白をスリープと誤認しない
+        segmentStart = now
         if phase == .breakTime || activeMode != .flow {
-            endDate = Date().addingTimeInterval(countdownRemaining())
+            endDate = now.addingTimeInterval(countdownRemaining())
         }
         pausedRemaining = nil
         refresh()
@@ -129,8 +146,9 @@ final class TimerEngine: ObservableObject {
 
     /// フロー/ポモドーロの作業を終え、今回の作業時間だけを休憩中に引き継ぐ。
     /// タイマーは終了通知だけで待機へ戻り、休憩や作業時間には結び付けない。
-    func finishWork() {
+    func finishWork(file: StaticString = #fileID, line: UInt = #line) {
         guard phase == .work else { return }
+        Self.log.info("finishWork mode=\(self.activeMode.rawValue, privacy: .public) worked=\(Int(self.currentWorkedSeconds()))s from \(file, privacy: .public):\(line)")
 
         if activeMode == .timer {
             playSound(named: settings.workSound)
@@ -171,8 +189,9 @@ final class TimerEngine: ObservableObject {
         onPhaseChange?()
     }
 
-    func startBreak(duration: TimeInterval? = nil) {
+    func startBreak(duration: TimeInterval? = nil, file: StaticString = #fileID, line: UInt = #line) {
         guard let duration = duration ?? pendingBreakDuration else { return }
+        Self.log.info("startBreak \(Int(duration))s from \(file, privacy: .public):\(line)")
         pendingBreakDuration = nil
         phase = .breakTime
         isPaused = false
@@ -185,8 +204,9 @@ final class TimerEngine: ObservableObject {
         onPhaseChange?()
     }
 
-    func skipBreak() {
+    func skipBreak(file: StaticString = #fileID, line: UInt = #line) {
         guard phase == .breakTime else { return }
+        Self.log.info("skipBreak from \(file, privacy: .public):\(line)")
         finishBreak(playChime: false)
     }
 
@@ -203,7 +223,8 @@ final class TimerEngine: ObservableObject {
         refresh()
     }
 
-    func reset() {
+    func reset(file: StaticString = #fileID, line: UInt = #line) {
+        Self.log.info("reset phase=\(String(describing: self.phase), privacy: .public) from \(file, privacy: .public):\(line)")
         pendingBreakDuration = nil
         goIdle(clearLastWork: true)
         onPhaseChange?()
@@ -212,6 +233,7 @@ final class TimerEngine: ObservableObject {
     // MARK: - 内部遷移
 
     private func finishBreak(playChime: Bool = true) {
+        Self.log.info("finishBreak autoStartWork=\(self.settings.autoStartWork)")
         if playChime {
             playSound(named: settings.breakSound)
             signalFinished()
@@ -227,7 +249,7 @@ final class TimerEngine: ObservableObject {
     private func goIdle(clearLastWork: Bool) {
         phase = .idle
         isPaused = false
-        pausedBySleep = false
+        sleepExcludedSeconds = 0
         segmentStart = nil
         accumulated = 0
         endDate = nil
@@ -252,16 +274,28 @@ final class TimerEngine: ObservableObject {
         ticker = timer
     }
 
-    private func tick() {
-        lastTick = Date()
+    /// `now` は自己テスト用（通常は現在時刻）
+    func tick(now: Date = Date()) {
+        let gap = now.timeIntervalSince(lastTick)
+        lastTick = now
         if phase == .idle {
             if settings.mode == .clock { refresh() }
             return
         }
         guard !isPaused else { return }
+
+        // 前回の tick からの空白がしきい値を超えていたら、その間 Fika は動いていなかった（スリープ）。
+        // 止めて待つのではなく、空白ぶんだけ開始時刻と終了予定を後ろへずらして続ける（#69）。
+        // 眠っていた時間は集中にも休憩の貯金にも数えない。休憩中の空白は休息なのでそのまま数える
+        if phase == .work, gap > Self.sleepGapThreshold {
+            Self.log.info("sleep gap \(Int(gap))s excluded from work")
+            segmentStart = segmentStart?.addingTimeInterval(gap)
+            endDate = endDate?.addingTimeInterval(gap)
+            sleepExcludedSeconds += Int(gap)
+        }
         refresh()
 
-        if let endDate, Date() >= endDate {
+        if let endDate, now >= endDate {
             if phase == .breakTime {
                 finishBreak()
             } else if phase == .work, activeMode == .pomodoro || activeMode == .timer {
@@ -325,7 +359,7 @@ final class TimerEngine: ObservableObject {
 
     private func currentWorkedSeconds() -> TimeInterval {
         var total = accumulated
-        if let segmentStart, !isPaused { total += Date().timeIntervalSince(segmentStart) }
+        if let segmentStart, !isPaused { total += max(0, Date().timeIntervalSince(segmentStart)) }
         return total
     }
 
@@ -333,20 +367,6 @@ final class TimerEngine: ObservableObject {
         if let endDate { return max(0, endDate.timeIntervalSince(Date())) }
         if let pausedRemaining { return max(0, pausedRemaining) }
         return max(0, countdownTotal)
-    }
-
-    /// スリープ復帰。5分超眠っていたら、作業を捨てずに「眠った時点で一時停止した」扱いにする（#65）。
-    /// 眠っていた時間は集中にも休憩の貯金にも数えない。再開するか休憩を受け取るかはユーザーが選ぶ。
-    /// `now` は自己テスト用（通常は現在時刻）。
-    func handleWake(now: Date = Date()) {
-        let gap = now.timeIntervalSince(lastTick)
-        if phase == .work, !isPaused, gap > 5 * 60 {
-            pause(at: min(lastTick, now))
-            pausedBySleep = true
-            onPhaseChange?()
-        } else {
-            refresh()
-        }
     }
 
     // MARK: - 音と表示
@@ -393,7 +413,16 @@ final class TimerEngine: ObservableObject {
 
     var pendingBreakLabel: String? {
         guard let pendingBreakDuration else { return nil }
-        let seconds = Int(pendingBreakDuration)
+        return Self.minutesLabel(Int(pendingBreakDuration))
+    }
+
+    /// 作業中にスリープで除いた時間の説明。除外がなければ nil（見せるものがない）
+    var sleepExcludedLabel: String? {
+        guard phase == .work, sleepExcludedSeconds > 0 else { return nil }
+        return "スリープ \(Self.minutesLabel(sleepExcludedSeconds))は数えていません"
+    }
+
+    private static func minutesLabel(_ seconds: Int) -> String {
         let minutes = seconds / 60
         let rest = seconds % 60
         if minutes > 0 { return rest > 0 ? "\(minutes)分\(rest)秒" : "\(minutes)分" }
