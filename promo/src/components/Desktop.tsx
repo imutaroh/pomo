@@ -211,15 +211,17 @@ export const Wallpaper: React.FC = () => (
 export const Desktop: React.FC<{
   statusIcon?: StatusIcon;
   statusTitle?: string;
+  /** メニューバー右端の時計（"10月2日(木) 14:32"）。早回しするシーンでは経過に合わせて進める */
+  clock?: string;
   typed?: number;
   activeLine?: number;
   children?: React.ReactNode;
-}> = ({ statusIcon, statusTitle, typed, activeLine, children }) => (
+}> = ({ statusIcon, statusTitle, clock, typed, activeLine, children }) => (
   <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
     <Wallpaper />
     <Editor typed={typed} activeLine={activeLine} />
     {children}
-    <MenuBar statusIcon={statusIcon} statusTitle={statusTitle} />
+    <MenuBar statusIcon={statusIcon} statusTitle={statusTitle} clock={clock} />
   </div>
 );
 

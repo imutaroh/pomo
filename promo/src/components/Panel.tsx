@@ -21,8 +21,10 @@ export type PanelProps = {
   detail?: string;
   /** フロー作業中の休憩チップ（"10:26" を渡すと「休憩 +10:26」） */
   breakChip?: string;
-  /** 休憩チップの押し込み（1 = 通常、0.9 = 押した瞬間） */
+  /** 休憩チップの押し込み（1 = 通常）。アプリのチップは押しても縮まないので、通常は使わない */
   chipScale?: number;
+  /** 休憩チップのホバー 0..1（アプリは pillHovered で塗りが 22% → 40%） */
+  chipHover?: number;
   /** ホバーの度合い 0..1。ラベルと操作ボタンの出方に使う */
   hover?: number;
   /** パネル全体の不透明度。実行中の既定は focusOpacity = 0.3、ホバーで 1 */
@@ -87,6 +89,7 @@ export const Panel: React.FC<PanelProps> = ({
   detail,
   breakChip,
   chipScale = 1,
+  chipHover = 0,
   hover = 0,
   opacity = 1,
   paused = false,
@@ -175,7 +178,12 @@ export const Panel: React.FC<PanelProps> = ({
 
       <div
         style={{
-          fontSize: clockIdle ? 40 : 54,
+          // アプリは 40/54pt を上限に、幅 170pt に収まるまで縮める（minimumScaleFactor 0.7）。
+          // IBM Plex Mono は1字 0.6em なので、文字数から同じ縮小を計算する
+          fontSize: Math.max(
+            (clockIdle ? 40 : 54) * 0.7,
+            Math.min(clockIdle ? 40 : 54, 170 / (time.length * 0.6)),
+          ),
           fontWeight: 500,
           lineHeight: 1.2,
           color: color.sumi,
@@ -201,7 +209,7 @@ export const Panel: React.FC<PanelProps> = ({
             display: "flex",
             alignItems: "center",
             gap: 4,
-            backgroundColor: "rgba(0,135,168,0.22)",
+            backgroundColor: `rgba(0,135,168,${0.22 + 0.18 * chipHover})`,
             color: color.tealDeep,
             fontSize: 12,
             fontWeight: 700,

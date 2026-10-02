@@ -13,10 +13,12 @@ export const Terminal: React.FC<{
   width?: number;
   fontSize?: number;
   title?: string;
-}> = ({ command, typed, frame, output = [], width = 1500, fontSize = 30, title = "zsh" }) => {
+  /** false で打ち終えたあとのキャレットを点灯したままにする（止め絵用） */
+  blink?: boolean;
+}> = ({ command, typed, frame, output = [], width = 1500, fontSize = 30, title = "zsh", blink = true }) => {
   const shown = command.slice(0, Math.max(0, Math.floor(typed)));
   const done = typed >= command.length;
-  const caretOn = Math.floor(frame / 15) % 2 === 0 || !done;
+  const caretOn = !blink || !done || Math.floor(frame / 15) % 2 === 0;
 
   return (
     <div
@@ -25,7 +27,7 @@ export const Terminal: React.FC<{
         borderRadius: 16,
         overflow: "hidden",
         backgroundColor: color.night,
-        boxShadow: "0 40px 100px rgba(20,31,43,0.35), 0 0 0 1px rgba(255,255,255,0.06)",
+        boxShadow: "0 24px 60px rgba(20,31,43,0.18), 0 0 0 1px rgba(255,255,255,0.06)",
         fontFamily: font.mono,
       }}
     >
