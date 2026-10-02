@@ -1,3 +1,4 @@
+import { Easing } from "remotion";
 import { loadFont as loadMincho } from "@remotion/google-fonts/ZenOldMincho";
 import { loadFont as loadSans } from "@remotion/google-fonts/IBMPlexSansJP";
 import { loadFont as loadMono } from "@remotion/google-fonts/IBMPlexMono";
@@ -31,6 +32,9 @@ export const font = {
   }).fontFamily,
   mono: loadMono("normal", { weights: ["500", "700"], subsets: ["latin"] }).fontFamily,
 };
+
+// 静かな側の出入りに使う減速カーブ（v1 から共通）
+export const ease = Easing.bezier(0.16, 1, 0.3, 1);
 
 export const clamp = {
   extrapolateLeft: "clamp",

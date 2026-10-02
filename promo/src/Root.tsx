@@ -1,26 +1,25 @@
 import { Composition, Folder } from "remotion";
-import { DURATION, QuietPromo, SCENES } from "./QuietPromo";
-import { Boot } from "./scenes/Boot";
-import { Noise } from "./scenes/Noise";
-import { Outro } from "./scenes/Outro";
-import { QuietScene } from "./scenes/QuietScene";
+import { QuietPromo } from "./QuietPromo";
+import { SCENE_COMPONENTS } from "./scenes";
+import { DURATION, FPS, HEIGHT, SCENE_DEFS, sceneLength, WIDTH } from "./timeline";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition
-        id="QuietPromo"
-        component={QuietPromo}
-        durationInFrames={DURATION}
-        fps={30}
-        width={1920}
-        height={1080}
-      />
+      <Composition id="QuietPromo" component={QuietPromo} durationInFrames={DURATION} fps={FPS} width={WIDTH} height={HEIGHT} />
+      {/* シーン単体（still の書き出し・調整用）。frame 0 = 本編の各シーン開始 */}
       <Folder name="Scenes">
-        <Composition id="Boot" component={Boot} durationInFrames={SCENES.boot} fps={30} width={1920} height={1080} />
-        <Composition id="Noise" component={Noise} durationInFrames={SCENES.noise} fps={30} width={1920} height={1080} />
-        <Composition id="Quiet" component={QuietScene} durationInFrames={SCENES.quiet} fps={30} width={1920} height={1080} />
-        <Composition id="Outro" component={Outro} durationInFrames={SCENES.outro} fps={30} width={1920} height={1080} />
+        {SCENE_DEFS.map((def) => (
+          <Composition
+            key={def.id}
+            id={`Scene-${def.id}`}
+            component={SCENE_COMPONENTS[def.id]}
+            durationInFrames={sceneLength(def.id)}
+            fps={FPS}
+            width={WIDTH}
+            height={HEIGHT}
+          />
+        ))}
       </Folder>
     </>
   );

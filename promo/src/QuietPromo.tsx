@@ -1,52 +1,59 @@
 import { Audio } from "@remotion/media";
-import { AbsoluteFill, getStaticFiles, Series, staticFile, useVideoConfig } from "remotion";
-import { Boot } from "./scenes/Boot";
-import { Noise } from "./scenes/Noise";
-import { Outro } from "./scenes/Outro";
-import { QuietScene } from "./scenes/QuietScene";
+import { linearTiming, TransitionPresentation, TransitionSeries } from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
+import { wipe } from "@remotion/transitions/wipe";
+import { Fragment } from "react";
+import { AbsoluteFill, Easing, getStaticFiles, staticFile, useVideoConfig } from "remotion";
+import { SCENE_COMPONENTS } from "./scenes";
+import { NOISE_END, QUIET_BGM_FROM, SCENE_DEFS, sequenceLength, TransitionIn } from "./timeline";
 
-// 30fps × 900 フレーム = 30秒
-// 0–2s Boot / 2–14s Noise（積み上げ→コピー→一枚ずつ消える）/ 14–24s Quiet / 24–30s Outro
-export const SCENES = { boot: 60, noise: 360, quiet: 300, outro: 180 } as const;
-export const DURATION = SCENES.boot + SCENES.noise + SCENES.quiet + SCENES.outro;
-
-const NOISE_END = SCENES.boot + SCENES.noise;
+// 30fps × 1800 フレーム = 60秒。シーンの開始と切り替え方は timeline.ts に集約している
 
 // public/ に置かれていれば鳴らす。無ければ無音で書き出せる
 const hasFile = (name: string) => getStaticFiles().some((f) => f.name === name);
+
+// presentation ごとに props の型が違うので、TransitionSeries に渡す共通の型へ広げる
+type AnyPresentation = TransitionPresentation<Record<string, unknown>>;
+
+const presentationOf = (t: Exclude<TransitionIn, { kind: "none" }>): AnyPresentation => {
+  if (t.kind === "wipe") return wipe({ direction: "from-left" }) as AnyPresentation;
+  if (t.kind === "slide") return slide({ direction: "from-right" }) as AnyPresentation;
+  return fade() as AnyPresentation;
+};
 
 export const QuietPromo: React.FC = () => {
   const { fps } = useVideoConfig();
 
   return (
     <AbsoluteFill>
-      <Series>
-        <Series.Sequence name="Boot" durationInFrames={60} premountFor={fps}>
-          <Boot />
-        </Series.Sequence>
-        <Series.Sequence name="Noise" durationInFrames={360} premountFor={fps}>
-          <Noise />
-        </Series.Sequence>
-        <Series.Sequence name="Quiet" durationInFrames={300} premountFor={fps}>
-          <QuietScene />
-        </Series.Sequence>
-        <Series.Sequence name="Outro" durationInFrames={180} premountFor={fps}>
-          <Outro />
-        </Series.Sequence>
-      </Series>
+      <TransitionSeries>
+        {SCENE_DEFS.map((def) => {
+          const Scene = SCENE_COMPONENTS[def.id];
+          const t = def.transitionIn;
+          return (
+            <Fragment key={def.id}>
+              {t.kind !== "none" ? (
+                <TransitionSeries.Transition
+                  presentation={presentationOf(t)}
+                  timing={linearTiming({ durationInFrames: t.frames, easing: Easing.inOut(Easing.quad) })}
+                />
+              ) : null}
+              <TransitionSeries.Sequence name={def.id} durationInFrames={sequenceLength(def.id)} premountFor={fps}>
+                <Scene />
+              </TransitionSeries.Sequence>
+            </Fragment>
+          );
+        })}
+      </TransitionSeries>
 
-      {/* うるさい曲は、ノイズが消えきる瞬間（14秒）で断ち切る */}
+      {/* うるさい曲は、ノイズが消えきる瞬間（15秒）で断ち切る */}
       {hasFile("bgm.mp3") ? (
         <Audio name="BGM (noise)" src={staticFile("bgm.mp3")} durationInFrames={NOISE_END} premountFor={fps} />
       ) : null}
-      {/* 静かな曲は、2秒の無音を置いてから（16秒〜） */}
+      {/* 静かな曲は、2秒の無音を置いてから（17秒〜） */}
       {hasFile("bgm-quiet.mp3") ? (
-        <Audio
-          name="BGM (quiet)"
-          src={staticFile("bgm-quiet.mp3")}
-          from={NOISE_END + 2 * fps}
-          premountFor={fps}
-        />
+        <Audio name="BGM (quiet)" src={staticFile("bgm-quiet.mp3")} from={QUIET_BGM_FROM} premountFor={fps} />
       ) : null}
     </AbsoluteFill>
   );
