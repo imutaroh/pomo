@@ -1,0 +1,374 @@
+import { Trail } from "@remotion/motion-blur";
+import { AbsoluteFill, Easing, interpolate, random, useCurrentFrame } from "remotion";
+import { clamp, color, font } from "../../theme";
+import { D, Grain, Scan, Vignette } from "./Texture";
+
+// 案 D: 3–15秒。色はアンバーと紙色の 2 色だけ、ポップアップは線で描く。
+// うるささは色の面積ではなく、数・揺れ・粒で出す（タイミングと文言は本編と同じ）
+// 集中を邪魔する「ノイズ」が拍ごとに積み上がり、
+// 「集中にとって、ぜんぶノイズだった。」で止まって、一枚ずつ静かに消えていく
+
+type Popup = {
+  title: string;
+  body: string;
+  // 本編の差し色。案 D では使わない（全枚アンバーの線に揃える）が、文言表を本編と揃えるため残す
+  accent: string;
+  chart?: boolean;
+};
+
+// ノイズとして描くのは「評価と監視」だけ。タイマーや通知そのものは Quiet も持つので出さない
+// 最初の5枚（READ 枚）は大きな文字で読ませる。以降は背景と割り切り、同じ言葉の反復で画面を埋める
+const READ = 5;
+const READ_POS: [number, number][] = [
+  [80, 130],
+  [1000, 120],
+  [140, 620],
+  [740, 420],
+  [1240, 720],
+  // 6枚目は Goal の直後に来るので、左の空きに逃がして Goal を読む時間を残す
+  [60, 395],
+];
+const LEAD: Popup[] = [
+  { title: "Streak", body: "🔥 12日連続！\n今日も途切れさせないで", accent: "#FF9F0A" },
+  { title: "Focus Score", body: "集中スコア 62 / 100\n平均を下回っています", accent: color.warn },
+  { title: "Insight", body: "昨日より 18分\n少ないです", accent: "#BF5AF2" },
+  { title: "今週の集中時間", body: "", accent: "#BF5AF2", chart: true },
+  { title: "Goal", body: "目標まで あと47分\n達成率 61%", accent: "#30D158" },
+  { title: "Ranking", body: "ランキング 4,812位\n先週より ↓312", accent: "#0A84FF" },
+  { title: "Badge", body: "🏅 バッジまで あと3日", accent: "#FF9F0A" },
+  { title: "Sync", body: "記録を同期しています… 37%", accent: "#0A84FF" },
+  { title: "Weekly Report", body: "今週のレポートが\n届きました", accent: "#BF5AF2" },
+  { title: "Streak", body: "ストリークが\n途切れそうです！", accent: "#FF9F0A" },
+  { title: "Goal", body: "⚠ 今日の目標 未達成", accent: color.alarm },
+  { title: "History", body: "集中の記録 1,284件", accent: "#30D158" },
+];
+const FILLER: Popup[] = [
+  { title: "Streak", body: "🔥 途切れさせないで", accent: "#FF9F0A" },
+  { title: "Score", body: "スコア ↓4", accent: color.warn },
+  { title: "Goal", body: "目標 未達成", accent: color.alarm },
+  { title: "Ranking", body: "順位が下がりました", accent: "#0A84FF" },
+];
+
+// 出現フレーム: 最初はゆっくり、だんだん詰まっていく
+const APPEAR: number[] = (() => {
+  const out: number[] = [];
+  let t = 0;
+  let gap = 20;
+  while (t < 236) {
+    out.push(Math.round(t));
+    t += gap;
+    gap = Math.max(3, gap * 0.86);
+  }
+  return out;
+})();
+
+const FREEZE = 240; // ここで積み上げが止まる
+const CAPTION = 246; // コピーが割り込む
+// 消える後半は音が引いていくように、間隔を広げてゆっくり
+const ERASE_START = 270;
+const ERASE_END = 306;
+const ERASE_FADE = 12;
+// 白は中央からくっきりした円で満ちる（縁をぼかすと紺との間に灰色の輪が出るため）
+const TO_WHITE: [number, number] = [298, 334];
+const CAPTION_OUT: [number, number] = [320, 340]; // 345 以降は washi 一色で止める
+
+const ENTER_FRAMES = 5;
+
+const popups = APPEAR.map((at, i) => {
+  const p = i < LEAD.length ? LEAD[i] : FILLER[i % FILLER.length];
+  const fontSize = i < READ ? 52 : 38;
+  // 改行は本文の \n だけで決める（折り返させない）ので、最長行が収まる幅を下限にする
+  const longest = Math.max(...p.body.split("\n").map((l) => l.length));
+  const w = p.chart
+    ? 520
+    : i < READ
+      ? longest * fontSize + 80
+      : Math.max(470 + Math.round(random(`w${i}`) * 200), longest * fontSize + 80);
+  const h = p.chart ? 300 : 200;
+  // 読ませる枚は互いに重ならない位置に置く（後続に覆われるまで読めるように）
+  const fixed = READ_POS[i];
+  const x = fixed ? fixed[0] : 40 + random(`x${i}`) * (1920 - w - 80);
+  const y = fixed ? fixed[1] : 80 + random(`y${i}`) * (1080 - h - 120);
+  // 飛び込んでくる向き（上下左右のどれか）
+  const angle = Math.floor(random(`dir${i}`) * 4) * (Math.PI / 2) + Math.PI / 4;
+  // 消えるのは後から来たものから。後ろほど間が空く（Easing.in で終盤が疎になる）
+  const order = (APPEAR.length - 1 - i) / (APPEAR.length - 1);
+  const eraseAt = ERASE_START + Easing.in(Easing.quad)(order) * (ERASE_END - ERASE_START);
+  return { ...p, at, w, h, x, y, angle, eraseAt, i, fontSize };
+});
+
+// 直前の拍からの経過（カメラの寄り・揺れを拍に同期させる）
+const sinceBeat = (frame: number) => {
+  const last = [...APPEAR].reverse().find((a) => a <= frame && a < FREEZE);
+  return last === undefined ? Infinity : frame - last;
+};
+
+// 絵文字だけが 3 色目を持ち込むので、絵文字の部分だけ彩度を抜いて 2 色の中に収める
+const Mono: React.FC<{ text: string }> = ({ text }) => (
+  <>
+    {text.split(/(\p{Extended_Pictographic}\uFE0F?)/u).map((part, k) =>
+      k % 2 === 1 ? (
+        <span key={k} style={{ filter: "grayscale(1)", opacity: 0.85 }}>
+          {part}
+        </span>
+      ) : (
+        part
+      ),
+    )}
+  </>
+);
+
+const Window: React.FC<{ p: (typeof popups)[number]; hit?: boolean }> = ({ p, hit = false }) => {
+  const frame = useCurrentFrame();
+  const local = frame - p.at;
+  if (local < 0) return null;
+  const gone = interpolate(frame, [p.eraseAt, p.eraseAt + ERASE_FADE], [1, 0], {
+    ...clamp,
+    easing: Easing.inOut(Easing.quad),
+  });
+  if (gone <= 0) return null;
+
+  const enter = interpolate(local, [0, ENTER_FRAMES], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+  const fly = (1 - enter) * 220;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: p.x,
+        top: p.y,
+        width: p.w,
+        minHeight: p.h,
+        backgroundColor: D.fill,
+        // 線の枠。読ませる枚は太く、埋め草は細く薄く（奥に沈める）
+        // 止まった瞬間（hit）だけ線を紙色にする。面は光らせず線の色だけ変える
+        border: `${p.i < READ ? 3 : 1.5}px solid ${hit ? D.paper : D.amber}`,
+        // 影の代わりに、版ずれした 2 本目の線
+        boxShadow: `10px 10px 0 -${p.i < READ ? 3 : 1.5}px ${D.navy}, 10px 10px 0 0 rgba(217,164,65,${p.i < READ ? 0.4 : 0.22})`,
+        fontFamily: font.sans,
+        opacity: gone,
+        translate: `${Math.cos(p.angle) * fly}px ${Math.sin(p.angle) * fly + (1 - gone) * 18}px`,
+        scale: String(interpolate(enter, [0, 1], [1.25, 1]) * interpolate(gone, [0, 1], [0.97, 1])),
+        filter: gone < 1 ? `blur(${(1 - gone) * 3}px)` : undefined,
+      }}
+    >
+      <div
+        style={{
+          borderBottom: `${p.i < READ ? 2 : 1.5}px solid ${hit ? D.paper : D.amber}`,
+          padding: "8px 14px",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          color: D.amber,
+          fontWeight: 700,
+          fontSize: 22,
+        }}
+      >
+        <span style={{ display: "flex", gap: 6 }}>
+          {[0, 1, 2].map((k) => (
+            <span key={k} style={{ width: 12, height: 12, borderRadius: 6, border: `2px solid ${D.amber}` }} />
+          ))}
+        </span>
+        <span style={{ fontFamily: font.mono, letterSpacing: "0.06em" }}>
+          {p.title}
+        </span>
+      </div>
+      {p.chart ? (
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 18, height: 210, padding: "20px 28px" }}>
+          {[0.42, 0.7, 0.55, 0.9, 0.3, 0.78, 0.18].map((v, k) => (
+            <div
+              key={k}
+              style={{
+                flex: 1,
+                height: `${interpolate(local, [2 + k, 14 + k], [0, v * 100], { ...clamp, easing: Easing.out(Easing.back(1.6)) })}%`,
+                // 棒も線で。最後の 1 本（今日）だけ塗って「足りない」を示す
+                border: `2px solid ${D.amber}`,
+                backgroundColor: k === 6 ? D.amber : "transparent",
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <div
+          style={{
+            padding: "26px 26px",
+            fontSize: p.fontSize,
+            fontWeight: 700,
+            lineHeight: 1.35,
+            color: p.i < READ ? D.paper : "rgba(237,230,214,0.72)",
+            whiteSpace: "pre",
+          }}
+        >
+          <Mono text={p.body} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// 背景の「評価」の帯（スコア・ストリーク・順位）。積み上がるほど速く、濃くなる
+const Bands: React.FC<{ frame: number; opacity: number }> = ({ frame, opacity }) => {
+  // 位置は速度の積分（frame^2）で、だんだん加速して流れる
+  const travel = frame * 4 + frame * frame * 0.035;
+  return (
+    <AbsoluteFill style={{ opacity, justifyContent: "space-between", paddingTop: 40, rotate: "-4deg", scale: "1.12" }}>
+      {[0, 1, 2, 3, 4, 5].map((row) => {
+        const filled = row % 3 === 1;
+        return (
+          <div
+            key={row}
+            style={{
+              fontFamily: font.mono,
+              fontWeight: 700,
+              fontSize: 168,
+              lineHeight: 1,
+              whiteSpace: "nowrap",
+              color: filled ? "rgba(237,230,214,0.35)" : "transparent",
+              WebkitTextStroke: filled ? undefined : `2px ${D.amber}`,
+              translate: `${(row % 2 === 0 ? -1 : 1) * travel - 600 - row * 130}px 0px`,
+            }}
+          >
+            SCORE 62 ■ STREAK 12 ■ RANK 4,812 ■ SCORE 62 ■ STREAK 12 ■ RANK 4,812
+          </div>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
+const COPY = "集中にとって、ぜんぶノイズだった。";
+
+// コピーの黒帯。割り込む瞬間だけ色収差と横ずれで割れて、すぐに静止する
+const CaptionBar: React.FC<{ frame: number }> = ({ frame }) => {
+  const local = frame - CAPTION;
+  if (local < 0) return null;
+  const wipe = interpolate(local, [0, 8], [100, 0], { ...clamp, easing: Easing.out(Easing.cubic) });
+  const glitch = interpolate(local, [0, 9], [1, 0], clamp);
+  const dx = (random(`cap-dx-${frame}`) - 0.5) * 70 * glitch;
+  const split = 10 * glitch;
+  // 消え際は opacity だと白地の上で灰色に濁るので、左から右へ拭き取る
+  const erase = interpolate(frame, CAPTION_OUT, [0, 100], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+
+  return (
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+      <div
+        style={{
+          backgroundColor: color.sumi,
+          color: color.washi,
+          fontFamily: font.mincho,
+          fontWeight: 700,
+          fontSize: 88,
+          padding: "40px 80px",
+          letterSpacing: "0.04em",
+          translate: `${dx}px 0px`,
+          clipPath: `inset(0 ${wipe}% 0 ${erase}%)`,
+          textShadow: split > 0.5 ? `${-split}px 0 0 ${D.amber}, ${split}px 0 0 rgba(217,164,65,0.4)` : undefined,
+          boxShadow: `0 0 0 ${interpolate(local, [0, 6], [14, 0], clamp)}px ${D.amber}`,
+        }}
+      >
+        {COPY}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+export const Noise: React.FC = () => {
+  const frame = useCurrentFrame();
+  const shown = popups.filter((p) => p.at <= Math.min(frame, FREEZE)).length;
+  const beat = sinceBeat(frame);
+  // 止まった瞬間の一撃。全面を光らせず、全ウィンドウの線を 1 フレームだけ紙色にして揺れを最大にする
+  const hit = frame === FREEZE;
+  // 拍の直後だけ強く揺れて、3フレームで収まる
+  const kick = hit ? 1 : Number.isFinite(beat) ? interpolate(beat, [0, 3], [1, 0], clamp) : 0;
+  const density = hit ? 1.4 : interpolate(frame, [0, FREEZE], [0.4, 1], clamp);
+  const shakeX = (random(`sx${frame}`) - 0.5) * 40 * kick * density;
+  const shakeY = (random(`sy${frame}`) - 0.5) * 24 * kick * density;
+  // カメラ: 積み上がるほど寄っていき、拍で一瞬押し込む。消える後半はゆっくり引く
+  const push = interpolate(frame, [0, FREEZE, ERASE_START, ERASE_END + 10], [1, 1.07, 1.07, 1], {
+    ...clamp,
+    easing: Easing.inOut(Easing.sin),
+  });
+  const zoom = push + kick * 0.018 * density;
+
+  const light = interpolate(frame, TO_WHITE, [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const bandOpacity =
+    interpolate(frame, [0, FREEZE], [0.12, 0.3], clamp) * interpolate(frame, [FREEZE, ERASE_START], [1, 0.5], clamp) *
+    interpolate(frame, [ERASE_START, ERASE_START + 30], [1, 0], clamp);
+  const hudOpacity = interpolate(frame, [ERASE_START - 10, ERASE_START + 10], [1, 0], clamp);
+  // 通知が増えるほどスコアが下がる（ノイズ側の嘘の数字。Quiet は点数を持たない）
+  const score = Math.max(0, 62 - (shown - 1) * 2);
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: D.navy, overflow: "hidden" }}>
+      <Bands frame={frame} opacity={bandOpacity} />
+
+      <AbsoluteFill style={{ translate: `${shakeX}px ${shakeY}px`, scale: String(zoom) }}>
+        {popups.map((p) => {
+          const local = frame - p.at;
+          // 飛び込みの数フレームだけ残像を引く（Trail は重いので要所だけ）
+          return local >= 0 && local < ENTER_FRAMES ? (
+            <Trail key={p.i} layers={4} lagInFrames={0.5} trailOpacity={0.5}>
+              <Window p={p} hit={hit} />
+            </Trail>
+          ) : (
+            <Window key={p.i} p={p} hit={hit} />
+          );
+        })}
+      </AbsoluteFill>
+
+      {/* HUD */}
+      <div
+        style={{
+          position: "absolute",
+          left: 40,
+          right: 40,
+          top: 24,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontFamily: font.mono,
+          fontWeight: 700,
+          fontSize: 28,
+          color: D.amber,
+          opacity: hudOpacity,
+          backgroundColor: D.fill,
+          border: `1.5px solid ${hit ? D.paper : D.amber}`,
+          padding: "8px 16px",
+        }}
+      >
+        <span>
+          FOCUS.EXE — INTERRUPTIONS{" "}
+          <span
+            style={{
+              display: "inline-block",
+              color: kick > 0.5 ? D.paper : D.amber,
+              scale: String(1 + kick * 0.35),
+            }}
+          >
+            ×{String(shown).padStart(2, "0")}
+          </span>
+        </span>
+        <span style={{ opacity: frame % 8 < 4 ? 1 : 0.55 }}>
+          <Mono text={`● REC  STREAK 🔥12  SCORE ${String(score).padStart(2, "0")}`} />
+        </span>
+      </div>
+
+      {/* 粒とスキャンライン。消える後半は粒も引いていく（白の光はこの上に満ちるので濁らない） */}
+      <Grain frame={frame} amount={interpolate(frame, [0, FREEZE, ERASE_START, ERASE_END], [0.9, 1.4, 1.2, 0.5], clamp)} />
+      <Scan frame={frame} />
+      <Vignette />
+
+      {light > 0 ? (
+        <AbsoluteFill
+          style={{
+            // 縁のくっきりした円。半径 0 → 画面の対角を覆うまで。縁にアンバーの線を 1 本だけ回して、
+            // 中間の灰色を作らずに「2 色の世界の線」が白を連れてくる形にする
+            background: `radial-gradient(circle at 50% 50%, ${color.washi} ${light * 1150}px, ${D.amber} ${light * 1150 + 1.5}px, ${D.amber} ${light * 1150 + 9}px, rgba(13,21,32,0) ${light * 1150 + 10.5}px)`,
+          }}
+        />
+      ) : null}
+
+      <CaptionBar frame={frame} />
+    </AbsoluteFill>
+  );
+};

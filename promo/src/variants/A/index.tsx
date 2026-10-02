@@ -1,8 +1,8 @@
 import { Series } from "remotion";
-import { Boot } from "../../scenes/Boot";
-import { Noise } from "../../scenes/Noise";
+import { Boot } from "./Boot";
+import { Noise } from "./Noise";
 
-// 配色案 A（比較用）。担当エージェントが Boot / Noise をこのフォルダに写して塗り替える。本編には使わない
+// 配色案 A「通知バナーの洪水」（比較用）。本編には使わない
 export const BootNoiseA: React.FC = () => (
   <Series>
     <Series.Sequence durationInFrames={90}>

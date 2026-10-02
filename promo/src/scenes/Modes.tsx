@@ -3,15 +3,19 @@ import { Panel, PANEL_SIZE, PanelProps } from "../components/Panel";
 import { clamp, color, ease, font, formatTime } from "../theme";
 import { FPS } from "../timeline";
 
-// 39–45秒: フロー / ポモドーロ / タイマー / 時計 の4枚が順に並び、それぞれの数字が実時間で進む。
+// 40–45秒（150f）: フロー / ポモドーロ / タイマー / 時計 の4枚が順に並び、それぞれの数字が実時間で進む。
+// 前後とも 15f のフェード。前のシーン（暗い休憩画面と字幕）との二重写しを避けるため、
+// 見出しと1枚目は入りのフェードが明けてから立ち上がり、f54 で4枚が出揃う。
+// 次のフェードが始まる f150 まで 3.2 秒は並びが静止して読める（数字だけが実時間で進む）
 // 説明文はメニューバーのモード項目（MenuBarController.swift）の括弧書きをそのまま使う
 
 // スマホ幅（約 0.2 倍）でもモード名と説明文が読めることを優先する。パネル内の小さい文字は読めなくてよい
 const SCALE = 1.8;
 const COL = 430;
 const GAP = 16;
-const STAGGER = 8;
-const ENTER = 20; // 1枚目が出始めるフレーム（見出しを先に読ませてから）
+const STAGGER = 6;
+const ENTER = 18; // 1枚目が出始めるフレーム（入りのフェード明け。見出しより半拍遅らせる）
+const RISE = 18; // 1枚が出きるまで。最後の1枚は ENTER + 3*STAGGER + RISE = f54 で静止する
 
 // 「途中から覗いた」作業の経過秒。数字が全部 00 だと動きが読み取りにくいので、実行中の値から始める
 const FLOW_START = 23 * 60 + 15;
@@ -80,7 +84,7 @@ export const Modes: React.FC = () => {
   // 4枚とも同じ時計で進める（実時間。速回しはしない）
   const sec = Math.floor(frame / FPS);
 
-  const headIn = interpolate(frame, [6, 24], [0, 1], { ...clamp, easing: ease });
+  const headIn = interpolate(frame, [14, 30], [0, 1], { ...clamp, easing: ease });
 
   return (
     <AbsoluteFill style={{ backgroundColor: color.washi, justifyContent: "center", alignItems: "center" }}>
@@ -105,7 +109,7 @@ export const Modes: React.FC = () => {
 
       <div style={{ display: "flex", gap: GAP, marginTop: 110 }}>
         {COLS.map((c, i) => {
-          const p = interpolate(frame, [ENTER + i * STAGGER, ENTER + i * STAGGER + 22], [0, 1], {
+          const p = interpolate(frame, [ENTER + i * STAGGER, ENTER + i * STAGGER + RISE], [0, 1], {
             ...clamp,
             easing: ease,
           });

@@ -1,15 +1,15 @@
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 import { Caption } from "../components/Caption";
-import { Cursor, Desktop, SCREEN_SCALE } from "../components/Desktop";
+import { Cursor, SCREEN_SCALE } from "../components/Desktop";
 import { clamp, color, font, formatTime } from "../theme";
 import {
   BREAK_CHIP,
   BREAK_TOTAL,
   breakRemaining,
   clockString,
-  CAM_NEAR,
   Camera,
   camEase,
+  CAM_FOLLOW,
   CAM_WIDE,
   camTopRight,
   chipString,
@@ -18,27 +18,30 @@ import {
   DesktopPanel,
   FLOW_BASE,
   hoverAt,
+  hoverEventsFor,
   lerpCam,
   panelPoint,
   runningOpacity,
   TYPED_PRESENCE_END,
-  WORKED_AT_CUT,
   WORKED_FINAL,
+  WORKED_FOLLOW_END,
+  WorkDesktop,
   workedAt,
 } from "./DesktopShared";
 
-// 31–39秒: 溶けたまま 16:00 から数え続け、手を乗せたところで 25 分を越える（進捗バーが満ちて薄まる）。
-// それでも止めずに 52:10 まで。休憩チップ「休憩 +10:26」を押すと作業が終わり、全画面の休憩が現れる。
-// frame 0 = Presence の最終フレーム。終わり際（226–240）に和紙へ抜け、末尾 15f は和紙のまま Modes のフェードの下に隠れる
+// 33–40秒: Follow で引いた構図（CAM_FOLLOW）から、溶けたまま 20:00 から数え続けるパネルへ寄る。手を乗せたところで
+// 25 分を越える（進捗バーが満ちて薄まる）。それでも止めずに 52:10 まで。休憩チップ「休憩 +10:26」を押すと
+// 作業が終わり、全画面の休憩が現れる。
+// frame 0 = Follow の最終フレーム。終わり際（196–210）に和紙へ抜け、末尾 15f は和紙のまま Modes のフェードの下に隠れる
 
-const HOVER_IN = 29; // ポインタがパネルの縁を越えるフレーム（CURSOR_PATH から計算）
-const SATURATE = 70; // ちょうど 25:00 になるフレーム
-const PRESS = 138; // チップを押し込む
-const BREAK_START = 142; // 離した瞬間に finishWork（ボタンは mouse up で発火）
-const CAPTION_REWARD: [number, number] = [160, 228]; // 完全表示 178–216 の 38f
-const WASHI_OUT: [number, number] = [226, 240];
+const SATURATE = 44; // ちょうど 25:00 になるフレーム
+const PRESS = 110; // チップを押し込む
+const BREAK_START = 114; // 離した瞬間に finishWork（ボタンは mouse up で発火）
+const CAPTION_SATURATE: [number, number] = [SATURATE, PRESS]; // 完全表示 62–98 の 36f
+const CAPTION_REWARD: [number, number] = [128, 196]; // 完全表示 146–184 の 38f
+const WASHI_OUT: [number, number] = [196, 210];
 const OVERLAY_FADE = 18; // BreakOverlay.swift: alphaValue 0→1 を 0.6 秒
-const CAM_PUSH: [number, number] = [0, 70];
+const CAM_PUSH: [number, number] = [0, 50];
 // 押す少し前から引き始め、休憩画面が濃くなる頃には中央が画面の中央に近づいている
 const CAM_PULL: [number, number] = [PRESS - 12, BREAK_START + 26];
 // スマホ幅でも数字とチップが読める寄り（パネル全体は画面内に収まる）
@@ -48,24 +51,26 @@ const CAM_BREAK = CAM_WIDE;
 
 const HOVER_SPOT = panelPoint(176, 126);
 const CURSOR_PATH: [number, number, number][] = [
-  [12, CURSOR_EDITOR.x, CURSOR_EDITOR.y],
-  [40, HOVER_SPOT.x, HOVER_SPOT.y],
-  [114, HOVER_SPOT.x, HOVER_SPOT.y],
-  [132, BREAK_CHIP.x, BREAK_CHIP.y],
+  [8, CURSOR_EDITOR.x, CURSOR_EDITOR.y],
+  [32, HOVER_SPOT.x, HOVER_SPOT.y],
+  [90, HOVER_SPOT.x, HOVER_SPOT.y],
+  [102, BREAK_CHIP.x, BREAK_CHIP.y],
   [BREAK_START + 6, BREAK_CHIP.x, BREAK_CHIP.y],
   // 押したあとは手を少し引く（休憩画面の上で止まる）
   [BREAK_START + 46, BREAK_CHIP.x - 150, BREAK_CHIP.y + 160],
 ];
-// 溶けている間は早回し、25:00 の前後はゆっくり、越えてからまた速く。押す直前の 10f は実時間
+// ポインタがパネルの縁を越えるフレーム（22）。ここから押すまで armDelay（11f）以上ある
+const HOVER_IN = hoverEventsFor(CURSOR_PATH)[0][0];
+// 溶けている間は早回し、25:00 の前後はゆっくり、越えてからまた速く。押す直前の 8f は実時間
 const WORKED_KEYS: [number, number][] = [
-  [0, WORKED_AT_CUT],
-  [38, 1430],
+  [0, WORKED_FOLLOW_END],
+  [HOVER_IN, 1440],
   [SATURATE, 25 * 60],
-  [82, 1640],
-  [96, 2120],
-  [116, 2960],
-  [130, WORKED_FINAL],
-  [PRESS, WORKED_FINAL + 0.27],
+  [54, 1600],
+  [66, 2120],
+  [86, 2960],
+  [102, WORKED_FINAL],
+  [PRESS, WORKED_FINAL + 8 / 30],
 ];
 
 // ---------------------------------------------------------------- 全画面の休憩（BreakOverlay.swift の再現）
@@ -164,21 +169,24 @@ export const FlowBreak: React.FC = () => {
   const remaining = breakRemaining(local);
   const hover = hoverAt(frame, [[HOVER_IN, 1]]);
   const pointer = cursorAt(frame, CURSOR_PATH);
-  const pointerOpacity = interpolate(frame, [8, 14], [0, 1], clamp);
+  const pointerOpacity = interpolate(frame, [6, 12], [0, 1], clamp);
   // アプリのチップは押しても縮まない（.plain）。ポインタが乗ると塗りが 22% → 40% に濃くなるだけ
   const chipHover = interpolate(frame, [PRESS - 6, PRESS - 2], [0, 1], clamp);
-  const typed = interpolate(frame, [0, 36], [TYPED_PRESENCE_END, 0.95], clamp);
+  // Follow の間は読んでいたので、エディタへ戻ってから最初の 1 秒で書き足す
+  const typed = interpolate(frame, [0, 32], [TYPED_PRESENCE_END, 0.95], clamp);
 
   const cam =
     frame >= CAM_PULL[0]
       ? lerpCam(CAM_CLOSE, CAM_BREAK, interpolate(frame, CAM_PULL, [0, 1], { ...clamp, easing: camEase }))
-      : lerpCam(CAM_NEAR, CAM_CLOSE, interpolate(frame, CAM_PUSH, [0, 1], { ...clamp, easing: camEase }));
+      : lerpCam(CAM_FOLLOW, CAM_CLOSE, interpolate(frame, CAM_PUSH, [0, 1], { ...clamp, easing: camEase }));
 
   return (
     <AbsoluteFill>
       <Camera cam={cam}>
-        <Desktop
+        <WorkDesktop
           typed={typed}
+          // Follow で出したブラウザは、エディタの後ろに回ったまま残る
+          browser="back"
           statusIcon={onBreak ? "cup.and.saucer.fill" : "dial"}
           statusTitle={" " + formatTime(onBreak ? remaining : worked)}
           clock={clockString(onBreak ? WORKED_FINAL + local / 30 : worked)}
@@ -209,9 +217,9 @@ export const FlowBreak: React.FC = () => {
           )}
           {onBreak ? <BreakOverlay local={local} remaining={remaining} /> : null}
           {pointerOpacity > 0 ? <Cursor x={pointer.x} y={pointer.y} opacity={pointerOpacity} /> : null}
-        </Desktop>
+        </WorkDesktop>
       </Camera>
-      <Caption text="25分で、切らない。" from={SATURATE} to={PRESS} backdrop />
+      <Caption text="25分で、切らない。" from={CAPTION_SATURATE[0]} to={CAPTION_SATURATE[1]} backdrop />
       <Caption text="休憩は、義務ではなく報酬。" from={CAPTION_REWARD[0]} to={CAPTION_REWARD[1]} tone="washi" />
       {/* 次の Modes は和紙の上でフェードインするので、こちらも和紙へ抜けておく（灰色の濁りと二重写しを避ける） */}
       <AbsoluteFill style={{ backgroundColor: color.washi, opacity: interpolate(frame, WASHI_OUT, [0, 1], clamp) }} />

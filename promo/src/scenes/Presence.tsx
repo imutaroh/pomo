@@ -1,6 +1,6 @@
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { Caption } from "../components/Caption";
-import { Cursor, Desktop } from "../components/Desktop";
+import { Cursor } from "../components/Desktop";
 import { clamp, color, font, formatTime } from "../theme";
 import {
   CAM_NEAR,
@@ -12,49 +12,45 @@ import {
   DesktopPanel,
   FLOW_BASE,
   hoverAt,
+  hoverEventsFor,
   panelPoint,
   PLAY_BUTTON,
   runningOpacity,
   TYPED_DESKTOP,
   TYPED_PRESENCE_END,
-  WORKED_AT_CUT,
+  WORKED_PRESENCE_END,
+  WorkDesktop,
   workedAt,
 } from "./DesktopShared";
 
-// 24–31秒: 存在感の3段階。待機のパネルを再生 → ポインタが離れると 30% に溶け込み、作業が進む
+// 22–28秒: 存在感の3段階。待機のパネルを再生 → ポインタが離れると 30% に溶け込み、作業が進む
 // → 手を乗せると 100% に戻って操作が顔を出す → 離れるとまた溶ける。
 // 右の段階表（LP「存在感の3段階」）は、いまのパネルの状態と連動して光る。
-// frame 0 = DesktopScene の最終フレーム、最終フレーム = FlowBreak の frame 0（16:00・溶けた状態）
+// frame 0 = DesktopScene の最終フレーム、最終フレーム = Follow の frame 0（9:00・溶けた状態・ポインタ非表示）
 
-// 待機のパネルを約 2 秒見せてから再生する。ホバー開始から押すまで armDelay（0.35 秒 = 11f）以上空ける
-const PLAY = 58;
-// ホバーの出入り = ポインタがパネルの縁を越えるフレーム（CURSOR_PATH の通過点から計算した値）
-const HOVER: [number, number][] = [
-  [43, 1],
-  [71, 0],
-  [123, 1],
-  [171, 0],
-];
+// 待機は DesktopScene で十分見せたので、入ってすぐ再生する。ホバー開始（24）から押すまで armDelay（0.35 秒 = 11f）以上空ける
+const PLAY = 40;
 const REST = panelPoint(176, 126); // 2回目に手を乗せる場所（休憩チップの右の余白。数字を隠さない）
 const CURSOR_PATH: [number, number, number][] = [
-  [24, CURSOR_EDITOR.x, CURSOR_EDITOR.y],
-  [52, PLAY_BUTTON.x, PLAY_BUTTON.y],
-  [62, PLAY_BUTTON.x, PLAY_BUTTON.y],
-  [88, CURSOR_EDITOR.x - 40, CURSOR_EDITOR.y + 20],
-  [108, CURSOR_EDITOR.x - 40, CURSOR_EDITOR.y + 20],
-  [132, REST.x, REST.y],
-  [160, REST.x, REST.y],
-  [184, CURSOR_EDITOR.x, CURSOR_EDITOR.y],
+  [8, CURSOR_EDITOR.x, CURSOR_EDITOR.y],
+  [32, PLAY_BUTTON.x, PLAY_BUTTON.y],
+  [44, PLAY_BUTTON.x, PLAY_BUTTON.y],
+  [64, CURSOR_EDITOR.x - 40, CURSOR_EDITOR.y + 20],
+  [86, CURSOR_EDITOR.x - 40, CURSOR_EDITOR.y + 20],
+  [108, REST.x, REST.y],
+  [138, REST.x, REST.y],
+  [160, CURSOR_EDITOR.x, CURSOR_EDITOR.y],
 ];
+// ホバーの出入り = ポインタがパネルの縁を越えるフレーム（24 入 / 51 出 / 99 入 / 148 出）
+const HOVER = hoverEventsFor(CURSOR_PATH);
 // 再生から 0.7 秒は実時間、溶けている間は早回し、手を乗せている間はまた実時間
 const WORKED_KEYS: [number, number][] = [
   [PLAY, 0],
-  [80, 0.73],
-  [92, 40],
-  [116, 790],
-  [123, 840],
-  [171, 841.6],
-  [209, WORKED_AT_CUT],
+  [60, 0.67],
+  [72, 30],
+  [HOVER[2][0], 420],
+  [HOVER[3][0], 420 + (HOVER[3][0] - HOVER[2][0]) / 30],
+  [179, WORKED_PRESENCE_END],
 ];
 
 type StateId = "op" | "wait" | "melt";
@@ -68,12 +64,13 @@ const STATES: { id: StateId; title: string; meter: number }[] = [
 const STATE_LINE: [number, StateId][] = [
   [0, "wait"],
   [PLAY, "op"],
-  [71, "melt"],
-  [123, "op"],
-  [171, "melt"],
+  [HOVER[1][0], "melt"],
+  [HOVER[2][0], "op"],
+  [HOVER[3][0], "melt"],
 ];
 const RAIL_IN: [number, number] = [4, 20];
-const RAIL_OUT: [number, number] = [194, 208];
+const RAIL_OUT: [number, number] = [160, 176];
+const CAPTION: [number, number] = [46, 168]; // 完全表示 64–156
 
 const stateAmount = (frame: number, id: StateId) => {
   let amount = 0;
@@ -151,15 +148,15 @@ export const Presence: React.FC = () => {
   const pointer = cursorAt(frame, CURSOR_PATH);
   // 動かしている間だけポインタが見える（macOS はタイプ中にポインタを隠す）
   const pointerOpacity =
-    interpolate(frame, [18, 24], [0, 1], clamp) *
-    interpolate(frame, [94, 102], [1, 0], clamp) +
-    interpolate(frame, [102, 108], [0, 1], clamp) * interpolate(frame, [190, 198], [1, 0], clamp);
-  const typed = interpolate(frame, [0, 90, 110, 186, 209], [TYPED_DESKTOP[1], TYPED_DESKTOP[1], 0.62, 0.62, TYPED_PRESENCE_END], clamp);
+    interpolate(frame, [4, 10], [0, 1], clamp) *
+    interpolate(frame, [66, 72], [1, 0], clamp) +
+    interpolate(frame, [84, 90], [0, 1], clamp) * interpolate(frame, [162, 170], [1, 0], clamp);
+  const typed = interpolate(frame, [0, 66, 84, 160, 179], [TYPED_DESKTOP[1], TYPED_DESKTOP[1], 0.62, 0.62, TYPED_PRESENCE_END], clamp);
 
   return (
     <AbsoluteFill>
       <Camera cam={CAM_NEAR}>
-        <Desktop typed={typed} statusTitle={running ? " " + formatTime(worked) : ""} clock={clockString(worked)}>
+        <WorkDesktop typed={typed} statusTitle={running ? " " + formatTime(worked) : ""} clock={clockString(worked)}>
           {running ? (
             <DesktopPanel
               mode="flow"
@@ -174,10 +171,10 @@ export const Presence: React.FC = () => {
             <DesktopPanel mode="flow" phase="idle" time="00:00" hover={hover} />
           )}
           {pointerOpacity > 0 ? <Cursor x={pointer.x} y={pointer.y} opacity={pointerOpacity} /> : null}
-        </Desktop>
+        </WorkDesktop>
       </Camera>
       <StateRail frame={frame} />
-      <Caption text="うるさくない。でも、忘れさせない。" from={72} to={200} backdrop />
+      <Caption text="うるさくない。でも、忘れさせない。" from={CAPTION[0]} to={CAPTION[1]} backdrop />
     </AbsoluteFill>
   );
 };
