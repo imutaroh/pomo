@@ -246,10 +246,10 @@
       <h3>A. ターミナルで1行</h3>
       <div class="cmd">
         <code id="installCmd">curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash</code>
-        <button type="button" class="copy" data-copy="installCmd">コピー</button>
+        <button type="button" class="copy" data-copy="installCmd" hidden>コピー</button>
       </div>
       <span class="sr" aria-live="polite" id="copyStatus"></span>
-      <p>ターミナルに貼って Enter。最新版をアプリケーションフォルダに入れて起動します。sudo は使いません。すでに入っていれば、その場所で更新します。</p>
+      <p>ターミナルに貼って Enter。最新版をアプリケーションフォルダに入れて起動します。sudo は使いません。すでに入っていれば、その場所で更新します（起動中なら一度終了します。計測中の時間はリセットされます）。</p>
       <p>ブラウザを通らないので、Gatekeeper の「開けません」の確認は出ません。裏を返せば、Gatekeeper が検査しない経路です。中身は <a class="link" href="https://github.com/imutaroh/pomo/blob/main/docs/install.sh">スクリプトを読む ↗</a> で確かめられます。</p>
       <p class="fine">ブラウザからコピーしたコマンドを貼ると、macOS が警告を出すことがあります。先に中身を読んでから実行する場合は <code>curl -fsSL https://imutaroh.github.io/pomo/install.sh -o quiet-install.sh</code> で保存し、読んだあと <code>bash quiet-install.sh</code> で実行してください。</p>
     </div>
@@ -257,7 +257,7 @@
       <h3>B. ダウンロードして入れる</h3>
       <ol>
         <li><a class="link" href="https://github.com/imutaroh/pomo/releases/latest">最新版のページ ↗</a> から <strong>.dmg</strong> をダウンロードして開き、中のアプリを「アプリケーション」へドラッグ</li>
-        <li>ダブルクリックで起動。初回だけ、開けないという警告が出るので<strong>［完了］を押す</strong>（ゴミ箱には入れない）</li>
+        <li>ダブルクリックで起動。初回だけ、開けないという警告が出ます。<strong>ゴミ箱には入れずに閉じる</strong>（macOS 15 以降は［完了］）</li>
         <li>macOS 15 以降：<strong>システム設定 → プライバシーとセキュリティ</strong> を開き、下へスクロールして<strong>「このまま開く」→「開く」</strong><br>macOS 14：アプリを右クリック →<strong>「開く」→「開く」</strong></li>
         <li>起動すると、メニューバーと Dock にアイコンが表示されます。次からは普通に開けます</li>
       </ol>
@@ -266,7 +266,8 @@
     </div>
     <div class="install">
       <h3>Pomo をお使いの方へ</h3>
-      <p>入れ直しは不要です。アプリが自動で更新し、中身が Quiet になります。アプリケーションフォルダ上の名前は Pomo.app のまま残りますが、動作は同じです（自動アップデートの仕様です）。A の1行を実行しても、その場所のまま更新します（2つにはなりません）。以前の版は、アプリ名が旧名の Pomo です。</p>
+      <p>入れ直しは不要です。Quiet 名義の版が出ると、アプリがアップデートをお知らせします。インストールすると中身が Quiet になります。アプリケーションフォルダ上の名前は Pomo.app のまま残りますが、動作は同じです（アップデートの仕様です）。</p>
+      <p>A の1行を実行しても、アプリケーションフォルダ（/Applications か ~/Applications）に置いていれば、その場所のまま更新します（2つにはなりません）。Quiet 名義の版が出るまでは、新しく入れた場合も旧名の Pomo として入ります。</p>
     </div>
   </section>
 
@@ -313,12 +314,17 @@
   (function(){
     var status = document.getElementById('copyStatus');
     Array.prototype.forEach.call(document.querySelectorAll('.copy'), function(btn){
+      btn.hidden = false; // JS が無い環境ではボタンを出さない（コマンドは手で選択できる）
       btn.addEventListener('click', function(){
-        var text = document.getElementById(btn.getAttribute('data-copy')).textContent;
+        var code = document.getElementById(btn.getAttribute('data-copy')), text = code.textContent;
         function done(ok){
-          btn.textContent = ok ? 'コピーしました' : 'コピーできませんでした';
-          if (status) status.textContent = btn.textContent;
-          setTimeout(function(){ btn.textContent = 'コピー'; }, 2000);
+          if (!ok){ // コピーできないときは選択状態にして、⌘C を案内する
+            var sel = window.getSelection && window.getSelection();
+            if (sel){ sel.selectAllChildren(code); }
+          }
+          btn.textContent = ok ? 'コピーしました' : '選択しました。⌘C でコピー';
+          if (status){ status.textContent = ''; setTimeout(function(){ status.textContent = btn.textContent; }, 50); }
+          setTimeout(function(){ btn.textContent = 'コピー'; }, 2500);
         }
         if (navigator.clipboard && navigator.clipboard.writeText){
           navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });

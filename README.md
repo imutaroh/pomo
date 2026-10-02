@@ -19,7 +19,7 @@ macOS 14 以降・Apple Silicon（M1 以降）。ターミナルで1行：
 curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash
 ```
 
-最新リリースの .dmg を取得し、サイズと SHA-256・コード署名を確かめてから `/Applications` に置いて起動します（sudo なし。すでに入っていればその場所で更新）。中身は [`docs/install.sh`](docs/install.sh)。
+最新リリースの .dmg を取得し、サイズと SHA-256（GitHub から取得できた場合）、アプリの識別子・対応 CPU・対応 OS・コード署名の整合を確かめてから `/Applications` に置いて起動します（sudo なし。すでに入っていればその場所で更新）。確かめているのは破損や途中切れまでで、配布元の真正性は保証しません（ad-hoc 署名・未公証のため、GitHub のリリースを信頼する前提です）。中身は [`docs/install.sh`](docs/install.sh)。
 .dmg を手で入れる手順は [LP](https://imutaroh.github.io/pomo/#install) にあります。
 
 ソースからビルドする場合は Xcode Command Line Tools が必要です。
