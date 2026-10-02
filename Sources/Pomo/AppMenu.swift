@@ -1,7 +1,7 @@
 import AppKit
 import Sparkle
 
-/// 「設定…」「Fikaについて」メニュー項目の action 先。NSMenuItem の target は weak 参照のため、
+/// 「設定…」「Quietについて」メニュー項目の action 先。NSMenuItem の target は weak 参照のため、
 /// このオブジェクトを AppDelegate がプロパティとして保持し続ける必要がある。
 @MainActor
 final class AppMenuActions: NSObject {
@@ -89,7 +89,7 @@ enum AppMenu {
         let item = NSMenuItem()
         let menu = NSMenu()
 
-        let about = NSMenuItem(title: "Fikaについて", action: #selector(AppMenuActions.aboutTapped), keyEquivalent: "")
+        let about = NSMenuItem(title: "Quietについて", action: #selector(AppMenuActions.aboutTapped), keyEquivalent: "")
         about.target = actions
         menu.addItem(about)
         // Sparkle 標準の更新確認（target は UpdaterManager が保持する controller）
@@ -107,7 +107,7 @@ enum AppMenu {
         menu.addItem(settings)
         menu.addItem(.separator())
 
-        menu.addItem(NSMenuItem(title: "Fikaを隠す", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
+        menu.addItem(NSMenuItem(title: "Quietを隠す", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
         let hideOthers = NSMenuItem(
             title: "他を隠す", action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h"
         )
@@ -118,7 +118,7 @@ enum AppMenu {
         ))
         menu.addItem(.separator())
 
-        menu.addItem(NSMenuItem(title: "Fikaを終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quietを終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
         item.submenu = menu
         return item

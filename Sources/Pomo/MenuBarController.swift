@@ -23,7 +23,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         statusItem.button?.font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
         statusItem.button?.imagePosition = .imageLeading
-        statusItem.button?.toolTip = "Fika"
+        statusItem.button?.toolTip = "Quiet"
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
@@ -112,7 +112,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             }
         }
         menu.addItem(.separator())
-        menu.addItem(item("Fika を開く", #selector(openMainWindow), key: "d"))
+        menu.addItem(item("Quiet を開く", #selector(openMainWindow), key: "d"))
         menu.addItem(item(panelController.isShown ? "パネルを隠す" : "パネルを表示", #selector(togglePanel), key: "t"))
         menu.addItem(.separator())
 
@@ -137,10 +137,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(item("設定…", #selector(openSettings), key: ","))
         menu.addItem(.separator())
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
-        let versionItem = NSMenuItem(title: "Fika v\(version)", action: nil, keyEquivalent: "")
+        let versionItem = NSMenuItem(title: "Quiet v\(version)", action: nil, keyEquivalent: "")
         versionItem.isEnabled = false
         menu.addItem(versionItem)
-        menu.addItem(item("Fika を終了", #selector(quit), key: "q"))
+        menu.addItem(item("Quiet を終了", #selector(quit), key: "q"))
     }
 
     private func item(_ title: String, _ action: Selector, key: String = "") -> NSMenuItem {

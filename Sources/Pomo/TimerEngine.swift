@@ -24,12 +24,12 @@ final class TimerEngine: ObservableObject {
     @Published private(set) var bankedBreakSeconds = 0
     @Published private(set) var justFinished = false
     @Published private(set) var isApproachingEnd = false
-    /// この作業中に Fika が動いていなかった（スリープしていた）合計秒数。集中には数えていない（#69）。
+    /// この作業中に Quiet が動いていなかった（スリープしていた）合計秒数。集中には数えていない（#69）。
     /// 次の作業開始・待機で消える
     @Published private(set) var sleepExcludedSeconds = 0
     @Published private(set) var pendingBreakDuration: TimeInterval?
 
-    /// tick の間隔がこれを超えたら「Fika が動いていなかった」＝スリープとみなし、その時間を集中から除く。
+    /// tick の間隔がこれを超えたら「Quiet が動いていなかった」＝スリープとみなし、その時間を集中から除く。
     /// 通常の tick は 0.5 秒。App Nap で間引かれても数十秒には届かないので、1 分で線を引く（#69）
     static let sleepGapThreshold: TimeInterval = 60
 
@@ -284,7 +284,7 @@ final class TimerEngine: ObservableObject {
         }
         guard !isPaused else { return }
 
-        // 前回の tick からの空白がしきい値を超えていたら、その間 Fika は動いていなかった（スリープ）。
+        // 前回の tick からの空白がしきい値を超えていたら、その間 Quiet は動いていなかった（スリープ）。
         // 止めて待つのではなく、空白ぶんだけ開始時刻と終了予定を後ろへずらして続ける（#69）。
         // 眠っていた時間は集中にも休憩の貯金にも数えない。休憩中の空白は休息なのでそのまま数える
         if phase == .work, gap > Self.sleepGapThreshold {

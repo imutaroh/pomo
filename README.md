@@ -1,8 +1,8 @@
-# Fika
+# Quiet
 
-**A floating focus timer for macOS that never gets in your way — and never disappears.**
+**A macOS flow timer with the noise removed. What's left is the time you're putting in.**
 
-作業画面を邪魔せず、いま取り組んでいる時間だけを見せるフローティングタイマーです。
+ポモドーロの25分は、乗ってきた集中を止めるノイズでした。積み上がっていく記録も、「今日は何分できた？」という問いかけも。ひとつずつ消していって、残ったのは、いま何分やっているかだけ。作業画面に溶け込むフローティングタイマーです。
 
 - **4つのモード** — フロー（経過時間）、ポモドーロ（残り時間＋今回の経過）、タイマー（任意カウントダウン）、時計（現在時刻）
 - **どの画面にも追従** — NSPanel が全Spaceと他アプリのフルスクリーン上に表示され、キーボードフォーカスを奪いません
@@ -21,7 +21,7 @@ cd pomo
 ./scripts/install.sh
 ```
 
-Fika はDockとメニューバーに常駐します。リポジトリ名と bundle identifier だけは、既存ユーザーの
+Quiet はDockとメニューバーに常駐します。リポジトリ名と bundle identifier だけは、既存ユーザーの
 自動アップデートを維持するため `pomo` のままです。
 
 ## Use
