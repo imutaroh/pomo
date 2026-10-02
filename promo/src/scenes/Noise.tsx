@@ -4,6 +4,8 @@ import { clamp, color, font } from "../theme";
 
 // 3–15秒: 集中を邪魔する「ノイズ」が拍ごとに積み上がり、
 // 「集中にとって、ぜんぶノイズだった。」で止まって、一枚ずつ静かに消えていく
+// 案 A「通知バナーの洪水」: 原色のブルータリズムをやめ、macOS ダークモードの通知バナーの質感で描く。
+// 色はアプリアイコンの小さな四角にだけ（彩度を落として）。うるささは量・積み上がり・揺れで出す
 
 type Popup = {
   title: string;
@@ -12,7 +14,23 @@ type Popup = {
   chart?: boolean;
 };
 
-const CYAN = "#00E5FF";
+// ダークモードの通知バナーの素材（半透明の濃いグレー＋細い明るい縁）
+const BANNER_EDGE = "rgba(255,255,255,0.13)";
+// 暗いバナーどうしが重なると境目が溶けて「暗い塊」になるので、実物のバナーに倣って
+// 下方向の深い影・上辺のハイライト・0.5px の明るい外枠・背後のぼかしで一枚ずつ切り分ける
+const BANNER_SHADOW = [
+  "inset 0 1px 0 rgba(255,255,255,0.3)",
+  "0 0 0 0.5px rgba(255,255,255,0.34)",
+  "0 30px 80px rgba(0,0,0,0.7)",
+  "0 8px 18px rgba(0,0,0,0.5)",
+].join(", ");
+// 後から来たものほどわずかに明るい（奥行きの順が明るさで読める）。無彩色のまま
+const bannerBg = (i: number, n: number) => {
+  const l = Math.round(38 + (30 * i) / Math.max(1, n - 1));
+  return `rgba(${l},${l},${l + 4},0.74)`;
+};
+const TEXT_PRIMARY = "#F2F2F7";
+const TEXT_SECONDARY = "rgba(235,235,245,0.6)";
 
 // ノイズとして描くのは「評価と監視」だけ。タイマーや通知そのものは Quiet も持つので出さない
 // 最初の5枚（READ 枚）は大きな文字で読ませる。以降は背景と割り切り、同じ言葉の反復で画面を埋める
@@ -41,7 +59,7 @@ const LEAD: Popup[] = [
   { title: "History", body: "集中の記録 1,284件", accent: "#30D158" },
 ];
 const FILLER: Popup[] = [
-  { title: "Streak", body: "🔥 途切れさせないで", accent: "#FF9F0A" },
+  { title: "Streak", body: "途切れさせないで", accent: "#FF9F0A" },
   { title: "Score", body: "スコア ↓4", accent: color.warn },
   { title: "Goal", body: "目標 未達成", accent: color.alarm },
   { title: "Ranking", body: "順位が下がりました", accent: "#0A84FF" },
@@ -112,7 +130,10 @@ const Window: React.FC<{ p: (typeof popups)[number] }> = ({ p }) => {
   if (gone <= 0) return null;
 
   const enter = interpolate(local, [0, ENTER_FRAMES], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
-  const fly = (1 - enter) * 220;
+  // バナーらしく、飛び込みは短い距離で
+  const fly = (1 - enter) * 140;
+  const titleSize = p.i < READ ? 26 : 22;
+  const icon = p.i < READ ? 52 : 44;
 
   return (
     <div
@@ -121,48 +142,61 @@ const Window: React.FC<{ p: (typeof popups)[number] }> = ({ p }) => {
         left: p.x,
         top: p.y,
         width: p.w,
-        minHeight: p.h,
-        backgroundColor: "#fff",
-        border: "4px solid #000",
-        boxShadow: "12px 12px 0 #000",
+        // 本物のバナーは中身の高さで決まる。h は配置の計算にだけ使う
+        minHeight: p.chart ? p.h : undefined,
+        backgroundColor: bannerBg(p.i, APPEAR.length),
+        // 下のバナーの文字をにじませ、手前の一枚の文字だけがくっきり読めるようにする
+        backdropFilter: "blur(14px) brightness(0.8)",
+        border: `1px solid ${BANNER_EDGE}`,
+        borderRadius: 22,
+        boxShadow: BANNER_SHADOW,
         fontFamily: font.sans,
-        opacity: gone,
+        opacity: gone * interpolate(enter, [0, 1], [0.4, 1]),
         translate: `${Math.cos(p.angle) * fly}px ${Math.sin(p.angle) * fly + (1 - gone) * 18}px`,
-        scale: String(interpolate(enter, [0, 1], [1.25, 1]) * interpolate(gone, [0, 1], [0.97, 1])),
+        scale: String(interpolate(enter, [0, 1], [1.08, 1]) * interpolate(gone, [0, 1], [0.97, 1])),
         filter: gone < 1 ? `blur(${(1 - gone) * 3}px)` : undefined,
+        padding: "22px 26px 24px",
+        boxSizing: "border-box",
       }}
     >
-      <div
-        style={{
-          backgroundColor: p.accent,
-          borderBottom: "4px solid #000",
-          padding: "8px 14px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          color: "#fff",
-          fontWeight: 700,
-          fontSize: 22,
-        }}
-      >
-        <span style={{ display: "flex", gap: 6 }}>
-          {[0, 1, 2].map((k) => (
-            <span key={k} style={{ width: 14, height: 14, backgroundColor: "#fff", border: "2px solid #000" }} />
-          ))}
-        </span>
-        <span style={{ fontFamily: font.mono, letterSpacing: "0.04em", textShadow: "2px 2px 0 #000" }}>
+      {/* ヘッダー: アプリアイコン（色はここだけ。彩度を落とす）＋アプリ名＋「今」 */}
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div
+          style={{
+            width: icon,
+            height: icon,
+            borderRadius: icon * 0.24,
+            backgroundColor: p.accent,
+            filter: "saturate(0.55) brightness(0.9)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "rgba(255,255,255,0.92)",
+            fontFamily: font.mono,
+            fontWeight: 700,
+            fontSize: icon * 0.5,
+            flexShrink: 0,
+          }}
+        >
+          {/* アプリ名の頭文字。和文タイトル（今週の集中時間）は週報アプリとして W */}
+          {/^[A-Za-z]/.test(p.title) ? p.title.slice(0, 1) : "W"}
+        </div>
+        <span style={{ flex: 1, color: TEXT_SECONDARY, fontWeight: 500, fontSize: titleSize, letterSpacing: "0.02em" }}>
           {p.title}
         </span>
+        <span style={{ color: TEXT_SECONDARY, fontWeight: 500, fontSize: titleSize - 2 }}>今</span>
       </div>
       {p.chart ? (
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 18, height: 210, padding: "20px 28px" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 16, height: 200, padding: "22px 6px 0" }}>
           {[0.42, 0.7, 0.55, 0.9, 0.3, 0.78, 0.18].map((v, k) => (
             <div
               key={k}
               style={{
                 flex: 1,
+                borderRadius: 6,
                 height: `${interpolate(local, [2 + k, 14 + k], [0, v * 100], { ...clamp, easing: Easing.out(Easing.back(1.6)) })}%`,
-                backgroundColor: k === 6 ? color.alarm : "#000",
+                // 赤で刺さないよう、今日だけ白を濃くして「低い」ことを形で見せる
+                backgroundColor: k === 6 ? "rgba(235,235,245,0.92)" : "rgba(235,235,245,0.4)",
               }}
             />
           ))}
@@ -170,12 +204,14 @@ const Window: React.FC<{ p: (typeof popups)[number] }> = ({ p }) => {
       ) : (
         <div
           style={{
-            padding: "26px 26px",
+            marginTop: 14,
             fontSize: p.fontSize,
             fontWeight: 700,
-            lineHeight: 1.35,
-            color: "#000",
+            lineHeight: 1.3,
+            color: TEXT_PRIMARY,
             whiteSpace: "pre",
+            // 絵文字（🔥🏅）の原色を抑える。白い文字には効かない
+            filter: "saturate(0.5)",
           }}
         >
           {p.body}
@@ -202,8 +238,9 @@ const Bands: React.FC<{ frame: number; opacity: number }> = ({ frame, opacity })
               fontSize: 168,
               lineHeight: 1,
               whiteSpace: "nowrap",
-              color: filled ? "rgba(255,59,48,0.55)" : "transparent",
-              WebkitTextStroke: filled ? undefined : `3px ${row === 4 ? color.warn : color.alarm}`,
+              // 低コントラストのグレー。壁紙に刷り込まれた文字のように、読めるが主張しない
+              color: filled ? "rgba(235,235,245,0.22)" : "transparent",
+              WebkitTextStroke: filled ? undefined : "2px rgba(235,235,245,0.3)",
               translate: `${(row % 2 === 0 ? -1 : 1) * travel - 600 - row * 130}px 0px`,
             }}
           >
@@ -215,6 +252,25 @@ const Bands: React.FC<{ frame: number; opacity: number }> = ({ frame, opacity })
   );
 };
 
+// 暗い壁紙（ぼかし）。ノイズ側の色をごく薄く滲ませ、ゆっくり漂わせる
+const Wallpaper: React.FC<{ frame: number }> = ({ frame }) => {
+  const drift = frame * 0.6;
+  return (
+    <AbsoluteFill
+      style={{
+        background: [
+          `radial-gradient(ellipse 900px 700px at ${420 + drift}px ${300}px, rgba(10,132,255,0.22), transparent 70%)`,
+          `radial-gradient(ellipse 1000px 800px at ${1500 - drift}px ${820}px, rgba(191,90,242,0.18), transparent 70%)`,
+          `radial-gradient(ellipse 800px 600px at ${1100}px ${150 + drift * 0.5}px, rgba(255,159,10,0.08), transparent 70%)`,
+          color.night,
+        ].join(", "),
+        filter: "blur(40px)",
+        scale: "1.1",
+      }}
+    />
+  );
+};
+
 const COPY = "集中にとって、ぜんぶノイズだった。";
 
 // コピーの黒帯。割り込む瞬間だけ色収差と横ずれで割れて、すぐに静止する
@@ -223,8 +279,8 @@ const CaptionBar: React.FC<{ frame: number }> = ({ frame }) => {
   if (local < 0) return null;
   const wipe = interpolate(local, [0, 8], [100, 0], { ...clamp, easing: Easing.out(Easing.cubic) });
   const glitch = interpolate(local, [0, 9], [1, 0], clamp);
-  const dx = (random(`cap-dx-${frame}`) - 0.5) * 70 * glitch;
-  const split = 10 * glitch;
+  const dx = (random(`cap-dx-${frame}`) - 0.5) * 50 * glitch;
+  const split = 6 * glitch;
   // 消え際は opacity だと白地の上で灰色に濁るので、左から右へ拭き取る
   const erase = interpolate(frame, CAPTION_OUT, [0, 100], { ...clamp, easing: Easing.inOut(Easing.cubic) });
 
@@ -241,8 +297,8 @@ const CaptionBar: React.FC<{ frame: number }> = ({ frame }) => {
           letterSpacing: "0.04em",
           translate: `${dx}px 0px`,
           clipPath: `inset(0 ${wipe}% 0 ${erase}%)`,
-          textShadow: split > 0.5 ? `${-split}px 0 0 ${color.alarm}, ${split}px 0 0 ${CYAN}` : undefined,
-          boxShadow: `0 0 0 ${interpolate(local, [0, 6], [14, 0], clamp)}px ${color.alarm}`,
+          textShadow: split > 0.5 ? `${-split}px 0 0 rgba(255,59,48,0.7)` : undefined,
+          boxShadow: `0 0 0 ${interpolate(local, [0, 6], [3, 0], clamp)}px ${color.alarm}`,
         }}
       >
         {COPY}
@@ -266,9 +322,8 @@ export const Noise: React.FC = () => {
     easing: Easing.inOut(Easing.sin),
   });
   const zoom = push + kick * 0.018 * density;
-  // 止まった瞬間の一撃（コピーが割り込む直前）
-  // 止まった瞬間の一閃。1フレームだけ白く飛ばす（薄く長いと灰色のベールに見える）
-  const freezeHit = frame === FREEZE ? 0.92 : 0;
+  // 止まった瞬間の一閃。1フレームだけ白く飛ばす（濃いと画面全体が灰色のベールになるので控えめに）
+  const freezeHit = frame === FREEZE ? 0.18 : 0;
 
   const light = interpolate(frame, TO_WHITE, [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   const bandOpacity =
@@ -279,7 +334,8 @@ export const Noise: React.FC = () => {
   const score = Math.max(0, 62 - (shown - 1) * 2);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: color.night, overflow: "hidden" }}>
+    <AbsoluteFill style={{ backgroundColor: "#0B0D12", overflow: "hidden" }}>
+      <Wallpaper frame={frame} />
       <Bands frame={frame} opacity={bandOpacity} />
 
       <AbsoluteFill style={{ translate: `${shakeX}px ${shakeY}px`, scale: String(zoom) }}>
@@ -310,12 +366,14 @@ export const Noise: React.FC = () => {
           justifyContent: "space-between",
           alignItems: "center",
           fontFamily: font.mono,
-          fontWeight: 700,
-          fontSize: 28,
-          color: color.alarm,
+          fontWeight: 500,
+          fontSize: 26,
+          color: TEXT_SECONDARY,
           opacity: hudOpacity,
-          backgroundColor: "rgba(0,0,0,0.6)",
-          padding: "8px 16px",
+          backgroundColor: "rgba(28,28,30,0.6)",
+          border: `1px solid ${BANNER_EDGE}`,
+          borderRadius: 14,
+          padding: "8px 20px",
         }}
       >
         <span>
@@ -323,23 +381,27 @@ export const Noise: React.FC = () => {
           <span
             style={{
               display: "inline-block",
-              color: kick > 0.5 ? color.warn : color.alarm,
-              scale: String(1 + kick * 0.35),
+              color: TEXT_PRIMARY,
+              fontWeight: 700,
+              scale: String(1 + kick * 0.25),
             }}
           >
             ×{String(shown).padStart(2, "0")}
           </span>
         </span>
-        <span style={{ color: frame % 8 < 4 ? color.warn : color.alarm }}>
-          ● REC  STREAK 🔥12  SCORE {String(score).padStart(2, "0")}
+        <span>
+          {/* 赤は録画ランプの小さな点だけ */}
+          <span style={{ color: color.alarm, opacity: frame % 16 < 10 ? 1 : 0.35 }}>●</span> REC  STREAK 12  SCORE{" "}
+          <span style={{ color: TEXT_PRIMARY, fontWeight: 700 }}>{String(score).padStart(2, "0")}</span>
         </span>
       </div>
 
       {light > 0 ? (
         <AbsoluteFill
           style={{
-            // 縁をぼかした円。半径 0 → 画面の対角を覆うまで
-            background: `radial-gradient(circle at 50% 50%, ${color.washi} ${light * 1150}px, rgba(250,251,252,0) ${light * 1150 + 260 * (1 - light)}px)`,
+            // 縁のくっきりした円。半径 0 → 画面の対角を覆うまで。
+            // 縁をぼかすと暗い地と washi の半透明の混色＝濁った灰色の輪になるので、ぼけ幅は 2px だけ
+            background: `radial-gradient(circle at 50% 50%, ${color.washi} ${light * 1150}px, rgba(250,251,252,0) ${light * 1150 + 2}px)`,
           }}
         />
       ) : null}

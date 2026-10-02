@@ -65,7 +65,3 @@ export const sequenceLength = (id: SceneId): number => {
 };
 
 export const sceneFrom = (id: SceneId): number => SCENE_DEFS.find((d) => d.id === id)!.from;
-
-// BGM: うるさい曲はノイズが消えきる瞬間で断ち切り、静かな曲は静寂が明けてから
-export const NOISE_END = sceneFrom("silence");
-export const QUIET_BGM_FROM = sceneFrom("desktop");
