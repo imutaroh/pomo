@@ -9,11 +9,20 @@
 - **集中時は静かに** — ホバー中は操作UI、待機中は数字だけ、計測中は透明化。ホバーですぐ戻ります
 - **全画面休憩モード** — 休憩中は全ディスプレイにカウントダウンと「今回の集中時間」を表示します
 - **履歴を持たない** — 日別/週間集計、セッション数、メモ、検索、ストリークはありません。設定以外は保存しません
-- **ローカル完結** — アカウント、サブスクリプション、テレメトリ、外部送信はありません
+- **ローカル完結** — アカウント、サブスクリプション、テレメトリはありません。通信はアップデートの確認とダウンロード（GitHub 上の appcast）だけで、作業時間や利用データは送りません
 
 ## Install
 
-macOS 14+ と Xcode Command Line Tools が必要です。
+macOS 14 以降・Apple Silicon（M1 以降）。ターミナルで1行：
+
+```sh
+curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash
+```
+
+最新リリースの .dmg を取得し、サイズと SHA-256・コード署名を確かめてから `/Applications` に置いて起動します（sudo なし。すでに入っていればその場所で更新）。中身は [`docs/install.sh`](docs/install.sh)。
+.dmg を手で入れる手順は [LP](https://imutaroh.github.io/pomo/#install) にあります。
+
+ソースからビルドする場合は Xcode Command Line Tools が必要です。
 
 ```sh
 git clone https://github.com/imutaroh/pomo.git
