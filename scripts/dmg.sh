@@ -15,13 +15,21 @@ ln -s /Applications "$STAGE/Applications"
 cat > "$STAGE/はじめにお読みください.txt" <<'TXT'
 Quiet のインストール方法
 ─────────────────────────
-1. 「Quiet.app」を、右の「Applications」フォルダにドラッグしてコピー
-2. 初回だけ: アプリケーションフォルダの Quiet を「右クリック →『開く』→『開く』」
-   ※「開発元を確認できないため開けません」と出たら:
-     システム設定 → プライバシーとセキュリティ → 下のほうの「このまま開く」
-3. 起動すると、メニューバーと Dock にアイコンが出ます
+1. Quiet を、右の「Applications」フォルダへドラッグします。
+2. アプリケーションフォルダから Quiet を開きます。初回だけ、開けないという確認が
+   出るので［完了］を押します（ゴミ箱には入れないでください）。
+   Apple の公証を受けていないためです。無料で配るための選択で、ソースはすべて公開しています。
+3. macOS 15 以降: システム設定 → プライバシーとセキュリティ → 下のほうの「このまま開く」
+   macOS 14: Quiet を右クリック →「開く」→［開く］
+次からは普通に開けます。メニューバーと Dock にアイコンが出ます。
+今後の更新はアプリが自動で行います。
 
-必要環境: macOS 14 (Sonoma) 以降
+開けないときは、ターミナルで次の1行を実行してください
+（入っている Quiet を見つけて、その場所で入れ直します）:
+  curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash
+
+必要環境: macOS 14 (Sonoma) 以降・Apple Silicon（M1 以降）
+詳しくは https://imutaroh.github.io/pomo/
 TXT
 
 rm -f build/Quiet.dmg

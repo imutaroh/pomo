@@ -110,7 +110,16 @@
   .install ol{margin:18px 0 0; padding-left:1.3em}
   .install li{margin:10px 0; font-size:15px}
   .install code{font-family:var(--mono); font-size:13px; background:var(--usugumo); padding:3px 8px; border-radius:7px; border:1px solid var(--line)}
-  .install .fine{font-size:13px; color:var(--ink-42); margin-top:16px; border-top:1px solid var(--line); padding-top:14px}
+  .install .fine{font-size:13px; color:var(--ink-60); margin-top:16px; border-top:1px solid var(--line); padding-top:14px}
+  .install + .install{margin-top:16px}
+  .install h3{font-size:17px}
+  .install > p{margin-top:12px; font-size:15px}
+  .install .fine code{font-size:12px; word-break:break-all}
+  .install .link{color:var(--teal-text); border-bottom:1px solid var(--line)}
+  .cmd{display:flex; align-items:center; gap:10px; margin-top:14px; background:var(--usugumo); border:1px solid var(--line); border-radius:10px; padding:12px 12px 12px 16px}
+  .install .cmd code{flex:1; min-width:0; background:none; border:0; padding:0; font-size:14px; overflow-x:auto; white-space:nowrap}
+  .copy{font:700 13px var(--body); color:var(--washi); background:var(--sumi); border:0; border-radius:8px; padding:8px 14px; cursor:pointer; flex:none}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
 
   .closer{text-align:center; padding:80px 0 24px}
   .closer h2{margin:0 auto}
@@ -149,8 +158,8 @@
       <h1><span class="nb">集中を止めていたものを、</span><span class="nb">ぜんぶ消しました。</span><span class="dim"><span class="nb">残ったのは、</span><span class="nb">いまの時間だけ。</span></span></h1>
       <p class="lead">25分で鳴るタイマーも、積み上がっていく記録も、集中にとってはノイズでした。全Space・フルスクリーンに追従して、手を止めた瞬間だけ戻ってくる macOS のフロータイマー。</p>
       <div class="actions">
-        <a class="btn" href="https://github.com/imutaroh/pomo/releases/latest">ダウンロード（無料）</a>
-        <span class="req">macOS 14+ ・ ローカル完結 ・ アカウント不要</span>
+        <a class="btn" href="#install">無料で入れる</a>
+        <span class="req">macOS 14+ ・ Apple Silicon ・ ローカル完結 ・ アカウント不要</span>
       </div>
     </div>
 
@@ -200,7 +209,7 @@
       <div class="card"><div class="ic">🪟</div><h3>どこへでも追従</h3><p>別アプリをフルスクリーンにしても、Spaceを切り替えても、常に最前面。「消えて忘れる」が起きない。</p></div>
       <div class="card"><div class="ic">🌊</div><h3>4つのモード</h3><p>フロー、ポモドーロ、任意タイマー、現在時刻だけの時計。いま必要な時間だけを表示。</p></div>
       <div class="card"><div class="ic">◉</div><h3>今回だけ</h3><p>見えるのは、いま取り組んでいる作業の時間だけ。履歴・集計・メモ・ストリークはありません。</p></div>
-      <div class="card"><div class="ic">🔒</div><h3>ローカル完結</h3><p>アカウントなし・クラウドなし・テレメトリなし。外部送信は一切しない。</p></div>
+      <div class="card"><div class="ic">🔒</div><h3>ローカル完結</h3><p>アカウントなし・クラウドなし・テレメトリなし。作業時間や利用データは、どこにも送らない。</p></div>
     </div>
   </section>
 
@@ -224,23 +233,40 @@
     <h2>中身は、すべて見えるところに。</h2>
     <div class="trust">
       <div class="card"><div class="ic">🔍</div><h3>オープンソース</h3><p>ソースコードは GitHub で全公開。何をしているアプリか、誰でも確かめられる。</p></div>
-      <div class="card"><div class="ic">📡</div><h3>通信・記録ゼロ</h3><p>ネットワークにアクセスせず、設定以外は保存しません。アプリを閉じれば今回の時間も消えます。</p></div>
+      <div class="card"><div class="ic">📡</div><h3>送らない・残さない</h3><p>通信はアップデートの確認とダウンロードだけ（GitHub 上の更新情報を取得）。作業時間や利用データはどこにも送らず、設定以外は保存しません。アプリを閉じれば今回の時間も消えます。</p></div>
       <div class="card"><div class="ic">🗑️</div><h3>やめるのも簡単</h3><p>アプリを捨てれば終わり。アカウント削除も解約も要らない。</p></div>
     </div>
   </section>
 
   <!-- INSTALL -->
-  <section class="band" style="padding-top:8px">
-    <div class="eyebrow">はじめての開き方</div>
-    <h2>無料配布のため、初回だけ手動で開きます。</h2>
+  <section class="band" id="install" style="padding-top:8px">
+    <div class="eyebrow">入れ方</div>
+    <h2>入れ方は、二つ。</h2>
     <div class="install">
+      <h3>A. ターミナルで1行</h3>
+      <div class="cmd">
+        <code id="installCmd">curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash</code>
+        <button type="button" class="copy" data-copy="installCmd">コピー</button>
+      </div>
+      <span class="sr" aria-live="polite" id="copyStatus"></span>
+      <p>ターミナルに貼って Enter。最新版をアプリケーションフォルダに入れて起動します。sudo は使いません。すでに入っていれば、その場所で更新します。</p>
+      <p>ブラウザを通らないので、Gatekeeper の「開けません」の確認は出ません。裏を返せば、Gatekeeper が検査しない経路です。中身は <a class="link" href="https://github.com/imutaroh/pomo/blob/main/docs/install.sh">スクリプトを読む ↗</a> で確かめられます。</p>
+      <p class="fine">ブラウザからコピーしたコマンドを貼ると、macOS が警告を出すことがあります。先に中身を読んでから実行する場合は <code>curl -fsSL https://imutaroh.github.io/pomo/install.sh -o quiet-install.sh</code> で保存し、読んだあと <code>bash quiet-install.sh</code> で実行してください。</p>
+    </div>
+    <div class="install">
+      <h3>B. ダウンロードして入れる</h3>
       <ol>
-        <li>ダウンロードした <strong>.dmg</strong> を開き、中のアプリを「アプリケーション」へドラッグ</li>
-        <li>ダブルクリックで起動。「悪質なソフトウェアがないか確認できない」と警告が出たら、<strong>「完了」を押す</strong>（ゴミ箱には入れない）</li>
-        <li><strong>システム設定 → プライバシーとセキュリティ</strong> を開き、下へスクロールして<strong>「このまま開く」→「開く」</strong></li>
-        <li>起動すると、メニューバーと Dock にアイコンが表示されます</li>
+        <li><a class="link" href="https://github.com/imutaroh/pomo/releases/latest">最新版のページ ↗</a> から <strong>.dmg</strong> をダウンロードして開き、中のアプリを「アプリケーション」へドラッグ</li>
+        <li>ダブルクリックで起動。初回だけ、開けないという警告が出るので<strong>［完了］を押す</strong>（ゴミ箱には入れない）</li>
+        <li>macOS 15 以降：<strong>システム設定 → プライバシーとセキュリティ</strong> を開き、下へスクロールして<strong>「このまま開く」→「開く」</strong><br>macOS 14：アプリを右クリック →<strong>「開く」→「開く」</strong></li>
+        <li>起動すると、メニューバーと Dock にアイコンが表示されます。次からは普通に開けます</li>
       </ol>
-      <p class="fine">Apple の公証(notarize)を行っていないための手順です（macOS 13 以前は右クリック→「開く」でも開けます）。会社支給などの管理対象(MDM)Macでは起動できない場合があります。v0.9.3 以前からアップデートした場合、アプリの中身は Quiet になりますが、アプリケーションフォルダ上の名前は Pomo のまま残ります（自動アップデートの仕様です）。</p>
+      <p>それでも開けないときは、A の1行を実行してください。入っているアプリを見つけて、その場所で入れ直します。</p>
+      <p class="fine">確認が出るのは、Apple の公証（notarize）を受けていないためです。無料で配り続けるための選択で、ソースはすべて GitHub で読めます。動作環境は macOS 14 以降・Apple Silicon（M1 以降）。Intel Mac では動きません。会社支給などの管理対象（MDM）Mac では起動できない場合があります。</p>
+    </div>
+    <div class="install">
+      <h3>Pomo をお使いの方へ</h3>
+      <p>入れ直しは不要です。アプリが自動で更新し、中身が Quiet になります。アプリケーションフォルダ上の名前は Pomo.app のまま残りますが、動作は同じです（自動アップデートの仕様です）。A の1行を実行しても、その場所のまま更新します（2つにはなりません）。以前の版は、アプリ名が旧名の Pomo です。</p>
     </div>
   </section>
 
@@ -248,8 +274,8 @@
     <div class="eyebrow">そろそろ、始めよう</div>
     <h2>余計なものが、ひとつもないタイマー。</h2>
     <div class="actions">
-      <a class="btn" href="https://github.com/imutaroh/pomo/releases/latest">ダウンロード（無料）</a>
-      <span class="req">macOS 14+</span>
+      <a class="btn" href="#install">無料で入れる</a>
+      <span class="req">macOS 14+ ・ Apple Silicon</span>
     </div>
   </section>
 
@@ -281,6 +307,24 @@
       b.textContent = Math.floor(br/60) + ':' + pad(br%60);
       if (tr) tr.style.width = ((s % 1500) / 1500 * 100) + '%'; // 25分周期
     }, 1000);
+  })();
+
+  // 導入コマンドのコピー
+  (function(){
+    var status = document.getElementById('copyStatus');
+    Array.prototype.forEach.call(document.querySelectorAll('.copy'), function(btn){
+      btn.addEventListener('click', function(){
+        var text = document.getElementById(btn.getAttribute('data-copy')).textContent;
+        function done(ok){
+          btn.textContent = ok ? 'コピーしました' : 'コピーできませんでした';
+          if (status) status.textContent = btn.textContent;
+          setTimeout(function(){ btn.textContent = 'コピー'; }, 2000);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });
+        } else { done(false); }
+      });
+    });
   })();
 </script>
 </body>

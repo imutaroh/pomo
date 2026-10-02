@@ -33,7 +33,7 @@ targets:
     entitlements:
       path: Pomo.entitlements
       properties:
-        # Mac App Store 必須。Quiet はネットワーク不使用・外部ファイルアクセスなし・録音なし
+        # Mac App Store 必須。MAS 版（Sparkle を外した状態）はネットワーク不使用・外部ファイルアクセスなし・録音なし
         # （MeetingGuard は CoreAudio の公開プロパティを読むだけ）なので、必要なのはこの1つだけ。
         com.apple.security.app-sandbox: true
     info:
