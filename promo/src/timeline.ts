@@ -16,6 +16,7 @@ export type SceneId =
   | "silence"
   | "desktop"
   | "presence"
+  | "follow"
   | "flowBreak"
   | "modes"
   | "promises"
@@ -36,11 +37,12 @@ export const SCENE_DEFS: SceneDef[] = [
   // Noise は最後に白へ抜けきるので、静寂へはカットで繋がる
   { id: "silence", from: s(15), transitionIn: cut },
   { id: "desktop", from: s(17), transitionIn: { kind: "fade", frames: 20 } },
-  // Desktop → Presence → FlowBreak は同じデスクトップの上で続くので、カットで繋ぐ
+  // Desktop → Presence → Follow → FlowBreak は同じデスクトップの上で続くので、カットで繋ぐ
   // （境界フレームでパネルの状態を揃えるのは各シーンの責務）
-  { id: "presence", from: s(24), transitionIn: cut },
-  { id: "flowBreak", from: s(31), transitionIn: cut },
-  { id: "modes", from: s(39), transitionIn: { kind: "fade", frames: 15 } },
+  { id: "presence", from: s(22), transitionIn: cut },
+  { id: "follow", from: s(28), transitionIn: cut },
+  { id: "flowBreak", from: s(33), transitionIn: cut },
+  { id: "modes", from: s(40), transitionIn: { kind: "fade", frames: 15 } },
   { id: "promises", from: s(45), transitionIn: { kind: "fade", frames: 15 } },
   { id: "words", from: s(51), transitionIn: { kind: "fade", frames: 15 } },
   { id: "install", from: s(55), transitionIn: { kind: "fade", frames: 15 } },
