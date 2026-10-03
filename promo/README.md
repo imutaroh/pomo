@@ -33,9 +33,9 @@ npm run render         # 書き出し → out/quiet-promo.mp4（映像を書き�
 
 ## 公開前の確認
 
-最後に映る `curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash` は、
-インストーラ（#73）が main にマージされて GitHub Pages に出るまで 404 になる。
-**本番 URL で実際にインストールできることを確かめてから動画を公開する。**
+最後に映る `curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash` はインストーラ（#73）で本番に出ている。
+**実機の Mac で、この一行から実際にインストールして起動できることを確かめてから動画を公開する。**
+また、1 行で入るのは最新リリースのアプリなので、Quiet 名義のリリースが出るまでは Pomo 名義のアプリが入る。
 
 ## 音
 
