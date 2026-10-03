@@ -8,3 +8,7 @@ out
 
 # BGM は著作物なのでコミットしない
 public/bgm*.mp3
+
+# 合成した音の中間ファイル（npm run audio で再生成できる）
+audio/out
+audio/__pycache__

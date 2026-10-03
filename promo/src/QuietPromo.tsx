@@ -1,10 +1,9 @@
-import { Audio } from "@remotion/media";
 import { linearTiming, TransitionPresentation, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
 import { Fragment } from "react";
-import { AbsoluteFill, Easing, getStaticFiles, staticFile, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, getRemotionEnvironment, getStaticFiles, Html5Audio, staticFile, useVideoConfig } from "remotion";
 import { SCENE_COMPONENTS } from "./scenes";
 import { SCENE_DEFS, sequenceLength, TransitionIn } from "./timeline";
 
@@ -50,7 +49,9 @@ export const QuietPromo: React.FC = () => {
 
       {/* 音はすべて audio/ のスクリプトで合成した 60 秒のスコア（npm run audio で再生成）。
           前半のノイズは 15 秒で断ち切り、2 秒の無音を挟んで静かな曲になる。区切りは timeline.ts に合わせてある */}
-      {SCORE ? <Audio name="Score" src={staticFile(SCORE)} premountFor={fps} /> : null}
+      {/* 書き出しで音を載せると 1 フレームごとに十数秒の待ちが入り、タイムアウトする（@remotion/media・Html5Audio とも）。
+          そのため音は Studio のプレビューだけで鳴らし、書き出しでは npm run render が映像に ffmpeg で重ねる */}
+      {SCORE && !getRemotionEnvironment().isRendering ? <Html5Audio name="Score" src={staticFile(SCORE)} /> : null}
     </AbsoluteFill>
   );
 };
