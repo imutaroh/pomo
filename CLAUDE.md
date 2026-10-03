@@ -35,7 +35,13 @@ GUI 挙動（フルスクリーン追従・透明化・ウィンドウのレス�
 
 このプロジェクトには独立した「本番」が2つある。混同しないこと。
 
-1. **LP 本番** — `docs/index.html` を main にマージすると GitHub Pages に自動反映される
+1. **LP 本番** — `docs/` を main にマージすると、2か所に自動反映される（同じ `docs/` の二重配信）
+   - **quiet.imutaro.com**（正）：Cloudflare Workers Static Assets。設定は `wrangler.jsonc`、デプロイは
+     Workers Builds（Cloudflare の GitHub 連携。watch paths は `docs/*` と `wrangler.jsonc`、Worker 名 `quiet-lp`）。
+     `docs/.assetsignore` で md は上げない。`docs/_headers` で `install.sh` を text/plain・短いキャッシュにしている。
+     Worker のスクリプトは置かない（置くと無料枠を消費し、超過時に install.sh まで 429 になる）
+   - **imutaroh.github.io/pomo**（旧 URL）：GitHub Pages。出回った旧コマンドのために止めない。
+     GitHub Pages には 301 を設定できないので、200 のまま同じ中身を返し続ける。カスタムドメインは設定しない
 2. **アプリ本番** — `scripts/release.sh` による GitHub Release + appcast 更新。
    これは **既存ユーザー全員へ Sparkle で自動配信される取り消し不能な操作**
 
