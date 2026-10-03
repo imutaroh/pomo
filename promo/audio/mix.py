@@ -4,8 +4,10 @@
 出力:  out/score.wav（16bit PCM の中間）と ../public/score.mp3
 
 マスタリングの方針:
-- 前半と後半に別々の固定ゲインをかけ、前半が後半より FRONT_OVER_BACK_DB だけ大きく
-  なるようにしてから、全体の integrated が TARGET_LUFS になるよう一緒に動かす。
+- 前半は固定ゲイン（FRONT_GAIN_DB → リミッター → FRONT_TRIM → リミッター）で仕上げる。値は
+  「前半を後半より 4dB 大きく、全体 -14 LUFS」で解いた結果を固定したもの。後半を作り直しても
+  前半のサンプルが 1 つも変わらないように、前半は後半に依存させない
+- 後半は全体の integrated が TARGET_LUFS になるゲインを解いてかける。
   ゲインは掛け算なので 0 のサンプルは 0 のまま残る（15〜17 秒の無音が持ち上がらない）
 - True Peak が TP_CEILING を超えるところだけ、先読みつきのリミッターで下げる。
   mp3 化で真のピークが少し増えるので、目標の -1.0 dBTP より余裕を見ている
@@ -32,7 +34,10 @@ SEAM_FRAME = 450
 TOTAL_FRAMES = 1800
 
 TARGET_LUFS = -14.0
-FRONT_OVER_BACK_DB = 4.0  # 前半（騒音）は後半（静けさ）よりこれだけ大きく聞かせる
+# 前半（騒音）の固定ゲイン。旧方式（前半を後半より 4dB 大きく → 全体 -14 LUFS → リミッター後に再調整）の解。
+# repr の値そのままなので、旧方式と 1 サンプルも違わない
+FRONT_GAIN_DB = -1.2930296038467066
+FRONT_TRIM = 1.0005979199903976
 TP_CEILING_DB = -1.5  # リミッターの天井（dBTP）。mp3 化後に -1.0 を割らないための余裕
 MP3_BITRATE = "256k"
 
@@ -122,23 +127,20 @@ def main() -> None:
         print(f"警告: 継ぎ目が 0 ではない（noise 末尾 1f の最大 {tail:.6f} / quiet 頭 1f の最大 {head:.6f}）")
 
     lf0, lb0 = integrated_lufs(noise), integrated_lufs(quiet)
-    # 前半の差を FRONT_OVER_BACK_DB に揃える（後半だけ持ち上げる）
-    gb_rel = (lf0 - lb0) - FRONT_OVER_BACK_DB
 
-    def build(gf_db: float) -> np.ndarray:
-        return np.concatenate([noise * 10 ** (gf_db / 20), quiet * 10 ** ((gf_db + gb_rel) / 20)])
+    # 前半: 後半とは独立に仕上げる。noise の末尾と quiet の頭（2 秒）はどちらも 0 なので、
+    # リミッターの先読みとオーバーサンプリングが継ぎ目をまたいでも、全体にかけたときと結果は同じ
+    front, gr_f = limit(noise * 10 ** (FRONT_GAIN_DB / 20), TP_CEILING_DB)
+    front, gr_f2 = limit(front * FRONT_TRIM, TP_CEILING_DB)
 
-    # 全体を一緒に動かして integrated を目標へ（ゲートがあるので 2 回寄せる）
-    gf = 0.0
-    for _ in range(3):
-        gf += TARGET_LUFS - integrated_lufs(build(gf))
-    score = build(gf)
-    score, gr = limit(score, TP_CEILING_DB)
-    # リミッターで下がった分は小さいはずだが、念のためもう一度だけ寄せる
-    if gr < 0:
-        score *= 10 ** ((TARGET_LUFS - integrated_lufs(score)) / 20)
-        score, gr2 = limit(score, TP_CEILING_DB)
-        gr = min(gr, gr2)
+    # 後半: 全体の integrated が目標になるゲインを解く（ゲートがあるので数回寄せる）
+    gb = (lf0 + FRONT_GAIN_DB - 4.0) - lb0
+    for _ in range(4):
+        back, gr_b = limit(quiet * 10 ** (gb / 20), TP_CEILING_DB)
+        gb += TARGET_LUFS - integrated_lufs(np.concatenate([front, back]))
+    back, gr_b = limit(quiet * 10 ** (gb / 20), TP_CEILING_DB)
+    score = np.concatenate([front, back])
+    gf, gr = FRONT_GAIN_DB, min(gr_f, gr_f2, gr_b)
 
     assert len(score) == TOTAL_FRAMES * SPF
     pcm = np.clip(np.round(score * 32767), -32768, 32767).astype(np.int16)
@@ -148,9 +150,9 @@ def main() -> None:
     s = pcm.astype(np.float64) / 32768.0
     sec = lambda a, b: integrated_lufs(s[int(a * SR) : int(b * SR)])  # noqa: E731
     print(f"素材: noise {lf0:.1f} LUFS / quiet {lb0:.1f} LUFS")
-    print(f"ゲイン: 前半 {gf:+.2f} dB / 後半 {gf + gb_rel:+.2f} dB / リミッター最大 {gr:.2f} dB")
+    print(f"ゲイン: 前半 {gf:+.2f} dB（固定） / 後半 {gb:+.2f} dB / リミッター最大 {gr:.2f} dB（後半 {gr_b:.2f}）")
     print(f"integrated {integrated_lufs(s):.2f} LUFS / true peak {db(true_peak_env(s).max()):.2f} dBTP")
-    print(f"区間: 0-15s {sec(0, 15):.1f} / 17-60s {sec(17, 60):.1f} LUFS")
+    print(f"区間: 0-15s {sec(0, 15):.1f} / 17-60s {sec(17, 60):.1f} LUFS（差 {sec(0, 15) - sec(17, 60):.1f} dB）")
     print(f"15-17s の最大値 {np.abs(pcm[15 * SR : 17 * SR]).max()}（0 なら無音のまま）")
 
     # mp3: 48kHz・ステレオ・CBR。ffmpeg は LAME ヘッダにエンコーダ遅延を書くので、

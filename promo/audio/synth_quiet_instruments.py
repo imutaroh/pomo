@@ -43,10 +43,13 @@ def bandpass(x: np.ndarray, lo: float, hi: float, order: int = 2) -> np.ndarray:
 
 # ---------------------------------------------------------------- フェルトピアノ
 
-def felt_piano(midi: float, vel: float, rng: np.random.Generator, dur: float = 5.0) -> np.ndarray:
+def felt_piano(midi: float, vel: float, rng: np.random.Generator, dur: float = 5.0, coherent: bool = False) -> np.ndarray:
     """フェルトを挟んだアップライト風。弦 2 本の少しのデチューン＋二段の減衰＋ハンマーの柔らかいノイズ。
 
     フェルトなので倍音は早く丸まり、アタックは 4ms ほど遅らせて角を取る。
+    coherent=True は 2 本の弦を同じ位相で打ち始める。既定（False）は位相が独立なので、乱数しだいで
+    打った瞬間に 2 本が打ち消し合い、数 cents のうなりで 0.2 秒ほどかけて膨らむ（短い粒では立ち上がりが消える）。
+    乱数の消費は既定と同じなので、ほかの音の波形は変わらない。
     """
     f0 = midi_hz(midi)
     n = int(dur * SR)
@@ -64,8 +67,12 @@ def felt_piano(midi: float, vel: float, rng: np.random.Generator, dur: float = 5
         ts = tau_slow / (1 + 0.45 * (k - 1))
         tf = 0.22 / np.sqrt(k)
         env = 0.55 * np.exp(-t / ts) + 0.45 * np.exp(-t / tf)
+        ph0 = None
         for cents in (-1.3, 1.1):
             ph = rng.uniform(0, 2 * np.pi)
+            if coherent:
+                ph0 = ph if ph0 is None else ph0
+                ph = ph0
             out += 0.5 * amp * env * np.sin(2 * np.pi * fk * 2 ** (cents / 1200) * t + ph)
     att = int(0.004 * SR)
     out[:att] *= raised_cos(att)
@@ -227,19 +234,41 @@ def whoosh(n_total: int, peak_at: int, rng: np.random.Generator, direction: int,
 
 
 def shimmer(midis: list[float], n: int, attack: int, decay: float, rng: np.random.Generator, vel: float = 1.0) -> np.ndarray:
-    """そっと広がる高い和音。左右で少しずらした正弦波が、遅い立ち上がりで開いていく。"""
+    """そっと広がる高い和音。遅い立ち上がりで開いていく。
+
+    広がりは M/S で作る: 真ん中（M）は正確な音程で左右同相、横（S）は少しずらした音程を左右逆相で薄く足す。
+    左右をそのまま ±数 cents ずらすと、モノラルにしたとき同じ大きさの 2 音が干渉して深いうなりになる。
+    S は L+R で打ち消し合うので、モノラルでは M だけが残りうならない。
+    """
     tail = int(decay * 4 * SR)
     N = n + tail
     t = np.arange(N) / SR
     out = np.zeros((N, 2))
     for i, m in enumerate(midis):
         f = midi_hz(m)
-        for ch, cents in ((0, -4.0), (1, 4.0)):
-            out[:, ch] += np.sin(2 * np.pi * f * 2 ** (cents / 1200) * t + rng.uniform(0, 2 * np.pi))
+        mid = np.sin(2 * np.pi * f * t + rng.uniform(0, 2 * np.pi))
+        cents = 4.0 if i % 2 == 0 else -4.0
+        side = 0.2 * np.sin(2 * np.pi * f * 2 ** (cents / 1200) * t + rng.uniform(0, 2 * np.pi))
+        out[:, 0] += mid + side
+        out[:, 1] += mid - side
     env = np.exp(-np.maximum(t - attack / SR, 0) / decay)
     env[:attack] = raised_cos(attack) ** 0.7
     env[-4800:] *= raised_cos(4800)[::-1]
     return out * env[:, None] * vel / len(midis)
+
+
+def grain(rng: np.random.Generator, vel: float = 1.0, p: float = 0.0, tone: float = 1.0) -> np.ndarray:
+    """拍の粒。乾いた種が擦れるような、高い帯域の短いノイズ（シェイカーをごく小さくした音）。
+
+    tone は帯域の位置（1 前後。大きいほど高い）。
+    """
+    n = int(0.07 * SR)
+    t = np.arange(n) / SR
+    x = bandpass(rng.standard_normal(n), 3200 * tone, min(11000 * tone, 15000))
+    env = (1 - np.exp(-t / 0.003)) * np.exp(-t / 0.016)
+    x = x * env
+    x[-480:] *= raised_cos(480)[::-1]
+    return pan(x * vel, p)
 
 
 def pencil(n: int, rng: np.random.Generator, vel: float = 1.0, p: float = 0.0) -> np.ndarray:
@@ -287,8 +316,11 @@ def airy_swell(n: int, rng: np.random.Generator, vel: float = 1.0) -> np.ndarray
 
 # ---------------------------------------------------------------- リバーブ
 
+LOW_MONO_HZ = 220.0
+
+
 def synth_ir(rng: np.random.Generator, length: float = 4.0, predelay: float = 0.02) -> np.ndarray:
-    """合成インパルス応答。帯域ごとに残響時間を変え（高域ほど早く消える）、左右は無相関にする。"""
+    """合成インパルス応答。帯域ごとに残響時間を変え（高域ほど早く消える）、左右は無相関にする（220Hz 未満を除く）。"""
     n = int(length * SR)
     t = np.arange(n) / SR
     ir = np.zeros((n, 2))
@@ -314,6 +346,11 @@ def synth_ir(rng: np.random.Generator, length: float = 4.0, predelay: float = 0.
         i = int(d * SR)
         ir[i, 0] += g
         ir[int(i * 1.13), 1] += g
+    # 220Hz 未満は左右で共通にする（低域が左右無相関だと、モノラルで痩せ、ステレオでは位置がぼやける）。
+    # Linkwitz-Riley 4 次（2 次バターワースを 2 回）で分けると、低域と高域を足し戻しても振幅が平らに保たれる
+    lr = lambda f, x: f(f(x, LOW_MONO_HZ), LOW_MONO_HZ)  # noqa: E731
+    # 無相関な 2 本を足すとパワーは 2 倍なので √2 で割り、低域の量を変えない
+    ir = lr(highpass, ir) + lr(lowpass, ir.sum(axis=1) / np.sqrt(2))[:, None]
     ir /= np.sqrt(np.sum(ir ** 2) / 2)
     return ir
 
