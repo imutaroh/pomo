@@ -26,10 +26,10 @@ Quiet のインストール方法
 
 開けないときは、ターミナルで次の1行を実行してください
 （アプリケーションフォルダの Quiet を見つけて、その場所で入れ直します）:
-  curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash
+  curl -fsSL https://quiet.imutaro.com/install.sh | bash
 
 必要環境: macOS 14 (Sonoma) 以降・Apple Silicon（M1 以降）
-詳しくは https://imutaroh.github.io/pomo/
+詳しくは https://quiet.imutaro.com/
 TXT
 
 rm -f build/Quiet.dmg
