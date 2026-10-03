@@ -39,7 +39,10 @@ GUI 挙動（フルスクリーン追従・透明化・ウィンドウのレス�
    - **quiet.imutaro.com**（正）：Cloudflare Workers Static Assets。設定は `wrangler.jsonc`、デプロイは
      Workers Builds（Cloudflare の GitHub 連携。watch paths は `docs/*` と `wrangler.jsonc`、Worker 名 `quiet-lp`）。
      `docs/.assetsignore` で md は上げない。`docs/_headers` で `install.sh` を text/plain・短いキャッシュにしている。
-     Worker のスクリプトは置かない（置くと無料枠を消費し、超過時に install.sh まで 429 になる）
+     Worker のスクリプトは置かない（置くと無料枠を消費し、超過時に install.sh まで 429 になる）。
+     Workers Builds が止まったとき（2026-10-03 の初回は Cloudflare 側の障害で進まなかった）は、
+     **main と同じ中身のきれいな作業ツリー**から `npx wrangler deploy` で手動デプロイできる
+     （未コミットの変更がある作業ツリーから上げると、レビュー前の内容が本番に出る）
    - **imutaroh.github.io/pomo**（旧 URL）：GitHub Pages。出回った旧コマンドのために止めない。
      GitHub Pages には 301 を設定できないので、200 のまま同じ中身を返し続ける。カスタムドメインは設定しない
 2. **アプリ本番** — `scripts/release.sh` による GitHub Release + appcast 更新。
@@ -52,7 +55,7 @@ GUI 挙動（フルスクリーン追従・透明化・ウィンドウのレス�
 また `scripts/install.sh`（ソースからの開発用インストール）で入れたビルドは、バージョン採番前だと
 Info.plist の表記が旧版のまま残る。動作確認用インストールとリリース用ビルドは別物として報告する。
 
-**`docs/install.sh`（1行インストーラ）は LP 本番の一部。** `curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash`
+**`docs/install.sh`（1行インストーラ）は LP 本番の一部。** `curl -fsSL https://quiet.imutaro.com/install.sh | bash`
 で利用者が直接実行するコードなので、main にマージした瞬間に全新規ユーザーが実行する。マージ前に
 `shellcheck -s bash` と `QUIET_TEST=1 QUIET_APPS_DIR=<試験用ディレクトリ>` でのローカル試験を通すこと
 （テストモードは配置先と終了させるプロセスを試験用ディレクトリに閉じ込める）。

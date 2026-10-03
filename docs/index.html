@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quiet — ノイズを消したタイマー for Mac</title>
 <meta name="description" content="鳴るベルも、積み上がる記録も、「今日は何分できた？」もない。Quiet は Mac の画面に静かに浮かぶフロータイマーです。無料・オープンソース・ローカル完結。">
-<link rel="canonical" href="https://imutaroh.github.io/pomo/">
+<link rel="canonical" href="https://quiet.imutaro.com/">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#fafbfc">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Quiet — ノイズを消したタイマー for Mac">
 <meta property="og:description" content="集中のノイズを、ひとつずつ消した。残ったのは、いまの時間だけ。Mac の画面に静かに浮かぶ、無料のフロータイマー。">
-<meta property="og:image" content="https://imutaroh.github.io/pomo/og.png">
-<meta property="og:url" content="https://imutaroh.github.io/pomo/">
+<meta property="og:image" content="https://quiet.imutaro.com/og.png">
+<meta property="og:url" content="https://quiet.imutaro.com/">
 <meta property="og:site_name" content="Quiet">
 <meta property="og:locale" content="ja_JP">
 <meta name="twitter:card" content="summary_large_image">
@@ -29,7 +29,7 @@
   "description": "Mac の画面に静かに浮かぶフロータイマー。履歴なし・アカウントなし・テレメトリなし。",
   "applicationCategory": "ProductivityApplication",
   "operatingSystem": "macOS 14 以降（Apple Silicon）",
-  "url": "https://imutaroh.github.io/pomo/",
+  "url": "https://quiet.imutaro.com/",
   "downloadUrl": "https://github.com/imutaroh/pomo/releases/latest",
   "license": "https://opensource.org/licenses/MIT",
   "isAccessibleForFree": true,
@@ -914,7 +914,7 @@ details.more p { font-size: var(--fs-ui); color: var(--color-sub); margin-top: 8
           <h3>ターミナルで1行</h3>
           <p>ターミナル（アプリケーション → ユーティリティ）を開いて、下の1行を貼って Return を押すだけ。最新版を取ってきて、確かめて、入れて、起動します。sudo は使いません。</p>
           <div class="cmd">
-<pre id="cmd"><span class="pr" aria-hidden="true">$ </span><code>curl -fsSL https://imutaroh.github.io/<wbr>pomo/install.sh | bash</code></pre>
+<pre id="cmd"><span class="pr" aria-hidden="true">$ </span><code>curl -fsSL https://quiet.imutaro.com/<wbr>install.sh | bash</code></pre>
             <button class="copy" id="copy" type="button">コピー</button>
           </div>
           <p class="copy-status" id="copy-status" aria-live="polite"></p>
@@ -933,7 +933,7 @@ details.more p { font-size: var(--fs-ui); color: var(--color-sub); margin-top: 8
           </ul>
           <details class="more">
             <summary>先にスクリプトを読みたい</summary>
-<pre><code>curl -fsSL https://imutaroh.github.io/pomo/install.sh -o quiet-install.sh
+<pre><code>curl -fsSL https://quiet.imutaro.com/install.sh -o quiet-install.sh
 less quiet-install.sh
 bash quiet-install.sh</code></pre>
             <p>本体は <a href="https://github.com/imutaroh/pomo/blob/main/docs/install.sh">GitHub で読めます</a>。</p>
@@ -1287,7 +1287,7 @@ bash quiet-install.sh</code></pre>
   Array.prototype.forEach.call(document.querySelectorAll("input[name=ratio]"), function (i) { i.addEventListener("change", calc); });
 
   /* ================= copy ================= */
-  var CMD = "curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash";
+  var CMD = "curl -fsSL https://quiet.imutaro.com/install.sh | bash";
   var copyBtn = $("copy"), copyStatus = $("copy-status");
   function selectCmd() {
     var el = $("cmd").querySelector("code"), r = document.createRange();
@@ -1318,7 +1318,7 @@ bash quiet-install.sh</code></pre>
       '<p>Mac でこのページを開いてください。リンクを自分に送っておくと、あとで迷いません。</p>' +
       '<button class="btn btn-primary" type="button" id="share">このページのリンクを共有</button>' +
       '<p class="copy-status" id="share-status" aria-live="polite"></p></div>';
-    var url = "https://imutaroh.github.io/pomo/";
+    var url = "https://quiet.imutaro.com/";
     $("share").addEventListener("click", function () {
       var s = $("share-status");
       if (navigator.share) {

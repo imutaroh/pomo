@@ -1,10 +1,10 @@
 #!/bin/bash
-# Quiet インストーラ — https://imutaroh.github.io/pomo/
+# Quiet インストーラ — https://quiet.imutaro.com/
 #
-#   curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash
+#   curl -fsSL https://quiet.imutaro.com/install.sh | bash
 #
 # 先に中身を読む場合:
-#   curl -fsSL https://imutaroh.github.io/pomo/install.sh -o quiet-install.sh
+#   curl -fsSL https://quiet.imutaro.com/install.sh -o quiet-install.sh
 #   less quiet-install.sh
 #   bash quiet-install.sh
 #
@@ -28,16 +28,16 @@
 # 最終行の main で初めて動きます。
 
 if [ -z "${BASH_VERSION:-}" ]; then
-  echo "bash で実行してください: curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash" >&2
+  echo "bash で実行してください: curl -fsSL https://quiet.imutaro.com/install.sh | bash" >&2
   exit 1
 fi
 REPO="imutaroh/pomo"
-INSTALL_CMD="curl -fsSL https://imutaroh.github.io/pomo/install.sh"
+INSTALL_CMD="curl -fsSL https://quiet.imutaro.com/install.sh"
 BUNDLE_ID="com.imutaakihiro.pomo"
 APPCAST_URL="https://github.com/${REPO}/releases/latest/download/appcast.xml"
 DL_PREFIX="https://github.com/${REPO}/releases/download/"
 API_TAGS="https://api.github.com/repos/${REPO}/releases/tags"
-MANUAL_URL="https://imutaroh.github.io/pomo/#install"
+MANUAL_URL="https://quiet.imutaro.com/#install"
 PROTO="=https"
 APPS_DIRS=("/Applications" "$HOME/Applications")
 
