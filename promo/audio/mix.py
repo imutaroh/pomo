@@ -1,14 +1,17 @@
 """紹介動画の BGM をつなぎ、配信向けにマスタリングして public/score.mp3 を書き出す。
 
-入力:  out/noise.wav（本編 0〜449f）と out/quiet.wav（本編 450〜1799f）
+入力（区切りはすべて cues.json の sections から読む）:
+  out/zone.wav   zone の頭〜cut の終わり（Zone の音楽と Cut のアラーム）
+  out/noise.wav  noise の区間（通知の洪水）
+  out/quiet.wav  silence の頭〜終端（2 秒の無音と後半の音楽）
 出力:  out/score.wav（16bit PCM の中間）と ../public/score.mp3
 
 マスタリングの方針:
-- 前半は固定ゲイン（FRONT_GAIN_DB → リミッター → FRONT_TRIM → リミッター）で仕上げる。値は
-  「前半を後半より 4dB 大きく、全体 -14 LUFS」で解いた結果を固定したもの。後半を作り直しても
-  前半のサンプルが 1 つも変わらないように、前半は後半に依存させない
-- 後半は全体の integrated が TARGET_LUFS になるゲインを解いてかける。
-  ゲインは掛け算なので 0 のサンプルは 0 のまま残る（15〜17 秒の無音が持ち上がらない）
+- 後半（desktop〜終端）を基準に、Noise を NOISE_OVER dB、Zone の音楽（zone の区間）を ZONE_OVER dB 大きくする。
+  Noise と後半の差は 60 秒版（前半 -10.8 / 後半 -15.2 LUFS）と同じ。Zone は「気持ちよく乗れる」大きさとして
+  後半より少し大きく、Noise よりは小さく置く。Cut のアラームの大きさは zone.py の中の釣り合い（Zone の最後の小節より一段上）で決まる
+- 全体の integrated が TARGET_LUFS になるよう後半のゲインを解き、前半はそれに連動させる。
+  ゲインは掛け算なので 0 のサンプルは 0 のまま残る（Cut の断ち切りと silence の無音が持ち上がらない）
 - True Peak が TP_CEILING を超えるところだけ、先読みつきのリミッターで下げる。
   mp3 化で真のピークが少し増えるので、目標の -1.0 dBTP より余裕を見ている
 - ラウドネスは ITU-R BS.1770-4（K 特性・400ms ブロック・絶対 -70 / 相対 -10 のゲート）を
@@ -19,6 +22,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -30,14 +34,10 @@ from scipy.signal import lfilter, resample_poly
 
 SR = 48000
 SPF = 1600  # 1 フレームのサンプル数（30fps）
-SEAM_FRAME = 450
-TOTAL_FRAMES = 1800
 
 TARGET_LUFS = -14.0
-# 前半（騒音）の固定ゲイン。旧方式（前半を後半より 4dB 大きく → 全体 -14 LUFS → リミッター後に再調整）の解。
-# repr の値そのままなので、旧方式と 1 サンプルも違わない
-FRONT_GAIN_DB = -1.2930296038467066
-FRONT_TRIM = 1.0005979199903976
+NOISE_OVER = 4.4  # Noise を後半より何 dB 大きくするか
+ZONE_OVER = 2.0  # Zone の音楽を後半より何 dB 大きくするか
 TP_CEILING_DB = -1.5  # リミッターの天井（dBTP）。mp3 化後に -1.0 を割らないための余裕
 MP3_BITRATE = "256k"
 
@@ -118,42 +118,52 @@ def limit(x: np.ndarray, ceiling_db: float) -> tuple[np.ndarray, float]:
 
 
 def main() -> None:
-    noise = read_wav("noise.wav", SEAM_FRAME)
-    quiet = read_wav("quiet.wav", TOTAL_FRAMES - SEAM_FRAME)
+    with open(os.path.join(HERE, "cues.json"), encoding="utf-8") as fh:
+        cues = json.load(fh)
+    sec = {x["id"]: (x["from"], x["to"]) for x in cues["sections"]}
+    total = cues["duration"]
+    parts = [("zone.wav", sec["zone"][0], sec["cut"][1]), ("noise.wav", *sec["noise"]), ("quiet.wav", sec["silence"][0], total)]
+    assert parts[0][1] == 0 and parts[-1][2] == total
+    assert all(parts[i][2] == parts[i + 1][1] for i in range(len(parts) - 1)), parts
+    zone, noise, quiet = (read_wav(name, b - a) for name, a, b in parts)
 
-    # 継ぎ目: どちらの端も 0 なら、そのまま並べてもクリックは出ない
-    tail, head = np.abs(noise[-SPF:]).max(), np.abs(quiet[:SPF]).max()
-    if tail > 0 or head > 0:
-        print(f"警告: 継ぎ目が 0 ではない（noise 末尾 1f の最大 {tail:.6f} / quiet 頭 1f の最大 {head:.6f}）")
+    # 継ぎ目: Cut の終わり・Noise の終わり・silence の頭は 0 のはず（Noise の頭はカットで鳴り出すので 0 でなくてよい）。
+    # 前の端が 0 なら、そのまま並べてもクリックは出ない
+    for name, x in (("zone.wav 末尾", zone[-SPF:]), ("noise.wav 末尾", noise[-SPF:]), ("quiet.wav 頭", quiet[:SPF])):
+        if np.abs(x).max() > 0:
+            print(f"警告: {name} 1f が 0 ではない（最大 {np.abs(x).max():.6f}）")
 
-    lf0, lb0 = integrated_lufs(noise), integrated_lufs(quiet)
+    zone_music = zone[: (sec["zone"][1] - sec["zone"][0]) * SPF]
+    lz, ln, lb = integrated_lufs(zone_music), integrated_lufs(noise), integrated_lufs(quiet)
 
-    # 前半: 後半とは独立に仕上げる。noise の末尾と quiet の頭（2 秒）はどちらも 0 なので、
-    # リミッターの先読みとオーバーサンプリングが継ぎ目をまたいでも、全体にかけたときと結果は同じ
-    front, gr_f = limit(noise * 10 ** (FRONT_GAIN_DB / 20), TP_CEILING_DB)
-    front, gr_f2 = limit(front * FRONT_TRIM, TP_CEILING_DB)
+    def render(gb: float) -> tuple[np.ndarray, float]:
+        gz = lb + gb + ZONE_OVER - lz
+        gn = lb + gb + NOISE_OVER - ln
+        x = np.concatenate([zone * 10 ** (gz / 20), noise * 10 ** (gn / 20), quiet * 10 ** (gb / 20)])
+        return limit(x, TP_CEILING_DB)
 
-    # 後半: 全体の integrated が目標になるゲインを解く（ゲートがあるので数回寄せる）
-    gb = (lf0 + FRONT_GAIN_DB - 4.0) - lb0
-    for _ in range(4):
-        back, gr_b = limit(quiet * 10 ** (gb / 20), TP_CEILING_DB)
-        gb += TARGET_LUFS - integrated_lufs(np.concatenate([front, back]))
-    back, gr_b = limit(quiet * 10 ** (gb / 20), TP_CEILING_DB)
-    score = np.concatenate([front, back])
-    gf, gr = FRONT_GAIN_DB, min(gr_f, gr_f2, gr_b)
+    # 後半のゲインを解く（ゲートとリミッターがあるので数回寄せる）
+    gb = TARGET_LUFS - 2.0 - lb
+    for _ in range(5):
+        score, gr = render(gb)
+        gb += TARGET_LUFS - integrated_lufs(score)
+    score, gr = render(gb)
+    assert len(score) == total * SPF
 
-    assert len(score) == TOTAL_FRAMES * SPF
     pcm = np.clip(np.round(score * 32767), -32768, 32767).astype(np.int16)
     wav_path = os.path.join(OUT_DIR, "score.wav")
     wavfile.write(wav_path, SR, pcm)
 
     s = pcm.astype(np.float64) / 32768.0
-    sec = lambda a, b: integrated_lufs(s[int(a * SR) : int(b * SR)])  # noqa: E731
-    print(f"素材: noise {lf0:.1f} LUFS / quiet {lb0:.1f} LUFS")
-    print(f"ゲイン: 前半 {gf:+.2f} dB（固定） / 後半 {gb:+.2f} dB / リミッター最大 {gr:.2f} dB（後半 {gr_b:.2f}）")
+    seg = lambda a, b: integrated_lufs(s[a * SPF : b * SPF])  # noqa: E731
+    print(f"素材: zone の音楽 {lz:.1f} / noise {ln:.1f} / quiet {lb:.1f} LUFS")
+    print(f"ゲイン: zone {lb + gb + ZONE_OVER - lz:+.2f} / noise {lb + gb + NOISE_OVER - ln:+.2f} / quiet {gb:+.2f} dB、リミッター最大 {gr:.2f} dB")
     print(f"integrated {integrated_lufs(s):.2f} LUFS / true peak {db(true_peak_env(s).max()):.2f} dBTP")
-    print(f"区間: 0-15s {sec(0, 15):.1f} / 17-60s {sec(17, 60):.1f} LUFS（差 {sec(0, 15) - sec(17, 60):.1f} dB）")
-    print(f"15-17s の最大値 {np.abs(pcm[15 * SR : 17 * SR]).max()}（0 なら無音のまま）")
+    print(
+        f"区間: zone {seg(*sec['zone']):.1f} / cut {seg(*sec['cut']):.1f} / noise {seg(*sec['noise']):.1f} / "
+        f"desktop〜終端 {seg(sec['desktop'][0], total):.1f} LUFS"
+    )
+    print(f"silence {sec['silence']} の最大値 {np.abs(pcm[sec['silence'][0] * SPF : sec['silence'][1] * SPF]).max()}（0 なら無音のまま）")
 
     # mp3: 48kHz・ステレオ・CBR。ffmpeg は LAME ヘッダにエンコーダ遅延を書くので、
     # ヘッダを読むデコーダ（ffmpeg / Chromium / Remotion）では頭がずれない

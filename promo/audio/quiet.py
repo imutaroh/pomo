@@ -1,12 +1,13 @@
-"""紹介動画の後半（本編 450〜1800f）の BGM と効果音を合成して out/quiet.wav に書き出す。
+"""紹介動画の後半（本編の silence の頭〜終端）の BGM と効果音を合成して out/quiet.wav に書き出す。
 
   python3 promo/audio/quiet.py
 
-- t=0 が本編 450f。長さはちょうど 1350f（= 2,160,000 サンプル、48kHz ステレオ、16bit PCM）
-- 450〜509f は完全なデジタル無音。510f の desktop から、ニ長調（リディア寄り）の静かな環境音楽
+- t=0 が本編の silence の頭（cues.json の sections から読む。79 秒版では 870f、長さ 1500f）。48kHz ステレオ、16bit PCM
+- silence の間は完全なデジタル無音。desktop の頭から、ニ長調（リディア寄り）の静かな環境音楽
 - 拍はシーンの長さから逆算する（各シーンを整数拍に割る）ので、コードはシーン境界ちょうどで変わる
 - 起伏は物語に沿わせる: desktop（静かな導入）→ presence（脈が始まる）→ follow（脈が少し動く）→
-  flowBreak（25:00 を越えて密度と明るさが一段上がり、休憩でふっと開いて脈が止まる）→ modes（軽い拍が戻る）→
+  flowBreak（25:00 を越えて密度と明るさが一段上がり、冒頭の Zone のフレーズを同じエレピで静かに引用し、
+  テストが通ると冒頭と同じ澄んだ 2 音が鳴る。休憩でふっと開いて脈が止まる）→ modes（軽い拍が戻る）→
   promises（線を引くたびに一音ずつ減る）→ words（ほぼパッドだけ）→ install（高いアルペジオで重心が上がり、
   ロゴで解決して余韻で消える）。音量の段差はパッドとベースの SECTION_LEVEL で付ける
 - 効果音のフレームは cues.json から読む。ここに数値を書かない
@@ -20,6 +21,8 @@ import numpy as np
 from scipy.io import wavfile
 
 import synth_quiet_instruments as ins
+import synth_zone_instruments as zi
+from zone import HOOK
 
 HERE = Path(__file__).resolve().parent
 CUES = json.loads((HERE / "cues.json").read_text())
@@ -28,7 +31,7 @@ SPF = CUES["samplesPerFrame"]
 assert SR == ins.SR
 
 SECTIONS = {s["id"]: (s["from"], s["to"]) for s in CUES["sections"]}
-START = SECTIONS["silence"][0]  # 本編 450f = このファイルの t=0
+START = SECTIONS["silence"][0]  # 本編の silence の頭 = このファイルの t=0
 END = CUES["duration"]
 N = (END - START) * SPF
 SEED = 71
@@ -49,15 +52,15 @@ def smp(frame: float) -> int:
 
 # ------------------------------------------------------------------ 和声と拍
 
-# 鳴らすセクションと、それを何拍に割るか（およそ 68〜72 BPM。words は語りに合わせて 60 まで緩める）
+# 鳴らすセクションと、それを何拍に割るか（およそ 60〜72 BPM。flowBreak は 65、words は語りに合わせて 60 まで緩める）
 BEATS = {
     "desktop": 6,
     "presence": 7,
     "follow": 6,
-    "flowBreak": 8,
+    "flowBreak": 12,
     "modes": 6,
     "promises": 7,
-    "words": 4,
+    "words": 5,
     "install": 5,
 }
 
@@ -93,6 +96,9 @@ SCORE = {
 }
 
 
+# 脈の 1 拍のおよその長さ（f）。約 65BPM
+PULSE_BEAT = 27.5
+
 # flowBreak の脈と、25:00 到達後の裏拍の高い音。F#m11 のパッド（F#3・A3・C#4・E4・B4）の 2 倍音・3 倍音
 # （F#4・A4・C#5・E5・B5 / C#5・E5・G#5・B5）を避け、倍音の弱い 4 倍音の高さに置いて、パッドの中でも粒が見えるようにする
 PULSE_FB = (78, 81)  # F#5・A5
@@ -100,11 +106,20 @@ PULSE_FB_REACH = 1.2  # 到達後の脈の強さ
 OFFBEAT_FB = (85, 88)  # C#6・E6
 OFFBEAT_VEL = 0.25
 SHIMMER_GAIN = 0.16
-# 25:00 到達から休憩まで保つ高いパッドの層（E5・B5・F#6）と、その大きさ。
+# 25:00 到達でそっと広がる高い和音（C#6・F#6・B6）。テストの ok（E6→A6）と同じ高さを避け、その残響で ok を埋めない
+SHIMMER_FB = (85, 90, 95)
+# 25:00 のあと、引用が弾き終わってから休憩まで保つ高いパッドの層（E5・B5・F#6）と、その大きさ。
 # F#m11 のパッドは 150〜500Hz が厚く、倍音を開いても重心はほとんど上がらないので、上に別の層を重ねて明るさを持続させる。
-# 脈（F#5・A5）と裏拍（C#6・E6）の音は避ける
+# 脈（F#5・A5）と裏拍（C#6・E6）の音は避ける。E5・B5 は引用と同じ高さなので、引用の間は立ち上げない
 FB_HIGH = [76, 83, 90]
 FB_HIGH_AMP = 0.5
+# 25:00 到達で引用する冒頭のフレーズ（zone.py の HOOK そのもの）と、その大きさ
+ZONE_HOOK = HOOK
+QUOTE_VEL = 0.45
+QUOTE_GAIN = 0.55
+OK_GLASS_GAIN = 0.08
+# 2 音目の A6 は引用の A5（2 音目）の 2 倍音の尾の上で鳴るので、1 音目より一段大きくして尾から立たせる
+OK_GLASS_TOP = 1.3
 
 
 def beat_frames(sec: str) -> list[float]:
@@ -186,6 +201,10 @@ def build():
     break_at = cue("flowBreak", "break-start")
     washi_at = cue("flowBreak", "washi-start")
     reach = cues("flowBreak", "reach")[0]
+    # 引用の間（25:00 の少し前〜最後の音の前半）は、脈・裏拍・高い層を鳴らさず引用に場所を譲る
+    zb = (cue("zone", "test-ok", 1) - cue("zone", "test-ok", 0)) / 8  # Zone の 1 拍（zone.py と同じ逆算）
+    hx, _, hd = ZONE_HOOK[-1]
+    quote_from, quote_to = reach - 3, reach + (hx + 0.5 * hd) * zb
     for i, (a, b, ch) in enumerate(segs):
         c = CHORDS[ch]
         # 次の区間が 1 秒に満たないときは、余韻で次の和音を塗りつぶさないように短く切る
@@ -220,11 +239,11 @@ def build():
         m.add("pad", ins.warm_pad(c["pad"], n, attack, rel, rng, bright=bright, amp=amp), a)
         m.add("bass", ins.sub_bass(c["bass"], n, attack, rel), a)
 
-    # 25:00 到達から 1 秒かけて高い層を足し、休憩でパッドが開く（Dopen）まで保つ。Dopen の頭で短く抜く
+    # 引用が弾き終わるところから 1 秒かけて高い層を足し、休憩でパッドが開く（Dopen）まで保つ。Dopen の頭で短く抜く
     rng4 = np.random.default_rng(SEED + 4)  # 既存の音の乱数をずらさない
     hi_rel = int(0.4 * SR)
-    hi_n = smp(break_at) - smp(reach) + hi_rel
-    m.add("pad", ins.warm_pad(FB_HIGH, hi_n, int(1.0 * SR), hi_rel, rng4, bright=0.8, amp=FB_HIGH_AMP), reach,
+    hi_n = smp(break_at) - smp(quote_to) + hi_rel
+    m.add("pad", ins.warm_pad(FB_HIGH, hi_n, int(1.0 * SR), hi_rel, rng4, bright=0.8, amp=FB_HIGH_AMP), quote_to,
           label="reach high pad")
 
     # ---- 各シーンの頭の和音と旋律（拍に乗せる）
@@ -247,11 +266,11 @@ def build():
     rng2 = np.random.default_rng(SEED + 2)
 
     # ---- 脈: 再生クリックから休憩開始まで、タイマーが数えている間だけ柔らかく刻む。
-    # 周期は click〜break-start をちょうど 16 拍に割った長さ（約 71BPM）にして、
-    # 休憩開始は「来るはずの 17 拍目」になる。脈が止まることで休憩＝解放を聞かせる
+    # 周期は click〜break-start を整数拍（1 拍 PULSE_BEAT フレーム前後）に割った長さにして、
+    # 休憩開始は「来るはずの次の拍」になる。脈が止まることで休憩＝解放を聞かせる
     rng3 = np.random.default_rng(SEED + 3)  # 展開のために足した層の乱数（既存の音の乱数をずらさない）
     p0, p1 = cue("presence", "click"), break_at
-    steps = 16
+    steps = int(round((p1 - p0) / PULSE_BEAT))
     period = (p1 - p0) / steps
     # パッドが厚い 150〜500Hz を避けて和音構成音で刻む。follow と flowBreak は 1 オクターブ上げる:
     # パッドの低い構成音の 2 倍音（Bm9 なら F#3→F#4、F#m11 なら F#3→F#4・C#4→C#5）に重なると脈が埋もれるため
@@ -277,7 +296,14 @@ def build():
             if land is not None:
                 vel *= 1.7
                 f = land
-        sig = ins.lowpass(ins.felt_piano(note, vel, rng2, dur=0.7, coherent=sec == "flowBreak"), cutoff)
+        # 引用の間も脈は止めない（絵が「止まらない」と言っている場面で、数え続ける音が消えると逆の意味になる）。
+        # ただし同じ高さだと引用の音とフラムになるので、1 オクターブ下で少し弱く鳴らす。felt_piano の呼び出しは 1 回のままなので乱数の消費は変わらない
+        in_quote = quote_from <= f <= quote_to
+        sig = ins.lowpass(
+            ins.felt_piano(note - 12 if in_quote else note, vel * (0.75 if in_quote else 1.0), rng2, dur=0.7,
+                           coherent=sec == "flowBreak"),
+            cutoff,
+        )
         m.add("piano", sig, f, label="pulse" if k == 0 else "")
         # follow から裏拍に粒を置き、少し動きを出す。25:00 到達からは裏拍に高い音も足して密度を上げる
         off = p0 + (k + 0.5) * period
@@ -288,8 +314,9 @@ def build():
                   gain=0.05)
         if off >= reach:
             hi = OFFBEAT_FB[k % 2]
-            m.add("piano", ins.lowpass(ins.felt_piano(hi, OFFBEAT_VEL, rng3, dur=0.6, coherent=True), 7000), off,
-                  label="pulse offbeat" if k % 2 == 0 else "")
+            sig = ins.lowpass(ins.felt_piano(hi, OFFBEAT_VEL, rng3, dur=0.6, coherent=True), 7000)
+            if not quote_from <= off <= quote_to:
+                m.add("piano", sig, off, label="pulse offbeat" if k % 2 == 0 else "")
 
     # ---- Presence: 再生クリック／溶けるときの小さな下降
     for f in cues("presence", "click"):
@@ -311,8 +338,20 @@ def build():
         m.add("sfx", sig, f, label="swipe whoosh", gain=0.22)
 
     # ---- FlowBreak: 25:00 到達でそっと広がる／チップ押下／休憩でパッドが開く（上）／washi へ抜ける
-    m.add("sfx", ins.shimmer([85, 88, 93], int(0.5 * SR), int(0.22 * SR), 1.1, rng), reach,
+    m.add("sfx", ins.shimmer(list(SHIMMER_FB), int(0.5 * SR), int(0.22 * SR), 1.1, rng), reach,
           label="reach 25:00 shimmer", gain=SHIMMER_GAIN)
+    # 冒頭の Zone で 25 分に断ち切られたフレーズ（F#・A・B → A・E）を、同じエレピ・同じ高さ・同じ速さで静かに引用する。
+    # 25:00 は「冒頭なら止められていたところ」。今度は最後の 2 音まで弾ききる。F#m11 の構成音だけでできている
+    rng5 = np.random.default_rng(SEED + 5)  # 既存の音の乱数をずらさない
+    for i, (x, note, d) in enumerate(ZONE_HOOK):
+        sig = ins.lowpass(zi.rhodes(note, QUOTE_VEL, (d * zb + 30) / 30, rng5), 3600)
+        m.add("piano", ins.pan(sig, 0.15), reach + x * zb, label="zone hook quote" if i == 0 else "", gain=QUOTE_GAIN)
+    # テストが通りきる（ok）: 冒頭の 2 回目の ok と同じ 2 音（E6→A6）
+    for f in cues("flowBreak", "test-ok"):
+        for i, note in enumerate((88, 93)):
+            m.add("sfx", ins.pan(zi.glass(note, 1.0, rng5), 0.2 + 0.15 * i), f + 2.5 * i,
+                  label="test ok glass" if i == 0 else "", gain=OK_GLASS_GAIN * (OK_GLASS_TOP if i else 1.0),
+                  cue_frame=f)
     for f in cues("flowBreak", "press"):
         m.add("sfx", ins.soft_click(rng, 0.9), f, label="chip press", gain=0.28)
     piano_chord(m, rng, CHORDS["Dopen"]["piano"], break_at, 0.30, label="break open", roll=0.06)

@@ -233,7 +233,7 @@ export const hoverEventsFor = (
 
 // ---------------------------------------------------------------- エディタ
 
-// タイプの進み具合。DesktopScene 0.30→0.50、Presence 0.50→0.74、Follow は手を止めて読む、FlowBreak 0.74→0.95
+// タイプの進み具合。DesktopScene 0.30→0.50、Presence 0.50→0.74、Follow は手を止めて読む、FlowBreak 0.74→0.95（テストのあと 1）
 export const TYPED_DESKTOP: [number, number] = [0.3, 0.5];
 export const TYPED_PRESENCE_END = 0.74;
 
@@ -474,6 +474,10 @@ export const WorkDesktop: React.FC<{
   typed?: number;
   /** ブラウザの状態。前面ならメニューバーもブラウザのものになる */
   browser?: BrowserState;
+  /** children に描いた別アプリのウィンドウが前面のとき、メニューバーをそのアプリのものにする */
+  frontApp?: AppMenu;
+  /** エディタの後ろに回った別アプリのウィンドウ */
+  behind?: React.ReactNode;
   children?: React.ReactNode;
 }> = ({
   statusIcon,
@@ -481,15 +485,25 @@ export const WorkDesktop: React.FC<{
   clock,
   typed,
   browser = "hidden",
+  frontApp,
+  behind,
   children,
 }) => (
   <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
     <Wallpaper />
     {browser === "back" ? <BrowserWindow /> : null}
+    {behind}
     <Editor typed={typed} />
     {browser === "front" ? <BrowserWindow /> : null}
     {children}
-    {browser !== "front" ? (
+    {frontApp ? (
+      <AppMenuBar
+        app={frontApp}
+        statusIcon={statusIcon}
+        statusTitle={statusTitle}
+        clock={clock}
+      />
+    ) : browser !== "front" ? (
       <MenuBar
         statusIcon={statusIcon}
         statusTitle={statusTitle}
@@ -507,11 +521,18 @@ export const WorkDesktop: React.FC<{
 
 // ブラウザが前面のときのメニューバー。共有の MenuBar はアプリ名とメニューが「Code」固定なので、
 // 見た目（寸法・色・ステータス項目・時計）を揃えたまま項目だけ差し替えて描く
+export type AppMenu = { name: string; items: string[] };
+const BROWSER_MENU: AppMenu = {
+  name: "ブラウザ",
+  items: ["ファイル", "編集", "表示", "履歴", "ブックマーク", "ウインドウ"],
+};
+
 const AppMenuBar: React.FC<{
+  app?: AppMenu;
   statusIcon?: StatusIcon;
   statusTitle?: string;
   clock?: string;
-}> = ({ statusIcon = "dial", statusTitle = "", clock = "" }) => {
+}> = ({ app = BROWSER_MENU, statusIcon = "dial", statusTitle = "", clock = "" }) => {
   const k = SCREEN_SCALE;
   const item = {
     fontSize: 13 * k,
@@ -536,14 +557,12 @@ const AppMenuBar: React.FC<{
         boxShadow: "0 0.5px 0 rgba(26,35,48,0.08)",
       }}
     >
-      <span style={{ ...item, fontWeight: 700 }}>ブラウザ</span>
-      {["ファイル", "編集", "表示", "履歴", "ブックマーク", "ウインドウ"].map(
-        (m) => (
-          <span key={m} style={item}>
-            {m}
-          </span>
-        ),
-      )}
+      <span style={{ ...item, fontWeight: 700 }}>{app.name}</span>
+      {app.items.map((m) => (
+        <span key={m} style={item}>
+          {m}
+        </span>
+      ))}
       <div style={{ flex: 1 }} />
       <span
         style={{

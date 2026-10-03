@@ -6,7 +6,7 @@ import { clamp, color, ease, font } from "../theme";
 // f84 以降は全要素が止まり（65f ≈ 2.2 秒）、最終フレームがサムネになる
 
 // 本物のインストーラ（#73）の呼び出し。コピペされる前提なので一字一句変えない
-const COMMAND = "curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash";
+const COMMAND = "curl -fsSL https://quiet.imutaro.com/install.sh | bash";
 
 const LOGO_IN = 12;
 const TERM_IN = 22;

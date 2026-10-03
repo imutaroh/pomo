@@ -1,6 +1,6 @@
 # Quiet 紹介動画（Remotion）
 
-60秒・1920×1080・30fps の横動画。コードだけで作っている（生成 AI 素材・画面収録なし）。
+79秒・1920×1080・30fps の横動画。コードだけで作っている（生成 AI 素材・画面収録なし）。
 
 ```sh
 cd promo
@@ -15,25 +15,29 @@ npm run render         # 書き出し → out/quiet-promo.mp4（映像を書き�
 
 | 秒 | シーン | ファイル |
 |---|---|---|
-| 0–3 | 黒地のターミナル → 「時間です。」 | `src/scenes/Boot.tsx` |
-| 3–15 | ストリーク・点数・ランキングなど「評価と監視」の通知バナーが積み上がり、一枚ずつ消える | `src/scenes/Noise.tsx` |
-| 15–17 | 白。無音 | `src/scenes/Silence.tsx` |
-| 17–22 | 作業中の Mac の右上にパネル | `src/scenes/DesktopScene.tsx` |
-| 22–28 | 作業中は溶け込み、ホバーで戻る（存在感の3段階） | `src/scenes/Presence.tsx` |
-| 28–33 | 別アプリを前に出しても、Space・フルスクリーンを移っても居続ける | `src/scenes/Follow.tsx` |
-| 33–40 | 25分を越えて続ける → 休憩チップ → 全画面休憩 | `src/scenes/FlowBreak.tsx` |
-| 40–45 | 4つのモード | `src/scenes/Modes.tsx` |
-| 45–51 | 「ないもの」に線を引いて消す・会議中は割り込まない | `src/scenes/Promises.tsx` |
-| 51–55 | 結びの二行 | `src/scenes/Words.tsx` |
-| 55–60 | アイコン＋Quiet＋curl の一行 | `src/scenes/Install.tsx` |
+| 0–15 | 夜の作業。テストが通っていき「いま、いいところ」。隅の汎用ポモドーロが減っていく | `src/scenes/Zone.tsx`（描画は `ZoneScreen.tsx`） |
+| 15–19 | 00:00 →「時間です。」で断ち切られる →「いま、いいところだったのに。」 | `src/scenes/Cut.tsx` |
+| 19–29 | ストリーク・点数・ランキングなど「記録」の通知バナーが積み上がり、一枚ずつ消える | `src/scenes/Noise.tsx` |
+| 29–31 | 白。無音 | `src/scenes/Silence.tsx` |
+| 31–36 | 作業中の Mac の右上にパネル | `src/scenes/DesktopScene.tsx` |
+| 36–42 | 作業中は溶け込み、ホバーで戻る（存在感の3段階） | `src/scenes/Presence.tsx` |
+| 42–47 | 別アプリを前に出しても、Space・フルスクリーンを移っても居続ける | `src/scenes/Follow.tsx` |
+| 47–58 | 25:00 を越えても止めない →「区切りは、止めたところ。」→ 休憩チップ → 全画面休憩 | `src/scenes/FlowBreak.tsx` |
+| 58–63 | 既定はフロー。ほかのモードは選べる | `src/scenes/Modes.tsx` |
+| 63–69 | 「ないもの」に線を引いて消す →「今回の時間だけ。」 | `src/scenes/Promises.tsx` |
+| 69–74 | 結びの二行（アプリの PhilosophyPage の結び） | `src/scenes/Words.tsx` |
+| 74–79 | アイコン＋Quiet＋curl の一行 | `src/scenes/Install.tsx` |
+
+伝えたい価値は 2 つ。①いいところで止められない（25 分で外から断ち切らない）、②記録に追われない（ストリーク・履歴を持たない）。
 
 共通部品は `src/components/`（`Panel` / `Desktop` / `Caption` / `Terminal` / `icons`）。
 画面に映る UI・文言・数字はアプリ（`Sources/Pomo/`）と LP（`docs/index.html`）から取っている。
 色とフォントはアプリ（`Sources/Pomo/DesignTokens.swift`）と LP のトークンを `src/theme.ts` に写している。
+フォントは `public/fonts/` に同梱した TTF（SIL OFL 1.1）を読む（Google Fonts から読むと並列の書き出しで取得が詰まるため）。
 
 ## 公開前の確認
 
-最後に映る `curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash` はインストーラ（#73）で本番に出ている。
+最後に映る `curl -fsSL https://quiet.imutaro.com/install.sh | bash` はインストーラ（#73）を quiet.imutaro.com で配っている（旧 imutaroh.github.io/pomo/install.sh も同じ中身）。
 **実機の Mac で、この一行から実際にインストールして起動できることを確かめてから動画を公開する。**
 また、1 行で入るのは最新リリースのアプリなので、Quiet 名義のリリースが出るまでは Pomo 名義のアプリが入る。
 
@@ -47,6 +51,6 @@ npm run audio   # cues.json から前半（noise.py）・後半（quiet.py）を
 ```
 
 シーンのタイミングを変えたら `npm run cues && npm run audio` で音を作り直す（音は cues.json の数値で置いているので、絵に追従する）。
-前半は 15 秒で断ち切り、15〜17 秒は完全な無音、後半は 17 秒から。全体は -14 LUFS・True Peak -1.5 dBTP。
+Zone は乗ってくるローファイ、Cut で断ち切り、Noise は 29 秒で消え、29〜31 秒は完全な無音、後半は 31 秒から。全体は -14 LUFS・True Peak -1.5 dBTP。
 
 書き出しで `<Audio>` を載せると 1 フレームごとに長い待ちが入るため、音は Studio のプレビューでだけ鳴らし、`npm run render` が書き出した映像に ffmpeg で重ねている。

@@ -1,10 +1,11 @@
-"""紹介動画の前半（Boot 0〜89f ＋ Noise 90〜449f）の音を合成して out/noise.wav に書き出す。
+"""紹介動画の Noise（積み上がる記録の通知。cues.json の sections の noise）の音を合成して out/noise.wav に書き出す。
 
   python3 promo/audio/noise.py
 
 - 音源・サンプルは一切使わず、synth_noise_dsp.py の数式だけで作る
 - タイミングはすべて cues.json から読む（絵の定数をここに写さない）
-- 48kHz・ステレオ・長さちょうど Noise の終端まで。正規化はせず、固定のゲインで鳴らす
+- 48kHz・ステレオ・長さちょうど Noise の長さ（t=0 が Noise の頭）。正規化はせず、固定のゲインで鳴らす
+- 冒頭の Zone と Cut は zone.py が受け持つ
 """
 
 from __future__ import annotations
@@ -27,7 +28,6 @@ from synth_noise_dsp import (
     glitch_chop,
     hat,
     hp,
-    key_click,
     kick,
     load_cues,
     lp,
@@ -61,106 +61,16 @@ def one(cues: list[dict], typ: str) -> int:
 def main() -> None:
     data = load_cues()
     sec = {s["id"]: s for s in data["sections"]}
-    end_frame = sec["noise"]["to"]  # 450（含まない）
-    # 同じ type は後半のシーンにも出るので、担当範囲（Boot と Noise）のキューだけを見る
-    cues = [c for c in data["cues"] if c["scene"] in ("boot", "noise")]
-    N = f2s(end_frame)
+    # このファイルの t=0 は Noise の頭。キューのフレームも Noise の頭からの相対に直して使う
+    base, end_frame = sec["noise"]["from"], sec["noise"]["to"]
+    # 同じ type は他のシーンにも出るので、Noise のキューだけを見る
+    cues = [dict(c, frame=c["frame"] - base) for c in data["cues"] if c["scene"] == "noise"]
+    N = f2s(end_frame - base)
     rng = np.random.default_rng(SEED)
 
     dry = Bus(N)  # 素の音
     pre_send = Bus(N)  # 積み上げ停止で断ち切る残響の送り
     post_send = Bus(N)  # 停止後（残響だけを残す側）の送り
-
-    # ============================================================ Boot
-    keys = cue_frames(cues, "key")
-    seen: Counter[int] = Counter()
-    for f in keys:
-        # 同じフレームに 2 打鍵あるときは 0.4f ずらして重ねない
-        off = int(seen[f] * 0.4 * SPF)
-        seen[f] += 1
-        s = key_click(rng)
-        dry.add(f2s(f) + off, s, pan=rng.uniform(-0.25, 0.25), gain=0.42 * rng.uniform(0.75, 1.15))
-
-    enter = one(cues, "key-enter")
-    dry.add(f2s(enter), key_click(rng, heavy=True), pan=0.05, gain=0.6)
-    pre_send.add(f2s(enter), key_click(rng, heavy=True), gain=0.12)
-
-    # [OK] の行が出る: 小さな上昇のブリップ
-    f = one(cues, "text-in")
-    n = int(SR * 0.05)
-    blip = np.sin(phase_of(np.linspace(1100, 1650, n))) * exp_decay(n, 0.015) * ramp_in(n, 1) * ramp_out(n, 5)
-    dry.add(f2s(f), blip, gain=0.07)
-
-    # 25:00 が出る: 低い当たり
-    hit = one(cues, "hit")
-    dry.add(f2s(hit), kick(120, 48, 0.5, 0.14, drive=2.0), gain=0.55)
-    dry.add(f2s(hit), noise_burst(rng, 0.12, 0.02, 200, 5000), gain=0.12)
-
-    # 秒針: 25:00 の静止中はゆっくり、溶ける区間（Easing.in(cubic)）では経過秒数の 60 分割点ごとに刻む
-    # → 間隔が 3f から数 ms まで縮み、最後はブザーのように上ずって 00:00 で止まる
-    melt0 = one(cues, "melt-start")
-    melt1 = one(cues, "melt-end")
-    tick_times = [float(hit), hit + (melt0 - hit) / 2]
-    K = 60
-    for k in range(0, K):
-        tick_times.append(melt0 + (melt1 - melt0) * (k / K) ** (1 / 3))
-    tick_times.append(float(melt1))
-    tick_times.sort()
-    for i, tf in enumerate(tick_times):
-        gap = (tick_times[i + 1] - tf) / 30 if i + 1 < len(tick_times) else 0.05
-        gap = max(0.003, min(0.12, gap))
-        prog = i / len(tick_times)
-        dry.add(f2s(tf), tick(rng, gap * 0.95), pan=(-0.3 if i % 2 else 0.3) * (1 - prog), gain=0.14 + 0.12 * prog)
-
-    # 溶ける間の下支え: のこぎり波の束が上ずりながら開く。00:00 で断ち切る
-    s0, s1 = f2s(melt0), f2s(melt1 + 1)
-    n = s1 - s0
-    u = np.linspace(0, 1, n)
-    melt = np.zeros(n)
-    for det in (-0.6, 0.0, 0.7):
-        fr = 55 * 2 ** (u**2.2 * 2.2 + det / 12)
-        melt += saw(phase_of(fr) + rng.uniform(0, 6.28), harmonics=30)
-    melt = svf(melt * (u**1.6), 400 + 3500 * u**2) * ramp_in(n, 30) * ramp_out(n, 3)
-    dry.add(s0, np.vstack([melt, np.roll(melt, 37)]), gain=0.16)
-
-    # 白フラッシュ（00:00 の直後）: 破裂と沈む低音
-    flash = one(cues, "flash")
-    dry.add(f2s(flash), noise_burst(rng, 0.25, 0.04, 80, 7000), gain=0.5)
-    dry.add(f2s(flash), kick(160, 38, 0.7, 0.22, drive=2.5), gain=0.7)
-    pre_send.add(f2s(flash), noise_burst(rng, 0.25, 0.05, 200, 6000), gain=0.25)
-
-    # アラーム「時間です。」: 2 音を交互に鳴らすデジタルなアラーム（帯域制限した矩形波＋8kHz 以上を削る）
-    alarm = one(cues, "alarm")
-    settle = one(cues, "glitch-settle")
-    up = one(cues, "glitch-up")
-    peak = one(cues, "glitch-peak")
-    a0, a1 = f2s(alarm), f2s(peak + 1)
-    n = a1 - a0
-    t = t_axis(n)
-    step = 2 * SPF  # 2f ごとに音を替える（ピ・ポ・ピ・ポ）
-    which = (np.arange(n) // step) % 2
-    fr = np.where(which == 0, 1046.5, 784.0)
-    gate = ((np.arange(n) % step) < int(step * 0.8)).astype(float)
-    gate = lp(gate, 300, order=2)  # ゲートの角を丸めてクリックを消す
-    tone = soft_square(phase_of(fr), harmonics=4) * gate
-    tone = lp(tone, 6500, order=6)
-    # グリッチの強さ（絵の glitch 値 110→30→30→160 を 0〜1 に）
-    gs = np.interp(t * 30 + alarm, [alarm, settle, up, peak, peak + 1], [0.85, 0.3, 0.3, 1.0, 1.0])
-    tone = glitch_chop(tone, gs, rng, block=320)
-    # 広がりはサンプル単位のずらし（Haas）では作らない。0.5ms ずらすと 1kHz に打ち消しの谷ができ、
-    # モノラル再生で「ピ」が消える。ピとポを左右に振り分けて交互に聞かせる
-    hi_mask = lp((which == 0).astype(float), 400, order=2)
-    dry.add(a0, tone * hi_mask, pan=-0.3, gain=0.2)
-    dry.add(a0, tone * (1 - hi_mask), pan=0.3, gain=0.2)
-    # 割れの下で鳴る低いうなり（赤地の圧）
-    rumble = lp(np.tanh(3 * saw(phase_of(np.full(n, 46.0)), 12)), 600) * ramp_in(n, 10) * ramp_out(n, 4)
-    dry.add(a0, rumble * gs, gain=0.18)
-
-    # 89f の大きな裂け: ノイズの破裂を Noise の頭（90f）へなだれ込ませる
-    s = noise_burst(rng, 0.35, 0.05, 60, 7500)
-    s = glitch_chop(s, np.full(s.shape[-1], 0.9), rng, block=240)
-    dry.add(f2s(peak), np.vstack([s, np.roll(s, 90)]), gain=0.55)
-    dry.add(f2s(peak), kick(200, 40, 0.5, 0.12, drive=3), gain=0.5)
 
     # ============================================================ Noise: 積み上げ
     pops = cue_frames(cues, "popup")

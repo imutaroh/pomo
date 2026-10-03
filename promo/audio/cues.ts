@@ -12,9 +12,10 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { Easing, interpolate, random } from "remotion";
+import { Easing, interpolate } from "remotion";
 import { GO_CODE } from "../src/components/Desktop";
-import { BREAK_CHIP, CURSOR_EDITOR, hoverEventsFor, panelPoint, PLAY_BUTTON } from "../src/scenes/DesktopShared";
+import { BREAK_CHIP, CURSOR_EDITOR, hoverEventsFor, panelPoint, PLAY_BUTTON, TYPED_PRESENCE_END } from "../src/scenes/DesktopShared";
+import { A_KEYS, B_KEYS, M_KEYS, PUSH_FROM, RUN1, RUN2, RUN_OK, timerRemaining, URGENT_FROM, ZONE_LENGTH } from "../src/scenes/ZoneScreen";
 import { DURATION, FPS, SCENE_DEFS, SceneId, sceneFrom, sceneLength } from "../src/timeline";
 
 const PROMO = process.cwd();
@@ -104,44 +105,73 @@ const fadeInCues = (scene: SceneId) => {
   add(scene, n, "fade-in-end", `${scene} のフェードが明ける`, ref);
 };
 
-// ================================================================= Boot（0–90）
+// ================================================================= Zone（0–450）
 {
-  const F = "scenes/Boot.tsx";
-  const COMMAND = str(F, "COMMAND");
-  const ENTER = num(F, "ENTER");
-  const COUNT_FROM = num(F, "COUNT_FROM");
-  const COUNT_MELT = num(F, "COUNT_MELT");
-  const ALARM = num(F, "ALARM");
-  const keyStart = grab(F, /^\s*let t = (\d+);/, "KEY_AT の打ち始め").nums[0];
-  const keyRef = grab(F, /^const KEY_AT/, "KEY_AT").ref;
-  // シーンと同じ式（空白の前で一拍ためる）
-  let t = keyStart;
-  for (let i = 0; i < COMMAND.v.length; i++) {
-    const at = Math.round(t);
-    const ch = COMMAND.v[i];
-    add("boot", at, "key", `打鍵 ${i + 1}/${COMMAND.v.length}「${ch === " " ? "␣" : ch}」`, keyRef);
-    t += ch === " " ? 2 + random(`gap${i}`) * 1.5 : 0.7 + random(`key${i}`) * 0.7;
+  const F = "scenes/ZoneScreen.tsx";
+  const Z = "scenes/Zone.tsx";
+  const zoneRef = (name: string) => grab(F, new RegExp(`^export const ${name}\\b`), name).ref;
+  if (ZONE_LENGTH !== sceneLength("zone")) throw new Error(`ZONE_LENGTH ${ZONE_LENGTH} と timeline の zone ${sceneLength("zone")} が違う`);
+  // 打鍵: ZoneScreen が export している時刻列そのもの（区間 A・B・M）。描画は keys[n] <= frame で字が出るので、
+  // 音は ceil したフレームに置く。Zone の外（00:00 以降）にこぼれる M の打鍵は捨てる
+  const keySpans: [string, number[], string][] = [
+    ["A", A_KEYS, "17 行目（Content-Type）"],
+    ["B", B_KEYS, "handleReset"],
+    ["M", M_KEYS, "main"],
+  ];
+  for (const [name, keys, what] of keySpans) {
+    const ref = zoneRef(`${name}_KEYS`);
+    keys.forEach((t, i) => {
+      const f = Math.ceil(t);
+      if (f >= ZONE_LENGTH) return;
+      add("zone", f, "key", `打鍵 ${name} ${i + 1}/${keys.length}（${what}）`, ref);
+    });
   }
-  add("boot", ENTER.v, "key-enter", "Enter（キャレットが消える）", ENTER.ref);
-  add("boot", ENTER.v + 2, "text-in", "「[OK] session started -- do not disturb: OFF」が出る", grab(F, /frame >= ENTER \+ (\d+)/, "ENTER + 2").ref);
-  add("boot", COUNT_FROM.v, "hit", "25:00 が大きく出る（3f で 1.15→1 に縮む）", COUNT_FROM.ref);
-  add("boot", COUNT_MELT.v, "melt-start", "25:00 が溶け始める（Easing.in(cubic) で加速、色収差とぼけが開く）", COUNT_MELT.ref);
-  // remaining が 0 になる = ALARM - 1。途中の分の位も控えておく（加速の手応え）
-  const remaining = (f: number) =>
-    interpolate(f, [COUNT_MELT.v, ALARM.v - 1], [25 * 60, 0], { ...clamp, easing: Easing.in(Easing.cubic) });
-  const half = firstFrame(COUNT_MELT.v, ALARM.v, (f) => remaining(f) <= 25 * 30);
-  add("boot", half, "melt-mid", `残りが半分（12:30）を割る。ここから一気に落ちる（残り ${Math.floor(remaining(half))} 秒）`, COUNT_MELT.ref);
-  add("boot", ALARM.v - 1, "melt-end", "00:00 に着く（溶けきり・色収差最大）", ALARM.ref);
-  add("boot", ALARM.v, "flash", "白フラッシュ（2f）。アラームの瞬間", grab(F, /const flash = frame >= ALARM && frame < ALARM \+ (\d+)/, "flash").ref);
-  add("boot", ALARM.v + 2, "alarm", "赤地に「時間です。」がグリッチで割れて出る（1.22→1 のパンチ、グリッチ強度 110）", grab(F, /const glitch = alarm/, "glitch").ref);
-  const g = grab(F, /interpolate\(frame, \[ALARM \+ 2, ALARM \+ (\d+), (\d+), (\d+)\], \[(\d+), (\d+), (\d+), (\d+)\]/, "glitch");
-  const [settle, upFrom, upTo] = g.nums;
-  add("boot", ALARM.v + settle, "glitch-settle", `グリッチが ${g.nums[4]} まで落ち着く（帯のずれは残る）`, g.ref);
-  add("boot", upFrom, "glitch-up", `グリッチが ${g.nums[5]}→${g.nums[6]} に急に強まる（Noise へのカット直前）`, g.ref);
-  add("boot", upTo, "glitch-peak", "グリッチ最大。Boot の最終フレーム", g.ref);
+  // ↑ で go test を呼び戻して Enter。RUN_OK 後に ok が出る
+  for (const [name, at] of [["RUN1", RUN1], ["RUN2", RUN2]] as [string, number][]) {
+    add("zone", at, "key-enter", `ターミナルで ↑Enter（go test ./... を走らせる）`, zoneRef(name));
+    add("zone", at + RUN_OK, "test-ok", `「ok  session」が緑に光る（テストが通る）`, zoneRef("RUN_OK"));
+  }
+  const COPY_FROM = num(Z, "COPY_FROM");
+  const COPY_TO = num(Z, "COPY_TO");
+  add("zone", COPY_FROM.v, "caption-in", "コピー「いま、いいところ。」が浮かび始める（15f）", COPY_FROM.ref);
+  add("zone", COPY_TO.v, "caption-out-end", "コピー「いま、いいところ。」が消えきる", COPY_TO.ref);
+  // 汎用ポモドーロの残り秒が変わるフレーム（00:15 → 00:01）。00:00 は Cut の頭
+  const remRef = zoneRef("timerRemaining");
+  for (let f = 1; f < ZONE_LENGTH; f++) {
+    if (timerRemaining(f) !== timerRemaining(f - 1)) {
+      add("zone", f, "timer-sec", `汎用ポモドーロが 00:${String(timerRemaining(f)).padStart(2, "0")} になる${f >= URGENT_FROM ? "（赤く脈打つ）" : ""}`, remRef);
+    }
+  }
+  add("zone", URGENT_FROM, "urgent", "残り 5 秒。タイマーが赤くなり、秒ごとに脈打ち始める", zoneRef("URGENT_FROM"));
+  add("zone", PUSH_FROM, "camera-start", "タイマーへ寄り始める（打ち続けたまま）", zoneRef("PUSH_FROM"));
+  add("zone", ZONE_LENGTH - 1, "scene-end", "Zone の最終フレーム（00:01、打鍵は止まっていない）", zoneRef("ZONE_LENGTH"));
 }
 
-// ================================================================= Noise（90–450）
+// ================================================================= Cut（450–570）
+{
+  const F = "scenes/Cut.tsx";
+  const ZERO_TO = num(F, "ZERO_TO");
+  const ALARM = grab(F, /^const ALARM = ZERO_TO \+ (\d+);/, "ALARM");
+  const alarmAt = ZERO_TO.v + ALARM.nums[0];
+  const ALARM_OUT = num(F, "ALARM_OUT");
+  const COPY_FROM = num(F, "COPY_FROM");
+  const COPY = str(F, "COPY");
+  add("cut", 0, "zero", "00:00。タイマーが赤く染まり画面が揺れる（ここで音楽を断ち切る）", grab("timeline.ts", /id: "cut"/, "SCENE_DEFS cut").ref);
+  add("cut", ZERO_TO.v, "flash", `白フラッシュ（${alarmAt - ZERO_TO.v}f）`, ZERO_TO.ref);
+  add("cut", alarmAt, "alarm", "赤地に「時間です。」がグリッチで割れて出る（1.22→1 のパンチ、グリッチ 110）", ALARM.ref);
+  const g = grab(F, /\[ALARM, ALARM \+ (\d+), ALARM \+ (\d+), ALARM_OUT - (\d+), ALARM_OUT\], \[(\d+), (\d+), (\d+), (\d+), (\d+)\]/, "glitch");
+  const [s1, s2, up] = g.nums;
+  add("cut", alarmAt + s1, "glitch-settle", `グリッチが ${g.nums[4]} まで落ちる`, g.ref);
+  add("cut", alarmAt + s2, "glitch-calm", `グリッチが ${g.nums[5]} で静まる（読める）`, g.ref);
+  add("cut", ALARM_OUT.v - up, "glitch-up", `暗転の直前にグリッチが ${g.nums[7]} へ割れる`, g.ref);
+  add("cut", ALARM_OUT.v, "blackout", "暗転（赤が消えて暗い地だけ）", ALARM_OUT.ref);
+  const ci = grab(F, /interpolate\(frame, \[COPY_FROM, COPY_FROM \+ (\d+)\]/, "copy in");
+  add("cut", COPY_FROM.v, "caption-in", `明朝「${COPY.v}」が浮かび始める`, COPY_FROM.ref);
+  add("cut", COPY_FROM.v + ci.nums[0], "caption-full", "明朝のコピーが出きる（Noise へカットまで静止）", ci.ref);
+  add("cut", sceneLength("cut") - 1, "scene-end", "Cut の最終フレーム", grab("timeline.ts", /id: "noise"/, "SCENE_DEFS noise").ref);
+}
+
+// ================================================================= Noise（570–870）
 {
   const F = "scenes/Noise.tsx";
   fadeInCues("noise");
@@ -225,10 +255,10 @@ const fadeInCues = (scene: SceneId) => {
   add("noise", sceneLength("noise") - 1, "scene-end", "Noise の最終フレーム（washi 一色の静止）。騒がしい側の絵はここまで、次のフレームから Silence", grab("timeline.ts", /id: "silence"/, "SCENE_DEFS silence").ref);
 }
 
-// ================================================================= Silence（450–510）
+// ================================================================= Silence（870–930）
 add("silence", 0, "silence-start", "白・無音の 2 秒の始まり（Noise から絵は変わらない washi 一色）", grab("scenes/Silence.tsx", /export const Silence/, "Silence").ref);
 
-// ================================================================= Desktop（510–660）
+// ================================================================= Desktop（930–1080）
 // エディタのタイプ（GO_CODE の文字数 × typed の割合）。増える区間を「打鍵の帯」として出す
 const CODE_CHARS = GO_CODE.reduce((n, line) => n + line.reduce((m, [t]) => m + t.length, 0) + 1, 0);
 // 字が増えない間が TYPING_GAP フレーム以下なら同じ帯とみなす（等速の早回しは 1 字/数 f で途切れ途切れになるため）
@@ -266,7 +296,7 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   captionCues("desktop", "作業画面を、一切邪魔しない。", CAPTION);
 }
 
-// ================================================================= Presence（660–840）
+// ================================================================= Presence（1080–1260）
 {
   const F = "scenes/Presence.tsx";
   fadeInCues("presence");
@@ -322,7 +352,7 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   captionCues("presence", "うるさくない。でも、忘れさせない。", pair(F, "CAPTION"));
 }
 
-// ================================================================= Follow（840–990）
+// ================================================================= Follow（1260–1410）
 {
   const F = "scenes/Follow.tsx";
   fadeInCues("follow");
@@ -368,7 +398,7 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   captionCues("follow", "画面を切り替えても、ちゃんとそこにいる。", pair(F, "CAPTION"));
 }
 
-// ================================================================= FlowBreak（990–1200）
+// ================================================================= FlowBreak（1410–1740）
 {
   const F = "scenes/FlowBreak.tsx";
   fadeInCues("flowBreak");
@@ -378,41 +408,70 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   const OVERLAY_FADE = num(F, "OVERLAY_FADE");
   const WASHI_OUT = pair(F, "WASHI_OUT");
   const CAM_PUSH = pair(F, "CAM_PUSH");
+  const TERM_IN = pair(F, "TERM_IN");
+  const TERM_BACK = num(F, "TERM_BACK");
+  const TEST_CMD = str(F, "TEST_CMD");
+  const TEST_TYPE_FROM = num(F, "TEST_TYPE_FROM");
   const HOVER_SPOT = panelPoint(176, 126);
   grab(F, /const HOVER_SPOT = panelPoint\(176, 126\)/, "HOVER_SPOT");
   const pathRef = grab(F, /^const CURSOR_PATH/, "CURSOR_PATH").ref;
+  // シーンと同じ通過点。先頭 4 つのフレームはソースの行と突き合わせる
+  const P = [184, 204, 212, 224];
+  for (const f of P) grab(F, new RegExp(`^\\s*\\[${f}, `), `CURSOR_PATH ${f}`);
   const path: [number, number, number][] = [
-    [8, CURSOR_EDITOR.x, CURSOR_EDITOR.y],
-    [32, HOVER_SPOT.x, HOVER_SPOT.y],
-    [90, HOVER_SPOT.x, HOVER_SPOT.y],
-    [102, BREAK_CHIP.x, BREAK_CHIP.y],
+    [P[0], CURSOR_EDITOR.x, CURSOR_EDITOR.y],
+    [P[1], HOVER_SPOT.x, HOVER_SPOT.y],
+    [P[2], HOVER_SPOT.x, HOVER_SPOT.y],
+    [P[3], BREAK_CHIP.x, BREAK_CHIP.y],
     [BREAK_START.v + 6, BREAK_CHIP.x, BREAK_CHIP.y],
     [BREAK_START.v + 46, BREAK_CHIP.x - 150, BREAK_CHIP.y + 160],
   ];
-  for (const f of [8, 32, 90, 102]) grab(F, new RegExp(`^\\s*\\[${f}, `), `CURSOR_PATH ${f}`);
   const HOVER_IN = hoverEventsFor(path)[0][0];
   const FADE = num("scenes/DesktopShared.tsx", "FADE");
-  const po = grab(F, /const pointerOpacity = interpolate\(frame, \[(\d+), (\d+)\]/, "pointerOpacity");
-  const tp = grab(F, /const typed = interpolate\(frame, \[(\d+), (\d+)\], \[TYPED_PRESENCE_END, ([\d.]+)\]/, "typed");
-  typingSpans("flowBreak", (f) => interpolate(f, [tp.nums[0], tp.nums[1]], [0.74, tp.nums[2]], clamp), sceneLength("flowBreak") - 1, tp.ref);
-  add("flowBreak", CAM_PUSH.v[0], "camera-start", "溶けたまま数えるパネルへ大きく寄り始める（2 倍）", CAM_PUSH.ref);
-  add("flowBreak", po.nums[0], "cursor-in", "ポインタが現れてパネルへ向かう", po.ref);
+  const tp = grab(F, /const typed = interpolate\(frame, \[0, (\d+), TERM_BACK, TERM_BACK \+ (\d+)\], \[TYPED_PRESENCE_END, ([\d.]+), ([\d.]+), (\d+)\]/, "typed");
+  const [t1, tEnd, v1, v2, v3] = tp.nums;
+  typingSpans(
+    "flowBreak",
+    (f) => interpolate(f, [0, t1, TERM_BACK.v, TERM_BACK.v + tEnd], [TYPED_PRESENCE_END, v1, v2, v3], clamp),
+    sceneLength("flowBreak") - 1,
+    tp.ref,
+  );
+  add("flowBreak", CAM_PUSH.v[0], "camera-start", "テストとパネルが収まる構図へ寄り始める", CAM_PUSH.ref);
+  add("flowBreak", TERM_IN.v[0], "terminal-in", "ターミナルが前に出始める", TERM_IN.ref);
+  // go test -v を 1 フレーム 1 字で打つ（frame - TEST_TYPE_FROM の floor 字）
+  for (let c = 1; c <= TEST_CMD.v.length; c++) {
+    const ch = TEST_CMD.v[c - 1];
+    add("flowBreak", TEST_TYPE_FROM.v + c, "key", `go test の打鍵 ${c}/${TEST_CMD.v.length}「${ch === " " ? "␣" : ch}」`, TEST_TYPE_FROM.ref);
+  }
+  // テストの出力行（RUN / PASS / ok）
+  const ls = linesOf(F);
+  const start = ls.findIndex((l) => l.startsWith("const TEST_LINES"));
+  for (let i = start + 1; i < ls.length && !ls[i].startsWith("];"); i++) {
+    const m = ls[i].match(/\{ at: (SATURATE \+ )?(\d+), text: "([^"]*)"(, pass: true)? \}/);
+    if (!m) continue;
+    const at = (m[1] ? SATURATE.v : 0) + Number(m[2]);
+    const text = m[3].replace(/\\t/g, " ");
+    const type = text.startsWith("ok") ? "test-ok" : m[4] ? "test-pass" : "test-run";
+    add("flowBreak", at, type, `ターミナルに「${text}」が出る`, `src/${F}:${i + 1} TEST_LINES`);
+  }
+  add("flowBreak", SATURATE.v, "reach", "25:00 に到達。進捗バーが満ちて薄まる（止まらない。冒頭なら止められていたところ）", SATURATE.ref);
+  captionCues("flowBreak", "25分で、切らない。", pair(F, "CAPTION_SATURATE"));
+  add("flowBreak", TERM_BACK.v, "terminal-back", "エディタへ戻って続きを書く（ターミナルは後ろへ）", TERM_BACK.ref);
+  captionCues("flowBreak", "区切りは、止めたところ。", pair(F, "CAPTION_STOP"));
+  const po = grab(F, /const pointerOpacity = interpolate\(frame, \[CURSOR_PATH\[0\]\[0\] - (\d+), CURSOR_PATH\[0\]\[0\] \+ (\d+)\]/, "pointerOpacity");
+  add("flowBreak", P[0] - po.nums[0], "cursor-in", "手を止めてマウスへ。ポインタが現れてパネルへ向かう", po.ref);
   add("flowBreak", HOVER_IN, "hover-in", `手を乗せる → 30%→100%（${FADE.v}f）`, grab(F, /^const HOVER_IN = /, "HOVER_IN").ref);
-  add("flowBreak", path[1][0], "cursor-arrive", "ポインタがパネル右の余白で止まる", pathRef);
-  add("flowBreak", CAM_PUSH.v[1], "camera-end", "寄りきる（CAM_CLOSE）", CAM_PUSH.ref);
-  add("flowBreak", SATURATE.v, "reach", "25:00 に到達。進捗バーが満ちて薄まる（止まらない）", SATURATE.ref);
-  captionCues("flowBreak", "25分で、切らない。", { v: [SATURATE.v, PRESS.v], ref: grab(F, /^const CAPTION_SATURATE/, "CAPTION_SATURATE").ref });
-  add("flowBreak", path[2][0], "cursor-move", "ポインタが休憩チップへ動き出す", pathRef);
+  add("flowBreak", P[1], "cursor-arrive", "ポインタがパネル右の余白で止まる", pathRef);
+  add("flowBreak", P[2], "cursor-move", "ポインタが休憩チップへ動き出す", pathRef);
+  add("flowBreak", P[3], "reach", "52:10 に到達し、ポインタが休憩チップに着く", grab(F, /\[224, WORKED_FINAL\]/, "WORKED_KEYS 52:10").ref);
   const camPull = grab(F, /const CAM_PULL: \[number, number\] = \[PRESS - (\d+), BREAK_START \+ (\d+)\]/, "CAM_PULL");
   add("flowBreak", PRESS.v - camPull.nums[0], "camera-start", "押す少し前からカメラが全景へ引き始める", camPull.ref);
-  add("flowBreak", path[3][0], "reach", "52:10 に到達し、ポインタが休憩チップ「休憩 +10:26」に着く", grab(F, /\[102, WORKED_FINAL\]/, "WORKED_KEYS 52:10").ref);
   const ch = grab(F, /const chipHover = interpolate\(frame, \[PRESS - (\d+), PRESS - (\d+)\]/, "chipHover");
   add("flowBreak", PRESS.v - ch.nums[0], "chip-hover", "チップの塗りが 22%→40% に濃くなる（ホバー）", ch.ref);
-  add("flowBreak", PRESS.v, "press", "チップを押し込む（mouse down。チップ自体は縮まない）", PRESS.ref);
-  add("flowBreak", BREAK_START.v, "break-start", "離した瞬間に作業終了 → 休憩開始。全画面の休憩（ひと休み 10:26）が現れ始める。パネルとメニューバーがカップの休憩表示に", BREAK_START.ref);
-  add("flowBreak", BREAK_START.v + OVERLAY_FADE.v, "overlay-full", "休憩画面が濃くなりきる（0.6 秒）。中央の光が 4 秒周期で呼吸を始めている", OVERLAY_FADE.ref);
-  add("flowBreak", BREAK_START.v + camPull.nums[1], "camera-end", "カメラが等倍の全景に引ききる（休憩画面が画面全体に広がる）", camPull.ref);
-  // 休憩の残りは 1 秒ごとに減る（切り上げ表示）。押した直後 10:26 → 30f ごとに 10:25…
+  add("flowBreak", PRESS.v, "press", "チップを押し込む（mouse down）", PRESS.ref);
+  add("flowBreak", BREAK_START.v, "break-start", "離した瞬間に作業終了 → 休憩開始。全画面の休憩が現れ始める", BREAK_START.ref);
+  add("flowBreak", BREAK_START.v + OVERLAY_FADE.v, "overlay-full", "休憩画面が濃くなりきる（0.6 秒）", OVERLAY_FADE.ref);
+  add("flowBreak", BREAK_START.v + camPull.nums[1], "camera-end", "カメラが等倍の全景に引ききる", camPull.ref);
   const capR = pair(F, "CAPTION_REWARD");
   captionCues("flowBreak", "休憩は、義務ではなく報酬。", capR);
   for (let s = 1; BREAK_START.v + s * FPS < WASHI_OUT.v[0]; s++) {
@@ -422,19 +481,29 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   add("flowBreak", WASHI_OUT.v[1], "washi-end", "washi 一色（ここから Modes のフェードの下に隠れる）", WASHI_OUT.ref);
 }
 
-// ================================================================= Modes（1200–1350）
+// ================================================================= Modes（1740–1890）
 {
   const F = "scenes/Modes.tsx";
   fadeInCues("modes");
-  const head = grab(F, /const headIn = interpolate\(frame, \[(\d+), (\d+)\]/, "headIn");
-  add("modes", head.nums[0], "heading-in", "見出し「4つのモード。」が浮かび始める", head.ref);
-  add("modes", head.nums[1], "heading-full", "見出しが出きる", head.ref);
-  const ENTER = num(F, "ENTER");
-  const STAGGER = num(F, "STAGGER");
+  const HEAD_IN = num(F, "HEAD_IN");
+  const MAIN_IN = num(F, "MAIN_IN");
+  const SUB_LABEL_IN = num(F, "SUB_LABEL_IN");
+  const SUB_IN = num(F, "SUB_IN");
+  const SUB_STAGGER = num(F, "SUB_STAGGER");
   const RISE = num(F, "RISE");
-  ["フロー", "ポモドーロ", "タイマー", "時計"].forEach((name, i) => {
-    add("modes", ENTER.v + i * STAGGER.v, "card-in", `${i + 1} 枚目のパネル「${name}」が下から出始める`, STAGGER.ref);
-    add("modes", ENTER.v + i * STAGGER.v + RISE.v, "card-settle", `「${name}」が着地`, RISE.ref);
+  add("modes", HEAD_IN.v, "heading-in", "見出し「区切りは、自分で決める。」が浮かび始める", HEAD_IN.ref);
+  add("modes", HEAD_IN.v + RISE.v, "heading-full", "見出しが出きる", RISE.ref);
+  // パネル 4 枚: 主役のフロー（既定）と、脇の 3 つ（SUBS の順）
+  const subs = linesOf(F)
+    .map((l) => l.match(/^\s*name: "([^"]+)",/)?.[1])
+    .filter((x): x is string => Boolean(x));
+  if (subs.length !== 3) throw new Error(`Modes の SUBS が読めない: ${subs}`);
+  add("modes", MAIN_IN.v, "card-in", "1 枚目のパネル「フロー（既定）」が大きく出始める", MAIN_IN.ref);
+  add("modes", MAIN_IN.v + RISE.v, "card-settle", "「フロー」が着地", RISE.ref);
+  add("modes", SUB_LABEL_IN.v, "label-in", "「区切りたい日は、ほかも選べる。」が出始める", SUB_LABEL_IN.ref);
+  subs.forEach((name, i) => {
+    add("modes", SUB_IN.v + i * SUB_STAGGER.v, "card-in", `${i + 2} 枚目のパネル「${name}」が右から出始める`, SUB_STAGGER.ref);
+    add("modes", SUB_IN.v + i * SUB_STAGGER.v + RISE.v, "card-settle", `「${name}」が着地`, RISE.ref);
   });
   const secRef = grab(F, /const sec = Math\.floor\(frame \/ FPS\)/, "sec").ref;
   for (let f = FPS; f < sceneLength("modes"); f += FPS) {
@@ -442,7 +511,7 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   }
 }
 
-// ================================================================= Promises（1350–1530）
+// ================================================================= Promises（1890–2070）
 {
   const F = "scenes/Promises.tsx";
   fadeInCues("promises");
@@ -475,11 +544,11 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
     add("promises", v + VANISH_LEN.v, "word-gone", `「${w}」が消えきる`, VANISH_LEN.ref);
   });
   const ni = grab(F, /interpolate\(frame, \[NOTE_AT, NOTE_AT \+ (\d+)\]/, "noteIn");
-  add("promises", NOTE_AT.v, "note-in", "最後の一文「通話・会議中は、休憩画面で割り込まない。」が浮かび始める", NOTE_AT.ref);
-  add("promises", NOTE_AT.v + ni.nums[0], "note-full", "最後の一文が出きって静止", ni.ref);
+  add("promises", NOTE_AT.v, "note-in", "「今回の時間だけ。」が浮かび始める（SUB_AT で「記録を持たないから、送るものもない。」が続く）", NOTE_AT.ref);
+  add("promises", NOTE_AT.v + ni.nums[0], "note-full", "「今回の時間だけ。」が出きる", ni.ref);
 }
 
-// ================================================================= Words（1530–1650）
+// ================================================================= Words（2070–2220）
 {
   const F = "scenes/Words.tsx";
   fadeInCues("words");
@@ -487,7 +556,7 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   const LINE2 = num(F, "LINE2");
   const op = grab(F, /opacity: interpolate\(frame, \[from, from \+ (\d+)\]/, "Line opacity");
   const tint = grab(F, /const tint = interpolate\(frame, \[LINE2 \+ (\d+), LINE2 \+ (\d+)\]/, "tint");
-  add("words", LINE1.v, "line-in", "1 行目「集中を止めるものを、ひとつずつ消していきました。」が浮かび始める", LINE1.ref);
+  add("words", LINE1.v, "line-in", "1 行目「集中を止めるものを、ひとつずつ外していきました。」が浮かび始める", LINE1.ref);
   add("words", LINE1.v + op.nums[0], "line-full", "1 行目が出きる", op.ref);
   add("words", LINE2.v, "line-in", "2 行目「最後に残った静けさが、この道具の名前です。」が浮かび始める", LINE2.ref);
   add("words", LINE2.v + op.nums[0], "line-full", "2 行目が出きる", op.ref);
@@ -495,7 +564,7 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   add("words", LINE2.v + tint.nums[1], "tint-end", "「静けさ」が染まりきる。ここから静止", tint.ref);
 }
 
-// ================================================================= Install（1650–1800）
+// ================================================================= Install（2220–2370）
 {
   const F = "scenes/Install.tsx";
   fadeInCues("install");

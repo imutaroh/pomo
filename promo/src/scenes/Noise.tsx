@@ -2,8 +2,8 @@ import { Trail } from "@remotion/motion-blur";
 import { AbsoluteFill, Easing, interpolate, random, useCurrentFrame } from "remotion";
 import { clamp, color, font } from "../theme";
 
-// 3–15秒: 集中を邪魔する「ノイズ」が拍ごとに積み上がり、
-// 「集中にとって、ぜんぶノイズだった。」で止まって、一枚ずつ静かに消えていく
+// 19–29秒: Cut（25分で断ち切られる）に続く二つ目のノイズ＝積み上がる記録。評価の通知が拍ごとに積み上がり、
+// 「25分で鳴るタイマーも、積み上がっていく記録も、ノイズだった。」で止まって、一枚ずつ静かに消えていく
 // 案 A「通知バナーの洪水」: 原色のブルータリズムをやめ、macOS ダークモードの通知バナーの質感で描く。
 // 色はアプリアイコンの小さな四角にだけ（彩度を落として）。うるささは量・積み上がり・揺れで出す
 
@@ -32,7 +32,7 @@ const bannerBg = (i: number, n: number) => {
 const TEXT_PRIMARY = "#F2F2F7";
 const TEXT_SECONDARY = "rgba(235,235,245,0.6)";
 
-// ノイズとして描くのは「評価と監視」だけ。タイマーや通知そのものは Quiet も持つので出さない
+// ノイズとして描くのは「記録と評価」だけ。25分で鳴るタイマーは直前の Cut で描いたので、ここでは出さない
 // 最初の5枚（READ 枚）は大きな文字で読ませる。以降は背景と割り切り、同じ言葉の反復で画面を埋める
 const READ = 5;
 const READ_POS: [number, number][] = [
@@ -70,7 +70,7 @@ const APPEAR: number[] = (() => {
   const out: number[] = [];
   let t = 0;
   let gap = 20;
-  while (t < 236) {
+  while (t < 168) {
     out.push(Math.round(t));
     t += gap;
     gap = Math.max(3, gap * 0.86);
@@ -78,15 +78,17 @@ const APPEAR: number[] = (() => {
   return out;
 })();
 
-const FREEZE = 240; // ここで積み上げが止まる
-const CAPTION = 246; // コピーが割り込む
+// 密集は 170f 前後で足りるので早めに止め、コピーを読む時間に回す
+const FREEZE = 172; // ここで積み上げが止まる
+const CAPTION = 176; // コピーが割り込む（184 で拭き込み完了）
 // 消える後半は音が引いていくように、間隔を広げてゆっくり
-const ERASE_START = 270;
-const ERASE_END = 306;
-const ERASE_FADE = 12;
+const ERASE_START = 214;
+const ERASE_END = 246;
+const ERASE_FADE = 10;
 // 白は中央から光が広がるように満ちる（全面を色補間すると途中で濁った灰色を通るため）
-const TO_WHITE: [number, number] = [298, 334];
-const CAPTION_OUT: [number, number] = [320, 340]; // 345 以降は washi 一色で止める
+const TO_WHITE: [number, number] = [242, 272];
+// 2 行のコピーを 184–278 の 94f 読ませる。290 以降（最後の 10f）は washi 一色で止める（後ろの Silence の白 60f が間になる）
+const CAPTION_OUT: [number, number] = [278, 290];
 
 const ENTER_FRAMES = 5;
 
@@ -271,7 +273,8 @@ const Wallpaper: React.FC<{ frame: number }> = ({ frame }) => {
   );
 };
 
-const COPY = "集中にとって、ぜんぶノイズだった。";
+// LP 159 の言葉。Cut の「25分で断ち切られる」とこの場の記録を一文で束ねる
+const COPY = "25分で鳴るタイマーも、\n積み上がっていく記録も、ノイズだった。";
 
 // コピーの黒帯。割り込む瞬間だけ色収差と横ずれで割れて、すぐに静止する
 const CaptionBar: React.FC<{ frame: number }> = ({ frame }) => {
@@ -292,8 +295,10 @@ const CaptionBar: React.FC<{ frame: number }> = ({ frame }) => {
           color: color.washi,
           fontFamily: font.mincho,
           fontWeight: 700,
-          fontSize: 88,
-          padding: "40px 80px",
+          fontSize: 76,
+          lineHeight: 1.45,
+          whiteSpace: "pre",
+          padding: "40px 72px",
           letterSpacing: "0.04em",
           translate: `${dx}px 0px`,
           clipPath: `inset(0 ${wipe}% 0 ${erase}%)`,
@@ -328,7 +333,7 @@ export const Noise: React.FC = () => {
   const light = interpolate(frame, TO_WHITE, [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   const bandOpacity =
     interpolate(frame, [0, FREEZE], [0.12, 0.3], clamp) * interpolate(frame, [FREEZE, ERASE_START], [1, 0.5], clamp) *
-    interpolate(frame, [ERASE_START, ERASE_START + 30], [1, 0], clamp);
+    interpolate(frame, [ERASE_START, ERASE_START + 24], [1, 0], clamp);
   const hudOpacity = interpolate(frame, [ERASE_START - 10, ERASE_START + 10], [1, 0], clamp);
   // 通知が増えるほどスコアが下がる（ノイズ側の嘘の数字。Quiet は点数を持たない）
   const score = Math.max(0, 62 - (shown - 1) * 2);

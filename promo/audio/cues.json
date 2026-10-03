@@ -1,2967 +1,5121 @@
 {
   "fps": 30,
-  "duration": 1800,
+  "duration": 2370,
   "sampleRate": 48000,
   "samplesPerFrame": 1600,
   "conventions": "frame は本編（QuietPromo）の絶対フレーム。サンプル位置 = frame × 1600。sections の to は含まない（次の from）。フェードで入るシーンは from から transition の長さだけ前のシーンと重なる。cues は frame 昇順、同フレームは出来事の順。source は生成時に正規表現で見つけた行。",
   "sections": [
     {
-      "id": "boot",
+      "id": "zone",
       "from": 0,
-      "to": 90
-    },
-    {
-      "id": "noise",
-      "from": 90,
       "to": 450
     },
     {
-      "id": "silence",
+      "id": "cut",
       "from": 450,
-      "to": 510
+      "to": 570
+    },
+    {
+      "id": "noise",
+      "from": 570,
+      "to": 870
+    },
+    {
+      "id": "silence",
+      "from": 870,
+      "to": 930
     },
     {
       "id": "desktop",
-      "from": 510,
-      "to": 660
+      "from": 930,
+      "to": 1080
     },
     {
       "id": "presence",
-      "from": 660,
-      "to": 840
+      "from": 1080,
+      "to": 1260
     },
     {
       "id": "follow",
-      "from": 840,
-      "to": 990
+      "from": 1260,
+      "to": 1410
     },
     {
       "id": "flowBreak",
-      "from": 990,
-      "to": 1200
+      "from": 1410,
+      "to": 1740
     },
     {
       "id": "modes",
-      "from": 1200,
-      "to": 1350
+      "from": 1740,
+      "to": 1890
     },
     {
       "id": "promises",
-      "from": 1350,
-      "to": 1530
+      "from": 1890,
+      "to": 2070
     },
     {
       "id": "words",
-      "from": 1530,
-      "to": 1650
+      "from": 2070,
+      "to": 2220
     },
     {
       "id": "install",
-      "from": 1650,
-      "to": 1800
+      "from": 2220,
+      "to": 2370
     }
   ],
   "cues": [
     {
-      "frame": 4,
-      "type": "key",
-      "scene": "boot",
-      "note": "打鍵 1/26「>」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
-    },
-    {
-      "frame": 5,
-      "type": "key",
-      "scene": "boot",
-      "note": "打鍵 2/26「␣」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
-    },
-    {
-      "frame": 7,
-      "type": "key",
-      "scene": "boot",
-      "note": "打鍵 3/26「f」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
-    },
-    {
       "frame": 8,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 4/26「o」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
-    },
-    {
-      "frame": 9,
-      "type": "key",
-      "scene": "boot",
-      "note": "打鍵 5/26「c」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 1/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 10,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 6/26「u」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
-    },
-    {
-      "frame": 10,
-      "type": "key",
-      "scene": "boot",
-      "note": "打鍵 7/26「s」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 2/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 12,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 8/26「.」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 3/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 13,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 9/26「s」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
-    },
-    {
-      "frame": 14,
-      "type": "key",
-      "scene": "boot",
-      "note": "打鍵 10/26「t」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 4/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 15,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 11/26「a」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 5/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 16,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 12/26「r」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 6/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 17,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 13/26「t」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 7/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 18,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 14/26「␣」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 8/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 19,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 9/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 21,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 15/26「-」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 10/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 22,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 11/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 23,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 16/26「-」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
-    },
-    {
-      "frame": 23,
-      "type": "key",
-      "scene": "boot",
-      "note": "打鍵 17/26「s」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 12/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 25,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 18/26「t」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
-    },
-    {
-      "frame": 26,
-      "type": "key",
-      "scene": "boot",
-      "note": "打鍵 19/26「r」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 13/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 27,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 20/26「i」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 14/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 28,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 21/26「c」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 15/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 29,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 22/26「t」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 16/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 30,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 23/26「␣」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 17/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 30,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:14 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 31,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 18/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 32,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 24/26「2」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 19/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 33,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 25/26「5」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 20/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 34,
       "type": "key",
-      "scene": "boot",
-      "note": "打鍵 26/26「m」",
-      "source": "src/scenes/Boot.tsx:15 KEY_AT"
+      "scene": "zone",
+      "note": "打鍵 A 21/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
-      "frame": 44,
-      "type": "key-enter",
-      "scene": "boot",
-      "note": "Enter（キャレットが消える）",
-      "source": "src/scenes/Boot.tsx:9 ENTER"
+      "frame": 35,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 22/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 36,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 23/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 38,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 24/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 39,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 25/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 41,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 26/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 42,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 27/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 43,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 28/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 45,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 29/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 46,
-      "type": "text-in",
-      "scene": "boot",
-      "note": "「[OK] session started -- do not disturb: OFF」が出る",
-      "source": "src/scenes/Boot.tsx:104 ENTER + 2"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 30/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 47,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 31/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 48,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 32/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 49,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 33/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 50,
-      "type": "hit",
-      "scene": "boot",
-      "note": "25:00 が大きく出る（3f で 1.15→1 に縮む）",
-      "source": "src/scenes/Boot.tsx:10 COUNT_FROM"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 34/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 51,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 35/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 52,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 36/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 54,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 37/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 55,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 38/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 55,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 39/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 56,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 40/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 58,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 41/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 59,
-      "type": "melt-start",
-      "scene": "boot",
-      "note": "25:00 が溶け始める（Easing.in(cubic) で加速、色収差とぼけが開く）",
-      "source": "src/scenes/Boot.tsx:11 COUNT_MELT"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 42/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
-      "frame": 69,
-      "type": "melt-mid",
-      "scene": "boot",
-      "note": "残りが半分（12:30）を割る。ここから一気に落ちる（残り 631 秒）",
-      "source": "src/scenes/Boot.tsx:11 COUNT_MELT"
+      "frame": 60,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 43/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
-      "frame": 71,
-      "type": "melt-end",
-      "scene": "boot",
-      "note": "00:00 に着く（溶けきり・色収差最大）",
-      "source": "src/scenes/Boot.tsx:12 ALARM"
+      "frame": 60,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:13 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
     },
     {
-      "frame": 72,
-      "type": "flash",
-      "scene": "boot",
-      "note": "白フラッシュ（2f）。アラームの瞬間",
-      "source": "src/scenes/Boot.tsx:72 flash"
+      "frame": 61,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 44/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 62,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 45/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 63,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 46/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 64,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 47/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 65,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 48/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 66,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 49/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
+    },
+    {
+      "frame": 67,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 A 50/50（17 行目（Content-Type））",
+      "source": "src/scenes/ZoneScreen.tsx:75 A_KEYS"
     },
     {
       "frame": 74,
-      "type": "alarm",
-      "scene": "boot",
-      "note": "赤地に「時間です。」がグリッチで割れて出る（1.22→1 のパンチ、グリッチ強度 110）",
-      "source": "src/scenes/Boot.tsx:73 glitch"
-    },
-    {
-      "frame": 80,
-      "type": "glitch-settle",
-      "scene": "boot",
-      "note": "グリッチが 30 まで落ち着く（帯のずれは残る）",
-      "source": "src/scenes/Boot.tsx:73 glitch"
-    },
-    {
-      "frame": 88,
-      "type": "glitch-up",
-      "scene": "boot",
-      "note": "グリッチが 30→160 に急に強まる（Noise へのカット直前）",
-      "source": "src/scenes/Boot.tsx:73 glitch"
-    },
-    {
-      "frame": 89,
-      "type": "glitch-peak",
-      "scene": "boot",
-      "note": "グリッチ最大。Boot の最終フレーム",
-      "source": "src/scenes/Boot.tsx:73 glitch"
+      "type": "key-enter",
+      "scene": "zone",
+      "note": "ターミナルで ↑Enter（go test ./... を走らせる）",
+      "source": "src/scenes/ZoneScreen.tsx:129 RUN1"
     },
     {
       "frame": 90,
-      "type": "cut",
-      "scene": "noise",
-      "note": "noise へハードカット",
-      "source": "src/timeline.ts:36 SCENE_DEFS noise"
+      "type": "test-ok",
+      "scene": "zone",
+      "note": "「ok  session」が緑に光る（テストが通る）",
+      "source": "src/scenes/ZoneScreen.tsx:131 RUN_OK"
     },
     {
       "frame": 90,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 1/51 が飛び込む: Streak「🔥 12日連続！ 今日も途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×01・読ませる大きさ）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:12 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
     },
     {
-      "frame": 110,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 2/51 が飛び込む: Focus Score「集中スコア 62 / 100 平均を下回っています」（5f で着地、カメラが拍で揺れる・HUD ×02・読ませる大きさ）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "frame": 120,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 1/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 120,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:11 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 122,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 2/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 123,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 3/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 124,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 4/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 125,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 5/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 126,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 6/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 127,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 3/51 が飛び込む: Insight「昨日より 18分 少ないです」（5f で着地、カメラが拍で揺れる・HUD ×03・読ませる大きさ）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 7/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 128,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 8/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 129,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 9/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 130,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 10/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 130,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 11/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 131,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 12/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 132,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 13/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 132,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 14/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 133,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 15/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 134,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 16/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 135,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 17/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 136,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 18/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 137,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 19/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 138,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 20/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 139,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 21/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 140,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 22/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 140,
+      "type": "caption-in",
+      "scene": "zone",
+      "note": "コピー「いま、いいところ。」が浮かび始める（15f）",
+      "source": "src/scenes/Zone.tsx:10 COPY_FROM"
+    },
+    {
+      "frame": 141,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 23/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 142,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 4/51 が飛び込む: 今週の集中時間（棒グラフ）（5f で着地、カメラが拍で揺れる・HUD ×04・読ませる大きさ）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 24/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 143,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 25/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 144,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 26/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 145,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 27/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 146,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 28/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 147,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 29/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 147,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 30/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 148,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 31/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 149,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 32/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 150,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 33/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 150,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:10 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 151,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 34/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 152,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 35/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 153,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 36/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 153,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 37/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 154,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 38/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 155,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 5/51 が飛び込む: Goal「目標まで あと47分 達成率 61%」（5f で着地、カメラが拍で揺れる・HUD ×05・読ませる大きさ）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 39/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 156,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 40/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 157,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 41/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 158,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 42/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 159,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 43/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 160,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 44/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 160,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 45/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 161,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 46/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 162,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 47/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 162,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 48/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 163,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 49/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 163,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 50/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 164,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 51/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 165,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 52/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 165,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 53/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 166,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 6/51 が飛び込む: Ranking「ランキング 4,812位 先週より ↓312」（5f で着地、カメラが拍で揺れる・HUD ×06）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 54/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 166,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 55/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 167,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 56/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 168,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 57/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 169,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 58/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 170,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 59/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 170,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 60/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 171,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 61/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 171,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 62/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 172,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 63/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 173,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 64/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 174,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 65/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 174,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 66/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 175,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 7/51 が飛び込む: Badge「🏅 バッジまで あと3日」（5f で着地、カメラが拍で揺れる・HUD ×07）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 67/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 176,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 68/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 177,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 69/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 177,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 70/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 178,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 71/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 179,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 72/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 179,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 73/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 180,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 74/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 180,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:09 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 181,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 75/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 181,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 76/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 182,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 77/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 183,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 8/51 が飛び込む: Sync「記録を同期しています… 37%」（5f で着地、カメラが拍で揺れる・HUD ×08）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 78/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 183,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 79/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 184,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 80/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 185,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 81/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 185,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 82/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 186,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 83/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 187,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 84/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 187,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 85/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 188,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 86/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 189,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 87/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 190,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 9/51 が飛び込む: Weekly Report「今週のレポートが 届きました」（5f で着地、カメラが拍で揺れる・HUD ×09）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 88/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 190,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 89/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 191,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 90/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 192,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 91/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 192,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 92/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 193,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 93/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 194,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 94/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 194,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 95/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 195,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 96/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 196,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 10/51 が飛び込む: Streak「ストリークが 途切れそうです！」（5f で着地、カメラが拍で揺れる・HUD ×10）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 97/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 196,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 98/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 197,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 99/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 198,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 100/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 198,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 101/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 198,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 102/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 199,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 103/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 199,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 104/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 200,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 105/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 201,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 11/51 が飛び込む: Goal「⚠ 今日の目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×11）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 106/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 201,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 107/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 201,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 108/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 202,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 109/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 202,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 110/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 203,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 111/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 204,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 112/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 204,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 113/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 205,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 114/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 205,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 115/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 205,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 116/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 206,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 12/51 が飛び込む: History「集中の記録 1,284件」（5f で着地、カメラが拍で揺れる・HUD ×12）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 117/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 207,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 118/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 207,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 119/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 208,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 120/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 209,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 13/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×13）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 121/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 209,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 122/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 210,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 123/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 210,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 124/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 210,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:08 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 211,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 125/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 211,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 126/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 212,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 127/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 212,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 128/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 213,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 14/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×14）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 129/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 213,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 130/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 214,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 131/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 214,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 132/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 215,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 133/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 215,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 134/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 216,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 15/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×15）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 135/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 216,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 136/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 217,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 137/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 217,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 138/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 218,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 139/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 218,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 140/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 219,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 16/51 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×16）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 141/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 219,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 142/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 220,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 143/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 220,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 144/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 221,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 145/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 221,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 146/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 222,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 17/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×17）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 147/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 222,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 148/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 223,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 149/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 223,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 150/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 223,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 151/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 224,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 152/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
+    },
+    {
+      "frame": 224,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 153/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
       "frame": 225,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 18/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×18）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 154/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
-      "frame": 228,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 19/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×19）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "frame": 225,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 B 155/155（handleReset）",
+      "source": "src/scenes/ZoneScreen.tsx:93 B_KEYS"
     },
     {
-      "frame": 231,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 20/51 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×20）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "frame": 232,
+      "type": "caption-out-end",
+      "scene": "zone",
+      "note": "コピー「いま、いいところ。」が消えきる",
+      "source": "src/scenes/Zone.tsx:11 COPY_TO"
     },
     {
-      "frame": 234,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 21/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×21）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
-    },
-    {
-      "frame": 237,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 22/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×22）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "frame": 236,
+      "type": "key-enter",
+      "scene": "zone",
+      "note": "ターミナルで ↑Enter（go test ./... を走らせる）",
+      "source": "src/scenes/ZoneScreen.tsx:130 RUN2"
     },
     {
       "frame": 240,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 23/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×23）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
-    },
-    {
-      "frame": 243,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 24/51 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×24）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
-    },
-    {
-      "frame": 246,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 25/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×25）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
-    },
-    {
-      "frame": 249,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 26/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×26）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:07 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
     },
     {
       "frame": 252,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 27/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×27）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "test-ok",
+      "scene": "zone",
+      "note": "「ok  session」が緑に光る（テストが通る）",
+      "source": "src/scenes/ZoneScreen.tsx:131 RUN_OK"
     },
     {
-      "frame": 255,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 28/51 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×28）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
-    },
-    {
-      "frame": 258,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 29/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×29）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
-    },
-    {
-      "frame": 261,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 30/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×30）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
-    },
-    {
-      "frame": 264,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 31/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×31）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
-    },
-    {
-      "frame": 267,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 32/51 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×32）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "frame": 268,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 1/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 270,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 33/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×33）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 2/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 270,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:06 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 271,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 3/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 273,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 34/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×34）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 4/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 275,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 5/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 276,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 35/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×35）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 6/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 278,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 7/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 279,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 36/51 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×36）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 8/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 280,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 9/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 282,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 37/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×37）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 10/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 283,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 11/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 284,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 12/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 285,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 38/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×38）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 13/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
-      "frame": 288,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 39/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×39）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "frame": 287,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 14/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 289,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 15/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 290,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 16/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 291,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 40/51 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×40）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 17/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 292,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 18/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 294,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 41/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×41）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 19/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 295,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 20/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 296,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 21/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 297,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 42/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×42）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 22/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 298,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 23/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 300,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 43/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×43）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 24/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 300,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:05 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 300,
+      "type": "urgent",
+      "scene": "zone",
+      "note": "残り 5 秒。タイマーが赤くなり、秒ごとに脈打ち始める",
+      "source": "src/scenes/ZoneScreen.tsx:412 URGENT_FROM"
+    },
+    {
+      "frame": 302,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 25/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 303,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 44/51 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×44）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 26/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 305,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 27/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 306,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 45/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×45）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 28/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 307,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 29/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 308,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 30/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 309,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 46/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×46）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 31/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 311,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 32/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 312,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 47/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×47）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 33/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
-      "frame": 315,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 48/51 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×48）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "frame": 313,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 34/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
-      "frame": 318,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 49/51 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×49）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "frame": 314,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 35/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 316,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 36/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 317,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 37/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 319,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 38/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 320,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 39/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 321,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 50/51 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×50）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 40/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 322,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 41/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 324,
-      "type": "popup",
-      "scene": "noise",
-      "note": "通知 51/51 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×51）",
-      "source": "src/scenes/Noise.tsx:69 APPEAR"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 42/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 325,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 43/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 326,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 44/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 328,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 45/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 328,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 46/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 329,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 47/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 330,
-      "type": "freeze",
-      "scene": "noise",
-      "note": "積み上げが止まる。白の一閃（1f だけ washi 35%）、揺れも止まる",
-      "source": "src/scenes/Noise.tsx:81 FREEZE"
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:04 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
     },
     {
-      "frame": 336,
-      "type": "caption-bar-in",
-      "scene": "noise",
-      "note": "黒帯のコピー「集中にとって、ぜんぶノイズだった。」が割り込む（8f で横に開く、9f の色収差と横ずれ、赤い縁）",
-      "source": "src/scenes/Noise.tsx:82 CAPTION"
+      "frame": 331,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 48/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 333,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 49/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 334,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 50/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 335,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 51/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 337,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 52/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 338,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 53/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 340,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 54/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 341,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 55/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 343,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 56/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 344,
-      "type": "caption-bar-full",
-      "scene": "noise",
-      "note": "黒帯が開ききって静止",
-      "source": "src/scenes/Noise.tsx:280 CaptionBar wipe"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 57/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 346,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 58/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 347,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 59/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 348,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 60/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 349,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 61/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 350,
-      "type": "hud-out-start",
-      "scene": "noise",
-      "note": "上の HUD（INTERRUPTIONS・REC・SCORE）が消え始める",
-      "source": "src/scenes/Noise.tsx:332 hudOpacity"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 62/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 351,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 63/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 352,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 64/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 354,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 65/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 354,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 66/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 355,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 67/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 356,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 68/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 357,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 69/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 359,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 70/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 359,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 71/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 360,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:03 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
     },
     {
       "frame": 361,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "1 番目に消える通知（51 枚目）が沈みながらぼけ始める（eraseAt=270.00）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 361,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "2 番目に消える通知（50 枚目）が沈みながらぼけ始める（eraseAt=270.01）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 361,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "3 番目に消える通知（49 枚目）が沈みながらぼけ始める（eraseAt=270.06）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 361,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "4 番目に消える通知（48 枚目）が沈みながらぼけ始める（eraseAt=270.13）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 361,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "5 番目に消える通知（47 枚目）が沈みながらぼけ始める（eraseAt=270.23）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 361,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "6 番目に消える通知（46 枚目）が沈みながらぼけ始める（eraseAt=270.36）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 361,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "7 番目に消える通知（45 枚目）が沈みながらぼけ始める（eraseAt=270.52）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 361,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "8 番目に消える通知（44 枚目）が沈みながらぼけ始める（eraseAt=270.71）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 361,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "9 番目に消える通知（43 枚目）が沈みながらぼけ始める（eraseAt=270.92）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 72/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 362,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "10 番目に消える通知（42 枚目）が沈みながらぼけ始める（eraseAt=271.17）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 362,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "11 番目に消える通知（41 枚目）が沈みながらぼけ始める（eraseAt=271.44）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 362,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "12 番目に消える通知（40 枚目）が沈みながらぼけ始める（eraseAt=271.74）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 363,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "13 番目に消える通知（39 枚目）が沈みながらぼけ始める（eraseAt=272.07）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 363,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "14 番目に消える通知（38 枚目）が沈みながらぼけ始める（eraseAt=272.43）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 363,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "15 番目に消える通知（37 枚目）が沈みながらぼけ始める（eraseAt=272.82）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 73/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 364,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "16 番目に消える通知（36 枚目）が沈みながらぼけ始める（eraseAt=273.24）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 364,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "17 番目に消える通知（35 枚目）が沈みながらぼけ始める（eraseAt=273.69）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 74/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 365,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "18 番目に消える通知（34 枚目）が沈みながらぼけ始める（eraseAt=274.16）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 365,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "19 番目に消える通知（33 枚目）が沈みながらぼけ始める（eraseAt=274.67）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 75/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 366,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "20 番目に消える通知（32 枚目）が沈みながらぼけ始める（eraseAt=275.20）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 366,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "21 番目に消える通知（31 枚目）が沈みながらぼけ始める（eraseAt=275.76）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 367,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "22 番目に消える通知（30 枚目）が沈みながらぼけ始める（eraseAt=276.35）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 367,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "23 番目に消える通知（29 枚目）が沈みながらぼけ始める（eraseAt=276.97）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 76/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 368,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "24 番目に消える通知（28 枚目）が沈みながらぼけ始める（eraseAt=277.62）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 77/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 369,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "25 番目に消える通知（27 枚目）が沈みながらぼけ始める（eraseAt=278.29）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 78/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
-      "frame": 370,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "26 番目に消える通知（26 枚目）が沈みながらぼけ始める（eraseAt=279.00）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 370,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "27 番目に消える通知（25 枚目）が沈みながらぼけ始める（eraseAt=279.73）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "frame": 369,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 79/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 371,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "28 番目に消える通知（24 枚目）が沈みながらぼけ始める（eraseAt=280.50）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 80/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 372,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "51 枚目の通知が消えきる（1/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 372,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "29 番目に消える通知（23 枚目）が沈みながらぼけ始める（eraseAt=281.29）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 81/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 373,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "50 枚目の通知が消えきる（2/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 373,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "49 枚目の通知が消えきる（3/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 373,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "48 枚目の通知が消えきる（4/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 373,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "47 枚目の通知が消えきる（5/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 373,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "46 枚目の通知が消えきる（6/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 373,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "45 枚目の通知が消えきる（7/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 373,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "44 枚目の通知が消えきる（8/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 373,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "43 枚目の通知が消えきる（9/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 373,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "30 番目に消える通知（22 枚目）が沈みながらぼけ始める（eraseAt=282.11）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 373,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "31 番目に消える通知（21 枚目）が沈みながらぼけ始める（eraseAt=282.96）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 374,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "42 枚目の通知が消えきる（10/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 374,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "41 枚目の通知が消えきる（11/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 374,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "40 枚目の通知が消えきる（12/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 374,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "32 番目に消える通知（20 枚目）が沈みながらぼけ始める（eraseAt=283.84）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 82/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 375,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "39 枚目の通知が消えきる（13/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 375,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "38 枚目の通知が消えきる（14/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 375,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "37 枚目の通知が消えきる（15/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 375,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "33 番目に消える通知（19 枚目）が沈みながらぼけ始める（eraseAt=284.75）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 83/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 376,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "36 枚目の通知が消えきる（16/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 376,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "35 枚目の通知が消えきる（17/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 376,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "34 番目に消える通知（18 枚目）が沈みながらぼけ始める（eraseAt=285.68）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 84/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 377,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "34 枚目の通知が消えきる（18/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 377,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "33 枚目の通知が消えきる（19/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 377,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "35 番目に消える通知（17 枚目）が沈みながらぼけ始める（eraseAt=286.65）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 85/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 378,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "32 枚目の通知が消えきる（20/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 378,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "31 枚目の通知が消えきる（21/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 378,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "36 番目に消える通知（16 枚目）が沈みながらぼけ始める（eraseAt=287.64）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 86/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 379,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "30 枚目の通知が消えきる（22/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 379,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "29 枚目の通知が消えきる（23/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 379,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "37 番目に消える通知（15 枚目）が沈みながらぼけ始める（eraseAt=288.66）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 87/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 380,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "28 枚目の通知が消えきる（24/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 380,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "38 番目に消える通知（14 枚目）が沈みながらぼけ始める（eraseAt=289.71）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 88/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 381,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "27 枚目の通知が消えきる（25/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 381,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "26 枚目の通知が消えきる（26/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 381,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "39 番目に消える通知（13 枚目）が沈みながらぼけ始める（eraseAt=290.79）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 89/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 382,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "25 枚目の通知が消えきる（27/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 382,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "40 番目に消える通知（12 枚目）が沈みながらぼけ始める（eraseAt=291.90）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 90/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 383,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "24 枚目の通知が消えきる（28/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 91/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 384,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "23 枚目の通知が消えきる（29/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 384,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "41 番目に消える通知（11 枚目）が沈みながらぼけ始める（eraseAt=293.04）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 92/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 385,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "22 枚目の通知が消えきる（30/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 385,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "21 枚目の通知が消えきる（31/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 385,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "42 番目に消える通知（10 枚目）が沈みながらぼけ始める（eraseAt=294.21）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 386,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "20 枚目の通知が消えきる（32/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 386,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "43 番目に消える通知（9 枚目）が沈みながらぼけ始める（eraseAt=295.40）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 93/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 387,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "19 枚目の通知が消えきる（33/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 387,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "44 番目に消える通知（8 枚目）が沈みながらぼけ始める（eraseAt=296.63）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 94/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 388,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "18 枚目の通知が消えきる（34/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 388,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "45 番目に消える通知（7 枚目）が沈みながらぼけ始める（eraseAt=297.88）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
-    },
-    {
-      "frame": 389,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "17 枚目の通知が消えきる（35/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 389,
-      "type": "white-start",
-      "scene": "noise",
-      "note": "中央から washi の円が広がり始める（Easing.inOut(cubic)。最初の数フレームは半径数 px で見えない）",
-      "source": "src/scenes/Noise.tsx:88 TO_WHITE"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 95/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 390,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "16 枚目の通知が消えきる（36/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 96/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 390,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "46 番目に消える通知（6 枚目）が沈みながらぼけ始める（eraseAt=299.16）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:02 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
     },
     {
       "frame": 391,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "15 枚目の通知が消えきる（37/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 391,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "47 番目に消える通知（5 枚目）が沈みながらぼけ始める（eraseAt=300.47）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 97/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 392,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "14 枚目の通知が消えきる（38/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 392,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "48 番目に消える通知（4 枚目）が沈みながらぼけ始める（eraseAt=301.81）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 98/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 393,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "13 枚目の通知が消えきる（39/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 394,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "12 枚目の通知が消えきる（40/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 394,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "49 番目に消える通知（3 枚目）が沈みながらぼけ始める（eraseAt=303.18）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 99/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 395,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "50 番目に消える通知（2 枚目）が沈みながらぼけ始める（eraseAt=304.57）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 100/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 396,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "11 枚目の通知が消えきる（41/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 396,
-      "type": "white-visible",
-      "scene": "noise",
-      "note": "白の円が目に見える大きさになる（半径 50px）",
-      "source": "src/scenes/Noise.tsx:404 白の円の半径"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 101/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 397,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "10 枚目の通知が消えきる（42/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 397,
-      "type": "popup-erase-start",
-      "scene": "noise",
-      "note": "51 番目に消える通知（1 枚目）が沈みながらぼけ始める（eraseAt=306.00）",
-      "source": "src/scenes/Noise.tsx:112 eraseAt"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 102/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 398,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "9 枚目の通知が消えきる（43/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 399,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "8 枚目の通知が消えきる（44/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 103/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 400,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "7 枚目の通知が消えきる（45/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 104/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
-      "frame": 402,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "6 枚目の通知が消えきる（46/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
+      "frame": 401,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 105/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 401,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 106/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 403,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "5 枚目の通知が消えきる（47/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 107/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
-      "frame": 404,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "4 枚目の通知が消えきる（48/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
+      "frame": 405,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 108/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 405,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 109/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 405,
+      "type": "camera-start",
+      "scene": "zone",
+      "note": "タイマーへ寄り始める（打ち続けたまま）",
+      "source": "src/scenes/ZoneScreen.tsx:506 PUSH_FROM"
     },
     {
       "frame": 406,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "3 枚目の通知が消えきる（49/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
-    },
-    {
-      "frame": 406,
-      "type": "white-mid",
-      "scene": "noise",
-      "note": "白の円が半径の半分。ここで最も速く広がる",
-      "source": "src/scenes/Noise.tsx:88 TO_WHITE"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 110/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 407,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "2 枚目の通知が消えきる（50/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 111/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
-      "frame": 408,
-      "type": "popup-gone",
-      "scene": "noise",
-      "note": "1 枚目の通知が消えきる（51/51）",
-      "source": "src/scenes/Noise.tsx:86 ERASE_FADE"
+      "frame": 409,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 112/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 410,
-      "type": "wipe-start",
-      "scene": "noise",
-      "note": "黒帯のコピーを左から右へ拭き取り始める",
-      "source": "src/scenes/Noise.tsx:89 CAPTION_OUT"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 113/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 411,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 114/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 412,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 115/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 413,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 116/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 414,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 117/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 416,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 118/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 417,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 119/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 418,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 120/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 419,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 121/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 420,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 122/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 420,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:01 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 421,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 123/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 423,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 124/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 423,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 125/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 424,
-      "type": "white-full",
-      "scene": "noise",
-      "note": "白が画面を満たしきる（黒帯のコピーだけが残る）",
-      "source": "src/scenes/Noise.tsx:88 TO_WHITE"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 126/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 426,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 127/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 427,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 128/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 427,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 129/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 428,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 130/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 430,
-      "type": "wipe-end",
-      "scene": "noise",
-      "note": "拭き取りが終わり、washi 一色になる",
-      "source": "src/scenes/Noise.tsx:89 CAPTION_OUT"
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 131/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 431,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 132/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 432,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 133/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 433,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 134/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 434,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 135/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 435,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 136/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 436,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 137/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 437,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 138/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 438,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 139/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 440,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 140/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 441,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 141/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 442,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 142/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 443,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 143/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 444,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 144/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 445,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 145/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 446,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 146/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 447,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 147/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
+    },
+    {
+      "frame": 449,
+      "type": "key",
+      "scene": "zone",
+      "note": "打鍵 M 148/183（main）",
+      "source": "src/scenes/ZoneScreen.tsx:98 M_KEYS"
     },
     {
       "frame": 449,
       "type": "scene-end",
-      "scene": "noise",
-      "note": "Noise の最終フレーム（washi 一色の静止）。騒がしい側の絵はここまで、次のフレームから Silence",
-      "source": "src/timeline.ts:38 SCENE_DEFS silence"
+      "scene": "zone",
+      "note": "Zone の最終フレーム（00:01、打鍵は止まっていない）",
+      "source": "src/scenes/ZoneScreen.tsx:9 ZONE_LENGTH"
     },
     {
       "frame": 450,
+      "type": "zero",
+      "scene": "cut",
+      "note": "00:00。タイマーが赤く染まり画面が揺れる（ここで音楽を断ち切る）",
+      "source": "src/timeline.ts:37 SCENE_DEFS cut"
+    },
+    {
+      "frame": 456,
+      "type": "flash",
+      "scene": "cut",
+      "note": "白フラッシュ（2f）",
+      "source": "src/scenes/Cut.tsx:12 ZERO_TO"
+    },
+    {
+      "frame": 458,
+      "type": "alarm",
+      "scene": "cut",
+      "note": "赤地に「時間です。」がグリッチで割れて出る（1.22→1 のパンチ、グリッチ 110）",
+      "source": "src/scenes/Cut.tsx:13 ALARM"
+    },
+    {
+      "frame": 464,
+      "type": "glitch-settle",
+      "scene": "cut",
+      "note": "グリッチが 30 まで落ちる",
+      "source": "src/scenes/Cut.tsx:51 glitch"
+    },
+    {
+      "frame": 470,
+      "type": "glitch-calm",
+      "scene": "cut",
+      "note": "グリッチが 8 で静まる（読める）",
+      "source": "src/scenes/Cut.tsx:51 glitch"
+    },
+    {
+      "frame": 505,
+      "type": "glitch-up",
+      "scene": "cut",
+      "note": "暗転の直前にグリッチが 150 へ割れる",
+      "source": "src/scenes/Cut.tsx:51 glitch"
+    },
+    {
+      "frame": 510,
+      "type": "blackout",
+      "scene": "cut",
+      "note": "暗転（赤が消えて暗い地だけ）",
+      "source": "src/scenes/Cut.tsx:14 ALARM_OUT"
+    },
+    {
+      "frame": 514,
+      "type": "caption-in",
+      "scene": "cut",
+      "note": "明朝「いま、いいところだったのに。」が浮かび始める",
+      "source": "src/scenes/Cut.tsx:15 COPY_FROM"
+    },
+    {
+      "frame": 528,
+      "type": "caption-full",
+      "scene": "cut",
+      "note": "明朝のコピーが出きる（Noise へカットまで静止）",
+      "source": "src/scenes/Cut.tsx:119 copy in"
+    },
+    {
+      "frame": 569,
+      "type": "scene-end",
+      "scene": "cut",
+      "note": "Cut の最終フレーム",
+      "source": "src/timeline.ts:38 SCENE_DEFS noise"
+    },
+    {
+      "frame": 570,
+      "type": "cut",
+      "scene": "noise",
+      "note": "noise へハードカット",
+      "source": "src/timeline.ts:38 SCENE_DEFS noise"
+    },
+    {
+      "frame": 570,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 1/29 が飛び込む: Streak「🔥 12日連続！ 今日も途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×01・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 590,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 2/29 が飛び込む: Focus Score「集中スコア 62 / 100 平均を下回っています」（5f で着地、カメラが拍で揺れる・HUD ×02・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 607,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 3/29 が飛び込む: Insight「昨日より 18分 少ないです」（5f で着地、カメラが拍で揺れる・HUD ×03・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 622,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 4/29 が飛び込む: 今週の集中時間（棒グラフ）（5f で着地、カメラが拍で揺れる・HUD ×04・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 635,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 5/29 が飛び込む: Goal「目標まで あと47分 達成率 61%」（5f で着地、カメラが拍で揺れる・HUD ×05・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 646,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 6/29 が飛び込む: Ranking「ランキング 4,812位 先週より ↓312」（5f で着地、カメラが拍で揺れる・HUD ×06）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 655,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 7/29 が飛び込む: Badge「🏅 バッジまで あと3日」（5f で着地、カメラが拍で揺れる・HUD ×07）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 663,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 8/29 が飛び込む: Sync「記録を同期しています… 37%」（5f で着地、カメラが拍で揺れる・HUD ×08）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 670,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 9/29 が飛び込む: Weekly Report「今週のレポートが 届きました」（5f で着地、カメラが拍で揺れる・HUD ×09）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 676,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 10/29 が飛び込む: Streak「ストリークが 途切れそうです！」（5f で着地、カメラが拍で揺れる・HUD ×10）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 681,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 11/29 が飛び込む: Goal「⚠ 今日の目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×11）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 686,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 12/29 が飛び込む: History「集中の記録 1,284件」（5f で着地、カメラが拍で揺れる・HUD ×12）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 689,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 13/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×13）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 693,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 14/29 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×14）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 696,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 15/29 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×15）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 699,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 16/29 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×16）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 702,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 17/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×17）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 705,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 18/29 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×18）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 708,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 19/29 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×19）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 711,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 20/29 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×20）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 714,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 21/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×21）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 717,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 22/29 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×22）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 720,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 23/29 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×23）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 723,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 24/29 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×24）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 726,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 25/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×25）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 729,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 26/29 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×26）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 732,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 27/29 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×27）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 735,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 28/29 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×28）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 738,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 29/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×29）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 742,
+      "type": "freeze",
+      "scene": "noise",
+      "note": "積み上げが止まる。白の一閃（1f だけ washi 35%）、揺れも止まる",
+      "source": "src/scenes/Noise.tsx:82 FREEZE"
+    },
+    {
+      "frame": 746,
+      "type": "caption-bar-in",
+      "scene": "noise",
+      "note": "黒帯のコピー「集中にとって、ぜんぶノイズだった。」が割り込む（8f で横に開く、9f の色収差と横ずれ、赤い縁）",
+      "source": "src/scenes/Noise.tsx:83 CAPTION"
+    },
+    {
+      "frame": 754,
+      "type": "caption-bar-full",
+      "scene": "noise",
+      "note": "黒帯が開ききって静止",
+      "source": "src/scenes/Noise.tsx:283 CaptionBar wipe"
+    },
+    {
+      "frame": 774,
+      "type": "hud-out-start",
+      "scene": "noise",
+      "note": "上の HUD（INTERRUPTIONS・REC・SCORE）が消え始める",
+      "source": "src/scenes/Noise.tsx:337 hudOpacity"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "1 番目に消える通知（29 枚目）が沈みながらぼけ始める（eraseAt=214.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "2 番目に消える通知（28 枚目）が沈みながらぼけ始める（eraseAt=214.04）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "3 番目に消える通知（27 枚目）が沈みながらぼけ始める（eraseAt=214.16）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "4 番目に消える通知（26 枚目）が沈みながらぼけ始める（eraseAt=214.37）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "5 番目に消える通知（25 枚目）が沈みながらぼけ始める（eraseAt=214.65）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 786,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "6 番目に消える通知（24 枚目）が沈みながらぼけ始める（eraseAt=215.02）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 786,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "7 番目に消える通知（23 枚目）が沈みながらぼけ始める（eraseAt=215.47）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 787,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "8 番目に消える通知（22 枚目）が沈みながらぼけ始める（eraseAt=216.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 787,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "9 番目に消える通知（21 枚目）が沈みながらぼけ始める（eraseAt=216.61）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 788,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "10 番目に消える通知（20 枚目）が沈みながらぼけ始める（eraseAt=217.31）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 789,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "11 番目に消える通知（19 枚目）が沈みながらぼけ始める（eraseAt=218.08）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 789,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "12 番目に消える通知（18 枚目）が沈みながらぼけ始める（eraseAt=218.94）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 790,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "13 番目に消える通知（17 枚目）が沈みながらぼけ始める（eraseAt=219.88）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 791,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "14 番目に消える通知（16 枚目）が沈みながらぼけ始める（eraseAt=220.90）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 793,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "15 番目に消える通知（15 枚目）が沈みながらぼけ始める（eraseAt=222.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 794,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "29 枚目の通知が消えきる（1/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 794,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "16 番目に消える通知（14 枚目）が沈みながらぼけ始める（eraseAt=223.18）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 795,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "28 枚目の通知が消えきる（2/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 795,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "27 枚目の通知が消えきる（3/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 795,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "26 枚目の通知が消えきる（4/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 795,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "25 枚目の通知が消えきる（5/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 795,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "17 番目に消える通知（13 枚目）が沈みながらぼけ始める（eraseAt=224.45）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 796,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "24 枚目の通知が消えきる（6/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 796,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "23 枚目の通知が消えきる（7/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 796,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "22 枚目の通知が消えきる（8/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 796,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "18 番目に消える通知（12 枚目）が沈みながらぼけ始める（eraseAt=225.80）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 797,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "21 枚目の通知が消えきる（9/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 798,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "20 枚目の通知が消えきる（10/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 798,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "19 番目に消える通知（11 枚目）が沈みながらぼけ始める（eraseAt=227.22）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 799,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "19 枚目の通知が消えきる（11/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 799,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "18 枚目の通知が消えきる（12/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 799,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "20 番目に消える通知（10 枚目）が沈みながらぼけ始める（eraseAt=228.73）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 800,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "17 枚目の通知が消えきる（13/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 801,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "16 枚目の通知が消えきる（14/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 801,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "21 番目に消える通知（9 枚目）が沈みながらぼけ始める（eraseAt=230.33）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 802,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "15 枚目の通知が消えきる（15/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 803,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "22 番目に消える通知（8 枚目）が沈みながらぼけ始める（eraseAt=232.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 804,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "14 枚目の通知が消えきる（16/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 804,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "23 番目に消える通知（7 枚目）が沈みながらぼけ始める（eraseAt=233.76）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 805,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "13 枚目の通知が消えきる（17/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 806,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "12 枚目の通知が消えきる（18/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 806,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "24 番目に消える通知（6 枚目）が沈みながらぼけ始める（eraseAt=235.59）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 808,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "11 枚目の通知が消えきる（19/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 808,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "25 番目に消える通知（5 枚目）が沈みながらぼけ始める（eraseAt=237.51）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 809,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "10 枚目の通知が消えきる（20/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 810,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "26 番目に消える通知（4 枚目）が沈みながらぼけ始める（eraseAt=239.51）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 811,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "9 枚目の通知が消えきる（21/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 812,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "8 枚目の通知が消えきる（22/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 812,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "27 番目に消える通知（3 枚目）が沈みながらぼけ始める（eraseAt=241.59）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 813,
+      "type": "white-start",
+      "scene": "noise",
+      "note": "中央から washi の円が広がり始める（Easing.inOut(cubic)。最初の数フレームは半径数 px で見えない）",
+      "source": "src/scenes/Noise.tsx:89 TO_WHITE"
+    },
+    {
+      "frame": 814,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "7 枚目の通知が消えきる（23/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 814,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "28 番目に消える通知（2 枚目）が沈みながらぼけ始める（eraseAt=243.76）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 816,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "6 枚目の通知が消えきる（24/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 817,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "29 番目に消える通知（1 枚目）が沈みながらぼけ始める（eraseAt=246.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 818,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "5 枚目の通知が消えきる（25/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 819,
+      "type": "white-visible",
+      "scene": "noise",
+      "note": "白の円が目に見える大きさになる（半径 58px）",
+      "source": "src/scenes/Noise.tsx:409 白の円の半径"
+    },
+    {
+      "frame": 820,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "4 枚目の通知が消えきる（26/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 822,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "3 枚目の通知が消えきる（27/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 824,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "2 枚目の通知が消えきる（28/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 826,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "1 枚目の通知が消えきる（29/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 827,
+      "type": "white-mid",
+      "scene": "noise",
+      "note": "白の円が半径の半分。ここで最も速く広がる",
+      "source": "src/scenes/Noise.tsx:89 TO_WHITE"
+    },
+    {
+      "frame": 842,
+      "type": "white-full",
+      "scene": "noise",
+      "note": "白が画面を満たしきる（黒帯のコピーだけが残る）",
+      "source": "src/scenes/Noise.tsx:89 TO_WHITE"
+    },
+    {
+      "frame": 848,
+      "type": "wipe-start",
+      "scene": "noise",
+      "note": "黒帯のコピーを左から右へ拭き取り始める",
+      "source": "src/scenes/Noise.tsx:91 CAPTION_OUT"
+    },
+    {
+      "frame": 860,
+      "type": "wipe-end",
+      "scene": "noise",
+      "note": "拭き取りが終わり、washi 一色になる",
+      "source": "src/scenes/Noise.tsx:91 CAPTION_OUT"
+    },
+    {
+      "frame": 869,
+      "type": "scene-end",
+      "scene": "noise",
+      "note": "Noise の最終フレーム（washi 一色の静止）。騒がしい側の絵はここまで、次のフレームから Silence",
+      "source": "src/timeline.ts:40 SCENE_DEFS silence"
+    },
+    {
+      "frame": 870,
       "type": "silence-start",
       "scene": "silence",
       "note": "白・無音の 2 秒の始まり（Noise から絵は変わらない washi 一色）",
       "source": "src/scenes/Silence.tsx:5 Silence"
     },
     {
-      "frame": 510,
+      "frame": 930,
       "type": "fade-in-start",
       "scene": "desktop",
       "note": "desktop が 20f のfadeで入り始める（前のシーンと重なる）",
-      "source": "src/timeline.ts:39 SCENE_DEFS desktop"
+      "source": "src/timeline.ts:41 SCENE_DEFS desktop"
     },
     {
-      "frame": 512,
+      "frame": 932,
       "type": "editor-typing-start",
       "scene": "desktop",
       "note": "エディタに Go のコードがタイプされ始める（148f で 100 字、約 0.68 字/f。字が増えるのは 100 フレーム）",
       "source": "src/scenes/DesktopScene.tsx:20 typed"
     },
     {
-      "frame": 530,
+      "frame": 950,
       "type": "fade-in-end",
       "scene": "desktop",
       "note": "desktop のフェードが明ける",
-      "source": "src/timeline.ts:39 SCENE_DEFS desktop"
+      "source": "src/timeline.ts:41 SCENE_DEFS desktop"
     },
     {
-      "frame": 530,
+      "frame": 950,
       "type": "panel-in-start",
       "scene": "desktop",
       "note": "右上にパネル（待機 00:00）が静かに現れ始める（下から 10px、ease）",
       "source": "src/scenes/DesktopScene.tsx:11 PANEL_IN"
     },
     {
-      "frame": 540,
+      "frame": 960,
       "type": "camera-start",
       "scene": "desktop",
       "note": "カメラがパネルへゆっくり寄り始める（camEase）",
       "source": "src/scenes/DesktopScene.tsx:12 PUSH"
     },
     {
-      "frame": 554,
+      "frame": 974,
       "type": "panel-in-end",
       "scene": "desktop",
       "note": "パネルが出きる",
       "source": "src/scenes/DesktopScene.tsx:11 PANEL_IN"
     },
     {
-      "frame": 554,
+      "frame": 974,
       "type": "caption-in",
       "scene": "desktop",
       "note": "コピー「作業画面を、一切邪魔しない。」が浮かび始める（18f で読める濃さ）",
       "source": "src/scenes/DesktopScene.tsx:14 CAPTION"
     },
     {
-      "frame": 572,
+      "frame": 992,
       "type": "caption-full",
       "scene": "desktop",
       "note": "コピー「作業画面を、一切邪魔しない。」が出きる",
       "source": "src/scenes/DesktopScene.tsx:14 CAPTION"
     },
     {
-      "frame": 640,
+      "frame": 1060,
       "type": "camera-end",
       "scene": "desktop",
       "note": "カメラが寄りきって止まる（CAM_NEAR）",
       "source": "src/scenes/DesktopScene.tsx:12 PUSH"
     },
     {
-      "frame": 640,
+      "frame": 1060,
       "type": "caption-out-start",
       "scene": "desktop",
       "note": "コピー「作業画面を、一切邪魔しない。」が消え始める",
       "source": "src/scenes/DesktopScene.tsx:14 CAPTION"
     },
     {
-      "frame": 652,
+      "frame": 1072,
       "type": "caption-out-end",
       "scene": "desktop",
       "note": "コピー「作業画面を、一切邪魔しない。」が消えきる",
       "source": "src/scenes/DesktopScene.tsx:14 CAPTION"
     },
     {
-      "frame": 659,
+      "frame": 1079,
       "type": "editor-typing-end",
       "scene": "desktop",
       "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
       "source": "src/scenes/DesktopScene.tsx:20 typed"
     },
     {
-      "frame": 660,
+      "frame": 1080,
       "type": "cut",
       "scene": "presence",
       "note": "presence へハードカット",
-      "source": "src/timeline.ts:42 SCENE_DEFS presence"
+      "source": "src/timeline.ts:44 SCENE_DEFS presence"
     },
     {
-      "frame": 664,
+      "frame": 1084,
       "type": "cursor-in",
       "scene": "presence",
       "note": "ポインタが現れてエディタからパネルへ動き出す",
       "source": "src/scenes/Presence.tsx:151 pointerOpacity"
     },
     {
-      "frame": 664,
+      "frame": 1084,
       "type": "rail-in",
       "scene": "presence",
       "note": "右下に「存在感の3段階」の表が出始める",
       "source": "src/scenes/Presence.tsx:71 RAIL_IN"
     },
     {
-      "frame": 684,
+      "frame": 1104,
       "type": "hover-in",
       "scene": "presence",
       "note": "ポインタがパネルの縁を越える（待機のパネルなので見た目はほぼ変わらない）",
       "source": "src/scenes/Presence.tsx:45 HOVER"
     },
     {
-      "frame": 692,
+      "frame": 1112,
       "type": "cursor-arrive",
       "scene": "presence",
       "note": "ポインタが再生ボタンに着く",
       "source": "src/scenes/Presence.tsx:34 CURSOR_PATH"
     },
     {
-      "frame": 700,
+      "frame": 1120,
       "type": "click",
       "scene": "presence",
       "note": "再生クリック。00:00 から数え始め、ボタン列と休憩チップが出る。段階表が「操作」に光る",
       "source": "src/scenes/Presence.tsx:32 PLAY"
     },
     {
-      "frame": 706,
+      "frame": 1126,
       "type": "caption-in",
       "scene": "presence",
       "note": "コピー「うるさくない。でも、忘れさせない。」が浮かび始める（18f で読める濃さ）",
       "source": "src/scenes/Presence.tsx:73 CAPTION"
     },
     {
-      "frame": 711,
+      "frame": 1131,
       "type": "hover-out",
       "scene": "presence",
       "note": "ポインタがパネルを離れる → 段階表「溶け込む」",
       "source": "src/scenes/Presence.tsx:45 HOVER"
     },
     {
-      "frame": 711,
+      "frame": 1131,
       "type": "melt-start",
       "scene": "presence",
       "note": "パネルが 100%→30% に溶け始める（0.45 秒 easeOut = 14f）",
       "source": "src/scenes/DesktopShared.tsx:148 FADE"
     },
     {
-      "frame": 724,
+      "frame": 1144,
       "type": "caption-full",
       "scene": "presence",
       "note": "コピー「うるさくない。でも、忘れさせない。」が出きる",
       "source": "src/scenes/Presence.tsx:73 CAPTION"
     },
     {
-      "frame": 725,
+      "frame": 1145,
       "type": "melt-end",
       "scene": "presence",
       "note": "30% に溶けきる。ここから早回しで数える",
       "source": "src/scenes/DesktopShared.tsx:148 FADE"
     },
     {
-      "frame": 727,
+      "frame": 1147,
       "type": "editor-typing-start",
       "scene": "presence",
       "note": "エディタに Go のコードがタイプされ始める（18f で 60 字、約 3.33 字/f。字が増えるのは 18 フレーム）",
       "source": "src/scenes/Presence.tsx:154 typed"
     },
     {
-      "frame": 744,
+      "frame": 1164,
       "type": "editor-typing-end",
       "scene": "presence",
       "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
       "source": "src/scenes/Presence.tsx:154 typed"
     },
     {
-      "frame": 759,
+      "frame": 1179,
       "type": "hover-in",
       "scene": "presence",
       "note": "もう一度手を乗せる → 100% に戻る（ホバー復帰）。段階表「操作」",
       "source": "src/scenes/Presence.tsx:45 HOVER"
     },
     {
-      "frame": 768,
+      "frame": 1188,
       "type": "cursor-arrive",
       "scene": "presence",
       "note": "ポインタが休憩チップ右の余白で止まる",
       "source": "src/scenes/Presence.tsx:34 CURSOR_PATH"
     },
     {
-      "frame": 773,
+      "frame": 1193,
       "type": "hover-full",
       "scene": "presence",
       "note": "100% に戻りきる（実時間で数える）",
       "source": "src/scenes/DesktopShared.tsx:148 FADE"
     },
     {
-      "frame": 808,
+      "frame": 1228,
       "type": "hover-out",
       "scene": "presence",
       "note": "手を離す → また 30% に溶ける。段階表「溶け込む」",
       "source": "src/scenes/Presence.tsx:45 HOVER"
     },
     {
-      "frame": 816,
+      "frame": 1236,
       "type": "caption-out-start",
       "scene": "presence",
       "note": "コピー「うるさくない。でも、忘れさせない。」が消え始める",
       "source": "src/scenes/Presence.tsx:73 CAPTION"
     },
     {
-      "frame": 820,
+      "frame": 1240,
       "type": "rail-out-start",
       "scene": "presence",
       "note": "段階表が消え始める",
       "source": "src/scenes/Presence.tsx:72 RAIL_OUT"
     },
     {
-      "frame": 821,
+      "frame": 1241,
       "type": "editor-typing-start",
       "scene": "presence",
       "note": "エディタに Go のコードがタイプされ始める（19f で 60 字、約 3.16 字/f。字が増えるのは 19 フレーム）",
       "source": "src/scenes/Presence.tsx:154 typed"
     },
     {
-      "frame": 822,
+      "frame": 1242,
       "type": "melt-end",
       "scene": "presence",
       "note": "30% に溶けきる",
       "source": "src/scenes/DesktopShared.tsx:148 FADE"
     },
     {
-      "frame": 828,
+      "frame": 1248,
       "type": "caption-out-end",
       "scene": "presence",
       "note": "コピー「うるさくない。でも、忘れさせない。」が消えきる",
       "source": "src/scenes/Presence.tsx:73 CAPTION"
     },
     {
-      "frame": 836,
+      "frame": 1256,
       "type": "rail-out-end",
       "scene": "presence",
       "note": "段階表が消えきる",
       "source": "src/scenes/Presence.tsx:72 RAIL_OUT"
     },
     {
-      "frame": 839,
+      "frame": 1259,
       "type": "editor-typing-end",
       "scene": "presence",
       "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
       "source": "src/scenes/Presence.tsx:154 typed"
     },
     {
-      "frame": 840,
+      "frame": 1260,
       "type": "cut",
       "scene": "follow",
       "note": "follow へハードカット",
-      "source": "src/timeline.ts:43 SCENE_DEFS follow"
+      "source": "src/timeline.ts:45 SCENE_DEFS follow"
     },
     {
-      "frame": 840,
+      "frame": 1260,
       "type": "camera-start",
       "scene": "follow",
       "note": "カメラが少し引き始める",
       "source": "src/scenes/Follow.tsx:35 PULL"
     },
     {
-      "frame": 846,
+      "frame": 1266,
       "type": "caption-in",
       "scene": "follow",
       "note": "コピー「画面を切り替えても、ちゃんとそこにいる。」が浮かび始める（18f で読める濃さ）",
       "source": "src/scenes/Follow.tsx:40 CAPTION"
     },
     {
-      "frame": 852,
+      "frame": 1272,
       "type": "keycap-in",
       "scene": "follow",
       "note": "キーキャップ「⌘」「tab」が出る",
       "source": "src/scenes/Follow.tsx:55 STEPS[0].keyFrom"
     },
     {
-      "frame": 856,
+      "frame": 1276,
       "type": "camera-end",
       "scene": "follow",
       "note": "引ききる（CAM_FOLLOW）",
       "source": "src/scenes/Follow.tsx:35 PULL"
     },
     {
-      "frame": 862,
+      "frame": 1282,
       "type": "key-down",
       "scene": "follow",
       "note": "⌘Tab のキーキャップが沈み始める（2f 前から）",
       "source": "src/scenes/Follow.tsx:253 pressed"
     },
     {
-      "frame": 864,
+      "frame": 1284,
       "type": "key-press",
       "scene": "follow",
       "note": "⌘Tab 押下。隠していたブラウザが前面に出る（一瞬で切り替わる）。ラベル「別のアプリを前に出しても」が出始める",
       "source": "src/scenes/Follow.tsx:36 TO_BROWSER"
     },
     {
-      "frame": 864,
+      "frame": 1284,
       "type": "ping",
       "scene": "follow",
       "note": "パネルのまわりにティールのリングが一度広がる（24f）",
       "source": "src/scenes/Follow.tsx:72 PINGS"
     },
     {
-      "frame": 864,
+      "frame": 1284,
       "type": "caption-full",
       "scene": "follow",
       "note": "コピー「画面を切り替えても、ちゃんとそこにいる。」が出きる",
       "source": "src/scenes/Follow.tsx:40 CAPTION"
     },
     {
-      "frame": 884,
+      "frame": 1304,
       "type": "keycap-out",
       "scene": "follow",
       "note": "⌘Tab のキーキャップが消えきる",
       "source": "src/scenes/Follow.tsx:56 STEPS[0].keyTo"
     },
     {
-      "frame": 908,
+      "frame": 1328,
       "type": "keycap-in",
       "scene": "follow",
       "note": "キーキャップ「3本指スワイプ」が出る",
       "source": "src/scenes/Follow.tsx:64 STEPS[1].keyFrom"
     },
     {
-      "frame": 910,
+      "frame": 1330,
       "type": "label-out",
       "scene": "follow",
       "note": "ラベル「別のアプリを前に出しても」が消えきる",
       "source": "src/scenes/Follow.tsx:59 STEPS[0].to"
     },
     {
-      "frame": 916,
+      "frame": 1336,
       "type": "swipe-start",
       "scene": "follow",
       "note": "3本指スワイプ（行き）。キーキャップが沈み、画面が左へ流れ始める（パネルは留まる、モーションブラー）",
       "source": "src/scenes/Follow.tsx:37 SWIPE_OUT"
     },
     {
-      "frame": 921,
+      "frame": 1341,
       "type": "swipe-mid",
       "scene": "follow",
       "note": "行きのスワイプが半分を越える（最速の付近、進み 50%）",
       "source": "src/scenes/Follow.tsx:37 SWIPE_OUT"
     },
     {
-      "frame": 928,
+      "frame": 1348,
       "type": "label-in",
       "scene": "follow",
       "note": "ラベル「フルスクリーンの Space に移っても」が出始める",
       "source": "src/scenes/Follow.tsx:67 STEPS[1].from"
     },
     {
-      "frame": 929,
+      "frame": 1349,
       "type": "swipe-land",
       "scene": "follow",
       "note": "フルスクリーンのターミナルの Space に吸い付く（進み 98.1%）",
       "source": "src/scenes/Follow.tsx:37 SWIPE_OUT"
     },
     {
-      "frame": 930,
+      "frame": 1350,
       "type": "ping",
       "scene": "follow",
       "note": "Space が着いた瞬間にパネルのリングが広がる",
       "source": "src/scenes/Follow.tsx:72 PINGS"
     },
     {
-      "frame": 938,
+      "frame": 1358,
       "type": "keycap-out",
       "scene": "follow",
       "note": "3本指スワイプのキーキャップが消えきる",
       "source": "src/scenes/Follow.tsx:65 STEPS[1].keyTo"
     },
     {
-      "frame": 968,
+      "frame": 1388,
       "type": "swipe-start",
       "scene": "follow",
       "note": "3本指スワイプ（戻り）。画面が右へ流れ始める（キーキャップは出さない）",
       "source": "src/scenes/Follow.tsx:38 SWIPE_BACK"
     },
     {
-      "frame": 972,
+      "frame": 1392,
       "type": "label-out",
       "scene": "follow",
       "note": "ラベル「フルスクリーンの Space に移っても」が消えきる",
       "source": "src/scenes/Follow.tsx:68 STEPS[1].to"
     },
     {
-      "frame": 978,
+      "frame": 1398,
       "type": "caption-out-start",
       "scene": "follow",
       "note": "コピー「画面を切り替えても、ちゃんとそこにいる。」が消え始める",
       "source": "src/scenes/Follow.tsx:40 CAPTION"
     },
     {
-      "frame": 980,
+      "frame": 1400,
       "type": "swipe-land",
       "scene": "follow",
       "note": "元の Space（ブラウザが前面のデスクトップ）に戻り着く",
       "source": "src/scenes/Follow.tsx:38 SWIPE_BACK"
     },
     {
-      "frame": 985,
+      "frame": 1405,
       "type": "app-switch",
       "scene": "follow",
       "note": "⌘Tab でエディタへ戻る（ブラウザが後ろに回る。注釈なし・一瞬）",
       "source": "src/scenes/Follow.tsx:39 TO_EDITOR"
     },
     {
-      "frame": 990,
+      "frame": 1410,
       "type": "caption-out-end",
       "scene": "follow",
       "note": "コピー「画面を切り替えても、ちゃんとそこにいる。」が消えきる",
       "source": "src/scenes/Follow.tsx:40 CAPTION"
     },
     {
-      "frame": 990,
+      "frame": 1410,
       "type": "cut",
       "scene": "flowBreak",
       "note": "flowBreak へハードカット",
-      "source": "src/timeline.ts:44 SCENE_DEFS flowBreak"
+      "source": "src/timeline.ts:46 SCENE_DEFS flowBreak"
     },
     {
-      "frame": 990,
+      "frame": 1410,
       "type": "camera-start",
       "scene": "flowBreak",
-      "note": "溶けたまま数えるパネルへ大きく寄り始める（2 倍）",
-      "source": "src/scenes/FlowBreak.tsx:44 CAM_PUSH"
+      "note": "テストとパネルが収まる構図へ寄り始める",
+      "source": "src/scenes/FlowBreak.tsx:51 CAM_PUSH"
     },
     {
-      "frame": 991,
+      "frame": 1411,
       "type": "editor-typing-start",
       "scene": "flowBreak",
       "note": "エディタに Go のコードがタイプされ始める（32f で 105 字、約 3.28 字/f。字が増えるのは 32 フレーム）",
-      "source": "src/scenes/FlowBreak.tsx:176 typed"
+      "source": "src/scenes/FlowBreak.tsx:312 typed"
     },
     {
-      "frame": 996,
-      "type": "cursor-in",
-      "scene": "flowBreak",
-      "note": "ポインタが現れてパネルへ向かう",
-      "source": "src/scenes/FlowBreak.tsx:172 pointerOpacity"
-    },
-    {
-      "frame": 1012,
-      "type": "hover-in",
-      "scene": "flowBreak",
-      "note": "手を乗せる → 30%→100%（14f）",
-      "source": "src/scenes/FlowBreak.tsx:63 HOVER_IN"
-    },
-    {
-      "frame": 1022,
+      "frame": 1442,
       "type": "editor-typing-end",
       "scene": "flowBreak",
       "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
-      "source": "src/scenes/FlowBreak.tsx:176 typed"
+      "source": "src/scenes/FlowBreak.tsx:312 typed"
     },
     {
-      "frame": 1022,
-      "type": "cursor-arrive",
+      "frame": 1446,
+      "type": "terminal-in",
       "scene": "flowBreak",
-      "note": "ポインタがパネル右の余白で止まる",
-      "source": "src/scenes/FlowBreak.tsx:53 CURSOR_PATH"
+      "note": "ターミナルが前に出始める",
+      "source": "src/scenes/FlowBreak.tsx:105 TERM_IN"
     },
     {
-      "frame": 1034,
+      "frame": 1457,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 1/16「g」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1458,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 2/16「o」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1459,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 3/16「␣」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1460,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 4/16「t」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1461,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 5/16「e」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1462,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 6/16「s」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1463,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 7/16「t」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1464,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 8/16「␣」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1465,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 9/16「-」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1466,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 10/16「v」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1467,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 11/16「␣」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1468,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 12/16「.」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1469,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 13/16「/」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1470,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 14/16「.」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1471,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 15/16「.」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1472,
+      "type": "key",
+      "scene": "flowBreak",
+      "note": "go test の打鍵 16/16「.」",
+      "source": "src/scenes/FlowBreak.tsx:95 TEST_TYPE_FROM"
+    },
+    {
+      "frame": 1476,
+      "type": "test-run",
+      "scene": "flowBreak",
+      "note": "ターミナルに「=== RUN   TestHandleSession」が出る",
+      "source": "src/scenes/FlowBreak.tsx:97 TEST_LINES"
+    },
+    {
+      "frame": 1482,
+      "type": "test-pass",
+      "scene": "flowBreak",
+      "note": "ターミナルに「--- PASS: TestHandleSession (0.00s)」が出る",
+      "source": "src/scenes/FlowBreak.tsx:98 TEST_LINES"
+    },
+    {
+      "frame": 1488,
+      "type": "test-run",
+      "scene": "flowBreak",
+      "note": "ターミナルに「=== RUN   TestSessionJSON」が出る",
+      "source": "src/scenes/FlowBreak.tsx:99 TEST_LINES"
+    },
+    {
+      "frame": 1494,
+      "type": "test-pass",
+      "scene": "flowBreak",
+      "note": "ターミナルに「--- PASS: TestSessionJSON (0.00s)」が出る",
+      "source": "src/scenes/FlowBreak.tsx:100 TEST_LINES"
+    },
+    {
+      "frame": 1510,
       "type": "reach",
       "scene": "flowBreak",
-      "note": "25:00 に到達。進捗バーが満ちて薄まる（止まらない）",
-      "source": "src/scenes/FlowBreak.tsx:37 SATURATE"
+      "note": "25:00 に到達。進捗バーが満ちて薄まる（止まらない。冒頭なら止められていたところ）",
+      "source": "src/scenes/FlowBreak.tsx:39 SATURATE"
     },
     {
-      "frame": 1034,
+      "frame": 1522,
+      "type": "test-pass",
+      "scene": "flowBreak",
+      "note": "ターミナルに「PASS」が出る",
+      "source": "src/scenes/FlowBreak.tsx:102 TEST_LINES"
+    },
+    {
+      "frame": 1526,
+      "type": "test-ok",
+      "scene": "flowBreak",
+      "note": "ターミナルに「ok   session 0.214s」が出る",
+      "source": "src/scenes/FlowBreak.tsx:103 TEST_LINES"
+    },
+    {
+      "frame": 1528,
       "type": "caption-in",
       "scene": "flowBreak",
       "note": "コピー「25分で、切らない。」が浮かび始める（18f で読める濃さ）",
-      "source": "src/scenes/FlowBreak.tsx:40 CAPTION_SATURATE"
+      "source": "src/scenes/FlowBreak.tsx:43 CAPTION_SATURATE"
     },
     {
-      "frame": 1040,
-      "type": "camera-end",
-      "scene": "flowBreak",
-      "note": "寄りきる（CAM_CLOSE）",
-      "source": "src/scenes/FlowBreak.tsx:44 CAM_PUSH"
-    },
-    {
-      "frame": 1052,
+      "frame": 1546,
       "type": "caption-full",
       "scene": "flowBreak",
       "note": "コピー「25分で、切らない。」が出きる",
-      "source": "src/scenes/FlowBreak.tsx:40 CAPTION_SATURATE"
+      "source": "src/scenes/FlowBreak.tsx:43 CAPTION_SATURATE"
     },
     {
-      "frame": 1080,
-      "type": "cursor-move",
-      "scene": "flowBreak",
-      "note": "ポインタが休憩チップへ動き出す",
-      "source": "src/scenes/FlowBreak.tsx:53 CURSOR_PATH"
-    },
-    {
-      "frame": 1088,
+      "frame": 1582,
       "type": "caption-out-start",
       "scene": "flowBreak",
       "note": "コピー「25分で、切らない。」が消え始める",
-      "source": "src/scenes/FlowBreak.tsx:40 CAPTION_SATURATE"
+      "source": "src/scenes/FlowBreak.tsx:43 CAPTION_SATURATE"
     },
     {
-      "frame": 1088,
-      "type": "camera-start",
+      "frame": 1586,
+      "type": "terminal-back",
       "scene": "flowBreak",
-      "note": "押す少し前からカメラが全景へ引き始める",
-      "source": "src/scenes/FlowBreak.tsx:46 CAM_PULL"
+      "note": "エディタへ戻って続きを書く（ターミナルは後ろへ）",
+      "source": "src/scenes/FlowBreak.tsx:108 TERM_BACK"
     },
     {
-      "frame": 1092,
-      "type": "reach",
+      "frame": 1588,
+      "type": "editor-typing-start",
       "scene": "flowBreak",
-      "note": "52:10 に到達し、ポインタが休憩チップ「休憩 +10:26」に着く",
-      "source": "src/scenes/FlowBreak.tsx:72 WORKED_KEYS 52:10"
+      "note": "エディタに Go のコードがタイプされ始める（39f で 25 字、約 0.64 字/f。字が増えるのは 25 フレーム）",
+      "source": "src/scenes/FlowBreak.tsx:312 typed"
     },
     {
-      "frame": 1094,
-      "type": "chip-hover",
+      "frame": 1590,
+      "type": "cursor-in",
       "scene": "flowBreak",
-      "note": "チップの塗りが 22%→40% に濃くなる（ホバー）",
-      "source": "src/scenes/FlowBreak.tsx:174 chipHover"
+      "note": "手を止めてマウスへ。ポインタが現れてパネルへ向かう",
+      "source": "src/scenes/FlowBreak.tsx:308 pointerOpacity"
     },
     {
-      "frame": 1100,
+      "frame": 1594,
       "type": "caption-out-end",
       "scene": "flowBreak",
       "note": "コピー「25分で、切らない。」が消えきる",
-      "source": "src/scenes/FlowBreak.tsx:40 CAPTION_SATURATE"
+      "source": "src/scenes/FlowBreak.tsx:43 CAPTION_SATURATE"
     },
     {
-      "frame": 1100,
+      "frame": 1594,
+      "type": "caption-in",
+      "scene": "flowBreak",
+      "note": "コピー「区切りは、止めたところ。」が浮かび始める（18f で読める濃さ）",
+      "source": "src/scenes/FlowBreak.tsx:44 CAPTION_STOP"
+    },
+    {
+      "frame": 1606,
+      "type": "hover-in",
+      "scene": "flowBreak",
+      "note": "手を乗せる → 30%→100%（14f）",
+      "source": "src/scenes/FlowBreak.tsx:73 HOVER_IN"
+    },
+    {
+      "frame": 1612,
+      "type": "caption-full",
+      "scene": "flowBreak",
+      "note": "コピー「区切りは、止めたところ。」が出きる",
+      "source": "src/scenes/FlowBreak.tsx:44 CAPTION_STOP"
+    },
+    {
+      "frame": 1614,
+      "type": "cursor-arrive",
+      "scene": "flowBreak",
+      "note": "ポインタがパネル右の余白で止まる",
+      "source": "src/scenes/FlowBreak.tsx:63 CURSOR_PATH"
+    },
+    {
+      "frame": 1622,
+      "type": "cursor-move",
+      "scene": "flowBreak",
+      "note": "ポインタが休憩チップへ動き出す",
+      "source": "src/scenes/FlowBreak.tsx:63 CURSOR_PATH"
+    },
+    {
+      "frame": 1626,
+      "type": "editor-typing-end",
+      "scene": "flowBreak",
+      "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
+      "source": "src/scenes/FlowBreak.tsx:312 typed"
+    },
+    {
+      "frame": 1630,
+      "type": "camera-start",
+      "scene": "flowBreak",
+      "note": "押す少し前からカメラが全景へ引き始める",
+      "source": "src/scenes/FlowBreak.tsx:58 CAM_PULL"
+    },
+    {
+      "frame": 1634,
+      "type": "reach",
+      "scene": "flowBreak",
+      "note": "52:10 に到達し、ポインタが休憩チップに着く",
+      "source": "src/scenes/FlowBreak.tsx:85 WORKED_KEYS 52:10"
+    },
+    {
+      "frame": 1636,
+      "type": "chip-hover",
+      "scene": "flowBreak",
+      "note": "チップの塗りが 22%→40% に濃くなる（ホバー）",
+      "source": "src/scenes/FlowBreak.tsx:310 chipHover"
+    },
+    {
+      "frame": 1642,
       "type": "press",
       "scene": "flowBreak",
-      "note": "チップを押し込む（mouse down。チップ自体は縮まない）",
-      "source": "src/scenes/FlowBreak.tsx:38 PRESS"
+      "note": "チップを押し込む（mouse down）",
+      "source": "src/scenes/FlowBreak.tsx:40 PRESS"
     },
     {
-      "frame": 1104,
+      "frame": 1646,
       "type": "break-start",
       "scene": "flowBreak",
-      "note": "離した瞬間に作業終了 → 休憩開始。全画面の休憩（ひと休み 10:26）が現れ始める。パネルとメニューバーがカップの休憩表示に",
-      "source": "src/scenes/FlowBreak.tsx:39 BREAK_START"
+      "note": "離した瞬間に作業終了 → 休憩開始。全画面の休憩が現れ始める",
+      "source": "src/scenes/FlowBreak.tsx:41 BREAK_START"
     },
     {
-      "frame": 1118,
+      "frame": 1648,
+      "type": "caption-out-start",
+      "scene": "flowBreak",
+      "note": "コピー「区切りは、止めたところ。」が消え始める",
+      "source": "src/scenes/FlowBreak.tsx:44 CAPTION_STOP"
+    },
+    {
+      "frame": 1660,
+      "type": "caption-out-end",
+      "scene": "flowBreak",
+      "note": "コピー「区切りは、止めたところ。」が消えきる",
+      "source": "src/scenes/FlowBreak.tsx:44 CAPTION_STOP"
+    },
+    {
+      "frame": 1660,
       "type": "caption-in",
       "scene": "flowBreak",
       "note": "コピー「休憩は、義務ではなく報酬。」が浮かび始める（18f で読める濃さ）",
-      "source": "src/scenes/FlowBreak.tsx:41 CAPTION_REWARD"
+      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_REWARD"
     },
     {
-      "frame": 1122,
+      "frame": 1664,
       "type": "overlay-full",
       "scene": "flowBreak",
-      "note": "休憩画面が濃くなりきる（0.6 秒）。中央の光が 4 秒周期で呼吸を始めている",
-      "source": "src/scenes/FlowBreak.tsx:43 OVERLAY_FADE"
+      "note": "休憩画面が濃くなりきる（0.6 秒）",
+      "source": "src/scenes/FlowBreak.tsx:47 OVERLAY_FADE"
     },
     {
-      "frame": 1130,
+      "frame": 1672,
       "type": "camera-end",
       "scene": "flowBreak",
-      "note": "カメラが等倍の全景に引ききる（休憩画面が画面全体に広がる）",
-      "source": "src/scenes/FlowBreak.tsx:46 CAM_PULL"
+      "note": "カメラが等倍の全景に引ききる",
+      "source": "src/scenes/FlowBreak.tsx:58 CAM_PULL"
     },
     {
-      "frame": 1134,
+      "frame": 1676,
       "type": "tick",
       "scene": "flowBreak",
       "note": "休憩の残りが 1 秒減る（1 秒経過）",
       "source": "src/scenes/DesktopShared.tsx:36 breakRemaining"
     },
     {
-      "frame": 1136,
+      "frame": 1678,
       "type": "caption-full",
       "scene": "flowBreak",
       "note": "コピー「休憩は、義務ではなく報酬。」が出きる",
-      "source": "src/scenes/FlowBreak.tsx:41 CAPTION_REWARD"
+      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_REWARD"
     },
     {
-      "frame": 1164,
+      "frame": 1706,
       "type": "tick",
       "scene": "flowBreak",
       "note": "休憩の残りが 1 秒減る（2 秒経過）",
       "source": "src/scenes/DesktopShared.tsx:36 breakRemaining"
     },
     {
-      "frame": 1174,
+      "frame": 1716,
       "type": "caption-out-start",
       "scene": "flowBreak",
       "note": "コピー「休憩は、義務ではなく報酬。」が消え始める",
-      "source": "src/scenes/FlowBreak.tsx:41 CAPTION_REWARD"
+      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_REWARD"
     },
     {
-      "frame": 1186,
-      "type": "caption-out-end",
-      "scene": "flowBreak",
-      "note": "コピー「休憩は、義務ではなく報酬。」が消えきる",
-      "source": "src/scenes/FlowBreak.tsx:41 CAPTION_REWARD"
-    },
-    {
-      "frame": 1186,
+      "frame": 1726,
       "type": "washi-start",
       "scene": "flowBreak",
       "note": "休憩画面ごと washi へ抜け始める",
-      "source": "src/scenes/FlowBreak.tsx:42 WASHI_OUT"
+      "source": "src/scenes/FlowBreak.tsx:46 WASHI_OUT"
     },
     {
-      "frame": 1200,
+      "frame": 1728,
+      "type": "caption-out-end",
+      "scene": "flowBreak",
+      "note": "コピー「休憩は、義務ではなく報酬。」が消えきる",
+      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_REWARD"
+    },
+    {
+      "frame": 1740,
       "type": "washi-end",
       "scene": "flowBreak",
       "note": "washi 一色（ここから Modes のフェードの下に隠れる）",
-      "source": "src/scenes/FlowBreak.tsx:42 WASHI_OUT"
+      "source": "src/scenes/FlowBreak.tsx:46 WASHI_OUT"
     },
     {
-      "frame": 1200,
+      "frame": 1740,
       "type": "fade-in-start",
       "scene": "modes",
       "note": "modes が 15f のfadeで入り始める（前のシーンと重なる）",
-      "source": "src/timeline.ts:45 SCENE_DEFS modes"
+      "source": "src/timeline.ts:47 SCENE_DEFS modes"
     },
     {
-      "frame": 1214,
+      "frame": 1754,
       "type": "heading-in",
       "scene": "modes",
-      "note": "見出し「4つのモード。」が浮かび始める",
-      "source": "src/scenes/Modes.tsx:87 headIn"
+      "note": "見出し「区切りは、自分で決める。」が浮かび始める",
+      "source": "src/scenes/Modes.tsx:17 HEAD_IN"
     },
     {
-      "frame": 1215,
+      "frame": 1755,
       "type": "fade-in-end",
       "scene": "modes",
       "note": "modes のフェードが明ける",
-      "source": "src/timeline.ts:45 SCENE_DEFS modes"
+      "source": "src/timeline.ts:47 SCENE_DEFS modes"
     },
     {
-      "frame": 1218,
+      "frame": 1760,
       "type": "card-in",
       "scene": "modes",
-      "note": "1 枚目のパネル「フロー」が下から出始める",
-      "source": "src/scenes/Modes.tsx:16 STAGGER"
+      "note": "1 枚目のパネル「フロー（既定）」が大きく出始める",
+      "source": "src/scenes/Modes.tsx:18 MAIN_IN"
     },
     {
-      "frame": 1224,
-      "type": "card-in",
+      "frame": 1770,
+      "type": "tick",
       "scene": "modes",
-      "note": "2 枚目のパネル「ポモドーロ」が下から出始める",
-      "source": "src/scenes/Modes.tsx:16 STAGGER"
+      "note": "4枚の数字がそろって 1 秒進む（実時間）",
+      "source": "src/scenes/Modes.tsx:97 sec"
     },
     {
-      "frame": 1230,
+      "frame": 1772,
       "type": "heading-full",
       "scene": "modes",
       "note": "見出しが出きる",
-      "source": "src/scenes/Modes.tsx:87 headIn"
+      "source": "src/scenes/Modes.tsx:22 RISE"
     },
     {
-      "frame": 1230,
-      "type": "card-in",
-      "scene": "modes",
-      "note": "3 枚目のパネル「タイマー」が下から出始める",
-      "source": "src/scenes/Modes.tsx:16 STAGGER"
-    },
-    {
-      "frame": 1230,
-      "type": "tick",
-      "scene": "modes",
-      "note": "4枚の数字がそろって 1 秒進む（実時間）",
-      "source": "src/scenes/Modes.tsx:85 sec"
-    },
-    {
-      "frame": 1236,
+      "frame": 1778,
       "type": "card-settle",
       "scene": "modes",
       "note": "「フロー」が着地",
-      "source": "src/scenes/Modes.tsx:18 RISE"
+      "source": "src/scenes/Modes.tsx:22 RISE"
     },
     {
-      "frame": 1236,
+      "frame": 1780,
+      "type": "label-in",
+      "scene": "modes",
+      "note": "「区切りたい日は、ほかも選べる。」が出始める",
+      "source": "src/scenes/Modes.tsx:19 SUB_LABEL_IN"
+    },
+    {
+      "frame": 1788,
       "type": "card-in",
       "scene": "modes",
-      "note": "4 枚目のパネル「時計」が下から出始める",
-      "source": "src/scenes/Modes.tsx:16 STAGGER"
+      "note": "2 枚目のパネル「ポモドーロ」が右から出始める",
+      "source": "src/scenes/Modes.tsx:21 SUB_STAGGER"
     },
     {
-      "frame": 1242,
+      "frame": 1794,
+      "type": "card-in",
+      "scene": "modes",
+      "note": "3 枚目のパネル「タイマー」が右から出始める",
+      "source": "src/scenes/Modes.tsx:21 SUB_STAGGER"
+    },
+    {
+      "frame": 1800,
+      "type": "card-in",
+      "scene": "modes",
+      "note": "4 枚目のパネル「時計」が右から出始める",
+      "source": "src/scenes/Modes.tsx:21 SUB_STAGGER"
+    },
+    {
+      "frame": 1800,
+      "type": "tick",
+      "scene": "modes",
+      "note": "4枚の数字がそろって 1 秒進む（実時間）",
+      "source": "src/scenes/Modes.tsx:97 sec"
+    },
+    {
+      "frame": 1806,
       "type": "card-settle",
       "scene": "modes",
       "note": "「ポモドーロ」が着地",
-      "source": "src/scenes/Modes.tsx:18 RISE"
+      "source": "src/scenes/Modes.tsx:22 RISE"
     },
     {
-      "frame": 1248,
+      "frame": 1812,
       "type": "card-settle",
       "scene": "modes",
       "note": "「タイマー」が着地",
-      "source": "src/scenes/Modes.tsx:18 RISE"
+      "source": "src/scenes/Modes.tsx:22 RISE"
     },
     {
-      "frame": 1254,
+      "frame": 1818,
       "type": "card-settle",
       "scene": "modes",
       "note": "「時計」が着地",
-      "source": "src/scenes/Modes.tsx:18 RISE"
+      "source": "src/scenes/Modes.tsx:22 RISE"
     },
     {
-      "frame": 1260,
+      "frame": 1830,
       "type": "tick",
       "scene": "modes",
       "note": "4枚の数字がそろって 1 秒進む（実時間）",
-      "source": "src/scenes/Modes.tsx:85 sec"
+      "source": "src/scenes/Modes.tsx:97 sec"
     },
     {
-      "frame": 1290,
+      "frame": 1860,
       "type": "tick",
       "scene": "modes",
       "note": "4枚の数字がそろって 1 秒進む（実時間）",
-      "source": "src/scenes/Modes.tsx:85 sec"
+      "source": "src/scenes/Modes.tsx:97 sec"
     },
     {
-      "frame": 1320,
-      "type": "tick",
-      "scene": "modes",
-      "note": "4枚の数字がそろって 1 秒進む（実時間）",
-      "source": "src/scenes/Modes.tsx:85 sec"
-    },
-    {
-      "frame": 1350,
+      "frame": 1890,
       "type": "fade-in-start",
       "scene": "promises",
       "note": "promises が 15f のfadeで入り始める（前のシーンと重なる）",
-      "source": "src/timeline.ts:46 SCENE_DEFS promises"
+      "source": "src/timeline.ts:48 SCENE_DEFS promises"
     },
     {
-      "frame": 1362,
+      "frame": 1902,
       "type": "word-in",
       "scene": "promises",
       "note": "「ストリーク」が出始める（14f）",
-      "source": "src/scenes/Promises.tsx:23 Item appear"
+      "source": "src/scenes/Promises.tsx:26 Item appear"
     },
     {
-      "frame": 1364,
+      "frame": 1904,
       "type": "word-in",
       "scene": "promises",
       "note": "「点数」が出始める（14f）",
-      "source": "src/scenes/Promises.tsx:23 Item appear"
+      "source": "src/scenes/Promises.tsx:26 Item appear"
     },
     {
-      "frame": 1365,
+      "frame": 1905,
       "type": "fade-in-end",
       "scene": "promises",
       "note": "promises のフェードが明ける",
-      "source": "src/timeline.ts:46 SCENE_DEFS promises"
+      "source": "src/timeline.ts:48 SCENE_DEFS promises"
     },
     {
-      "frame": 1366,
+      "frame": 1906,
       "type": "word-in",
       "scene": "promises",
       "note": "「履歴」が出始める（14f）",
-      "source": "src/scenes/Promises.tsx:23 Item appear"
+      "source": "src/scenes/Promises.tsx:26 Item appear"
     },
     {
-      "frame": 1368,
+      "frame": 1908,
       "type": "word-in",
       "scene": "promises",
       "note": "「アカウント」が出始める（14f）",
-      "source": "src/scenes/Promises.tsx:23 Item appear"
+      "source": "src/scenes/Promises.tsx:26 Item appear"
     },
     {
-      "frame": 1370,
+      "frame": 1910,
       "type": "word-in",
       "scene": "promises",
       "note": "「送信」が出始める（14f）",
-      "source": "src/scenes/Promises.tsx:23 Item appear"
+      "source": "src/scenes/Promises.tsx:26 Item appear"
     },
     {
-      "frame": 1386,
+      "frame": 1926,
       "type": "strike-start",
       "scene": "promises",
       "note": "「ストリーク」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
-      "source": "src/scenes/Promises.tsx:14 STRIKE_GAP"
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
     },
     {
-      "frame": 1394,
-      "type": "strike-end",
-      "scene": "promises",
-      "note": "「ストリーク」の線が引ききる",
-      "source": "src/scenes/Promises.tsx:15 STRIKE_LEN"
-    },
-    {
-      "frame": 1394,
+      "frame": 1933,
       "type": "strike-start",
       "scene": "promises",
       "note": "「点数」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
-      "source": "src/scenes/Promises.tsx:14 STRIKE_GAP"
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
     },
     {
-      "frame": 1402,
+      "frame": 1934,
       "type": "strike-end",
       "scene": "promises",
-      "note": "「点数」の線が引ききる",
-      "source": "src/scenes/Promises.tsx:15 STRIKE_LEN"
+      "note": "「ストリーク」の線が引ききる",
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
     },
     {
-      "frame": 1402,
+      "frame": 1940,
       "type": "strike-start",
       "scene": "promises",
       "note": "「履歴」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
-      "source": "src/scenes/Promises.tsx:14 STRIKE_GAP"
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
     },
     {
-      "frame": 1410,
+      "frame": 1941,
       "type": "strike-end",
       "scene": "promises",
-      "note": "「履歴」の線が引ききる",
-      "source": "src/scenes/Promises.tsx:15 STRIKE_LEN"
+      "note": "「点数」の線が引ききる",
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
     },
     {
-      "frame": 1410,
+      "frame": 1947,
       "type": "strike-start",
       "scene": "promises",
       "note": "「アカウント」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
-      "source": "src/scenes/Promises.tsx:14 STRIKE_GAP"
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
     },
     {
-      "frame": 1418,
+      "frame": 1948,
       "type": "strike-end",
       "scene": "promises",
-      "note": "「アカウント」の線が引ききる",
-      "source": "src/scenes/Promises.tsx:15 STRIKE_LEN"
+      "note": "「履歴」の線が引ききる",
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
     },
     {
-      "frame": 1418,
+      "frame": 1954,
       "type": "strike-start",
       "scene": "promises",
       "note": "「送信」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
-      "source": "src/scenes/Promises.tsx:14 STRIKE_GAP"
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
     },
     {
-      "frame": 1426,
+      "frame": 1955,
+      "type": "strike-end",
+      "scene": "promises",
+      "note": "「アカウント」の線が引ききる",
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
+    },
+    {
+      "frame": 1962,
       "type": "strike-end",
       "scene": "promises",
       "note": "「送信」の線が引ききる",
-      "source": "src/scenes/Promises.tsx:15 STRIKE_LEN"
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
     },
     {
-      "frame": 1430,
+      "frame": 1972,
       "type": "word-vanish-start",
       "scene": "promises",
       "note": "「ストリーク」がぼけながら沈んで消え始める",
-      "source": "src/scenes/Promises.tsx:17 VANISH_GAP"
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
     },
     {
-      "frame": 1435,
+      "frame": 1977,
       "type": "word-vanish-start",
       "scene": "promises",
       "note": "「点数」がぼけながら沈んで消え始める",
-      "source": "src/scenes/Promises.tsx:17 VANISH_GAP"
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
     },
     {
-      "frame": 1440,
+      "frame": 1982,
       "type": "word-vanish-start",
       "scene": "promises",
       "note": "「履歴」がぼけながら沈んで消え始める",
-      "source": "src/scenes/Promises.tsx:17 VANISH_GAP"
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
     },
     {
-      "frame": 1442,
+      "frame": 1984,
       "type": "word-gone",
       "scene": "promises",
       "note": "「ストリーク」が消えきる",
-      "source": "src/scenes/Promises.tsx:18 VANISH_LEN"
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
     },
     {
-      "frame": 1445,
+      "frame": 1987,
       "type": "word-vanish-start",
       "scene": "promises",
       "note": "「アカウント」がぼけながら沈んで消え始める",
-      "source": "src/scenes/Promises.tsx:17 VANISH_GAP"
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
     },
     {
-      "frame": 1447,
+      "frame": 1989,
       "type": "word-gone",
       "scene": "promises",
       "note": "「点数」が消えきる",
-      "source": "src/scenes/Promises.tsx:18 VANISH_LEN"
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
     },
     {
-      "frame": 1450,
+      "frame": 1992,
       "type": "word-vanish-start",
       "scene": "promises",
       "note": "「送信」がぼけながら沈んで消え始める",
-      "source": "src/scenes/Promises.tsx:17 VANISH_GAP"
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
     },
     {
-      "frame": 1452,
+      "frame": 1994,
       "type": "word-gone",
       "scene": "promises",
       "note": "「履歴」が消えきる",
-      "source": "src/scenes/Promises.tsx:18 VANISH_LEN"
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
     },
     {
-      "frame": 1457,
+      "frame": 1999,
       "type": "word-gone",
       "scene": "promises",
       "note": "「アカウント」が消えきる",
-      "source": "src/scenes/Promises.tsx:18 VANISH_LEN"
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
     },
     {
-      "frame": 1462,
+      "frame": 2002,
+      "type": "note-in",
+      "scene": "promises",
+      "note": "「今回の時間だけ。」が浮かび始める（SUB_AT で「記録を持たないから、送るものもない。」が続く）",
+      "source": "src/scenes/Promises.tsx:22 NOTE_AT"
+    },
+    {
+      "frame": 2004,
       "type": "word-gone",
       "scene": "promises",
       "note": "「送信」が消えきる",
-      "source": "src/scenes/Promises.tsx:18 VANISH_LEN"
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
     },
     {
-      "frame": 1462,
-      "type": "note-in",
-      "scene": "promises",
-      "note": "最後の一文「通話・会議中は、休憩画面で割り込まない。」が浮かび始める",
-      "source": "src/scenes/Promises.tsx:20 NOTE_AT"
-    },
-    {
-      "frame": 1480,
+      "frame": 2020,
       "type": "note-full",
       "scene": "promises",
-      "note": "最後の一文が出きって静止",
-      "source": "src/scenes/Promises.tsx:69 noteIn"
+      "note": "「今回の時間だけ。」が出きる",
+      "source": "src/scenes/Promises.tsx:72 noteIn"
     },
     {
-      "frame": 1530,
+      "frame": 2070,
       "type": "fade-in-start",
       "scene": "words",
       "note": "words が 15f のfadeで入り始める（前のシーンと重なる）",
-      "source": "src/timeline.ts:47 SCENE_DEFS words"
+      "source": "src/timeline.ts:49 SCENE_DEFS words"
     },
     {
-      "frame": 1542,
-      "type": "line-in",
-      "scene": "words",
-      "note": "1 行目「集中を止めるものを、ひとつずつ消していきました。」が浮かび始める",
-      "source": "src/scenes/Words.tsx:8 LINE1"
-    },
-    {
-      "frame": 1545,
+      "frame": 2085,
       "type": "fade-in-end",
       "scene": "words",
       "note": "words のフェードが明ける",
-      "source": "src/timeline.ts:47 SCENE_DEFS words"
+      "source": "src/timeline.ts:49 SCENE_DEFS words"
     },
     {
-      "frame": 1562,
+      "frame": 2086,
+      "type": "line-in",
+      "scene": "words",
+      "note": "1 行目「集中を止めるものを、ひとつずつ外していきました。」が浮かび始める",
+      "source": "src/scenes/Words.tsx:9 LINE1"
+    },
+    {
+      "frame": 2106,
       "type": "line-full",
       "scene": "words",
       "note": "1 行目が出きる",
-      "source": "src/scenes/Words.tsx:14 Line opacity"
+      "source": "src/scenes/Words.tsx:15 Line opacity"
     },
     {
-      "frame": 1574,
+      "frame": 2130,
       "type": "line-in",
       "scene": "words",
       "note": "2 行目「最後に残った静けさが、この道具の名前です。」が浮かび始める",
-      "source": "src/scenes/Words.tsx:9 LINE2"
+      "source": "src/scenes/Words.tsx:10 LINE2"
     },
     {
-      "frame": 1584,
+      "frame": 2140,
       "type": "tint-start",
       "scene": "words",
       "note": "「静けさ」が墨からティールに染まり始める",
-      "source": "src/scenes/Words.tsx:25 tint"
+      "source": "src/scenes/Words.tsx:26 tint"
     },
     {
-      "frame": 1594,
+      "frame": 2150,
       "type": "line-full",
       "scene": "words",
       "note": "2 行目が出きる",
-      "source": "src/scenes/Words.tsx:14 Line opacity"
+      "source": "src/scenes/Words.tsx:15 Line opacity"
     },
     {
-      "frame": 1600,
+      "frame": 2156,
       "type": "tint-end",
       "scene": "words",
       "note": "「静けさ」が染まりきる。ここから静止",
-      "source": "src/scenes/Words.tsx:25 tint"
+      "source": "src/scenes/Words.tsx:26 tint"
     },
     {
-      "frame": 1650,
+      "frame": 2220,
       "type": "fade-in-start",
       "scene": "install",
       "note": "install が 15f のfadeで入り始める（前のシーンと重なる）",
-      "source": "src/timeline.ts:48 SCENE_DEFS install"
+      "source": "src/timeline.ts:50 SCENE_DEFS install"
     },
     {
-      "frame": 1662,
+      "frame": 2232,
       "type": "logo-in",
       "scene": "install",
       "note": "アイコンと「Quiet」のロゴが浮かび始める",
       "source": "src/scenes/Install.tsx:11 LOGO_IN"
     },
     {
-      "frame": 1665,
+      "frame": 2235,
       "type": "fade-in-end",
       "scene": "install",
       "note": "install のフェードが明ける",
-      "source": "src/timeline.ts:48 SCENE_DEFS install"
+      "source": "src/timeline.ts:50 SCENE_DEFS install"
     },
     {
-      "frame": 1672,
+      "frame": 2242,
       "type": "terminal-in",
       "scene": "install",
       "note": "ターミナルのウィンドウが浮かび始める",
       "source": "src/scenes/Install.tsx:12 TERM_IN"
     },
     {
-      "frame": 1687,
+      "frame": 2257,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 1/60「c」",
+      "note": "curl の打鍵 1/54「c」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1688,
+      "frame": 2258,
       "type": "logo-full",
       "scene": "install",
       "note": "ロゴが出きる",
       "source": "src/scenes/Install.tsx:35 rise(LOGO_IN)"
     },
     {
-      "frame": 1688,
+      "frame": 2258,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 2/60「u」（このフレームで 2 字）",
+      "note": "curl の打鍵 2/54「u」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1688,
+      "frame": 2259,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 3/60「r」（このフレームで 2 字）",
+      "note": "curl の打鍵 3/54「r」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1689,
+      "frame": 2259,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 4/60「l」",
+      "note": "curl の打鍵 4/54「l」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1690,
+      "frame": 2260,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 5/60「␣」（このフレームで 2 字）",
+      "note": "curl の打鍵 5/54「␣」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1690,
+      "frame": 2261,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 6/60「-」（このフレームで 2 字）",
+      "note": "curl の打鍵 6/54「-」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1691,
+      "frame": 2262,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 7/60「f」",
+      "note": "curl の打鍵 7/54「f」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1692,
+      "frame": 2262,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 8/60「s」（このフレームで 2 字）",
+      "note": "curl の打鍵 8/54「s」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1692,
+      "frame": 2263,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 9/60「S」（このフレームで 2 字）",
+      "note": "curl の打鍵 9/54「S」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1693,
-      "type": "key",
-      "scene": "install",
-      "note": "curl の打鍵 10/60「L」",
-      "source": "src/scenes/Install.tsx:14 TYPE"
-    },
-    {
-      "frame": 1694,
+      "frame": 2264,
       "type": "terminal-full",
       "scene": "install",
       "note": "ターミナルが出きる",
       "source": "src/scenes/Install.tsx:52 rise(TERM_IN)"
     },
     {
-      "frame": 1694,
+      "frame": 2264,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 11/60「␣」（このフレームで 2 字）",
+      "note": "curl の打鍵 10/54「L」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1694,
+      "frame": 2265,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 12/60「h」（このフレームで 2 字）",
+      "note": "curl の打鍵 11/54「␣」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1695,
+      "frame": 2265,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 13/60「t」",
+      "note": "curl の打鍵 12/54「h」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1696,
+      "frame": 2266,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 14/60「t」（このフレームで 2 字）",
+      "note": "curl の打鍵 13/54「t」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1696,
+      "frame": 2267,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 15/60「p」（このフレームで 2 字）",
+      "note": "curl の打鍵 14/54「t」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1697,
+      "frame": 2268,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 16/60「s」",
+      "note": "curl の打鍵 15/54「p」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1698,
+      "frame": 2268,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 17/60「:」（このフレームで 2 字）",
+      "note": "curl の打鍵 16/54「s」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1698,
+      "frame": 2269,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 18/60「/」（このフレームで 2 字）",
+      "note": "curl の打鍵 17/54「:」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1699,
+      "frame": 2270,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 19/60「/」",
+      "note": "curl の打鍵 18/54「/」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1700,
+      "frame": 2271,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 20/60「i」（このフレームで 2 字）",
+      "note": "curl の打鍵 19/54「/」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1700,
+      "frame": 2271,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 21/60「m」（このフレームで 2 字）",
+      "note": "curl の打鍵 20/54「q」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1701,
+      "frame": 2272,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 22/60「u」",
+      "note": "curl の打鍵 21/54「u」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1702,
+      "frame": 2273,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 23/60「t」（このフレームで 2 字）",
+      "note": "curl の打鍵 22/54「i」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1702,
+      "frame": 2274,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 24/60「a」（このフレームで 2 字）",
+      "note": "curl の打鍵 23/54「e」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1703,
+      "frame": 2274,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 25/60「r」",
+      "note": "curl の打鍵 24/54「t」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1704,
+      "frame": 2275,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 26/60「o」（このフレームで 2 字）",
+      "note": "curl の打鍵 25/54「.」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1704,
+      "frame": 2276,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 27/60「h」（このフレームで 2 字）",
+      "note": "curl の打鍵 26/54「i」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1705,
+      "frame": 2276,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 28/60「.」",
+      "note": "curl の打鍵 27/54「m」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1706,
+      "frame": 2277,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 29/60「g」（このフレームで 2 字）",
+      "note": "curl の打鍵 28/54「u」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1706,
+      "frame": 2278,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 30/60「i」（このフレームで 2 字）",
+      "note": "curl の打鍵 29/54「t」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1707,
+      "frame": 2279,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 31/60「t」",
+      "note": "curl の打鍵 30/54「a」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1708,
+      "frame": 2279,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 32/60「h」（このフレームで 2 字）",
+      "note": "curl の打鍵 31/54「r」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1708,
+      "frame": 2280,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 33/60「u」（このフレームで 2 字）",
+      "note": "curl の打鍵 32/54「o」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1709,
+      "frame": 2281,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 34/60「b」",
+      "note": "curl の打鍵 33/54「.」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1710,
+      "frame": 2282,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 35/60「.」（このフレームで 2 字）",
+      "note": "curl の打鍵 34/54「c」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1710,
+      "frame": 2282,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 36/60「i」（このフレームで 2 字）",
+      "note": "curl の打鍵 35/54「o」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1711,
+      "frame": 2283,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 37/60「o」",
+      "note": "curl の打鍵 36/54「m」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1712,
+      "frame": 2284,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 38/60「/」（このフレームで 2 字）",
+      "note": "curl の打鍵 37/54「/」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1712,
+      "frame": 2285,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 39/60「p」（このフレームで 2 字）",
+      "note": "curl の打鍵 38/54「i」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1713,
+      "frame": 2285,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 40/60「o」",
+      "note": "curl の打鍵 39/54「n」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1714,
+      "frame": 2286,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 41/60「m」（このフレームで 2 字）",
+      "note": "curl の打鍵 40/54「s」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1714,
+      "frame": 2287,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 42/60「o」（このフレームで 2 字）",
+      "note": "curl の打鍵 41/54「t」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1715,
+      "frame": 2288,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 43/60「/」",
+      "note": "curl の打鍵 42/54「a」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1716,
+      "frame": 2288,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 44/60「i」（このフレームで 2 字）",
+      "note": "curl の打鍵 43/54「l」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1716,
+      "frame": 2289,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 45/60「n」（このフレームで 2 字）",
+      "note": "curl の打鍵 44/54「l」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1717,
+      "frame": 2290,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 46/60「s」",
+      "note": "curl の打鍵 45/54「.」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1718,
-      "type": "key",
-      "scene": "install",
-      "note": "curl の打鍵 47/60「t」（このフレームで 2 字）",
-      "source": "src/scenes/Install.tsx:14 TYPE"
-    },
-    {
-      "frame": 1718,
-      "type": "key",
-      "scene": "install",
-      "note": "curl の打鍵 48/60「a」（このフレームで 2 字）",
-      "source": "src/scenes/Install.tsx:14 TYPE"
-    },
-    {
-      "frame": 1719,
-      "type": "key",
-      "scene": "install",
-      "note": "curl の打鍵 49/60「l」",
-      "source": "src/scenes/Install.tsx:14 TYPE"
-    },
-    {
-      "frame": 1720,
-      "type": "key",
-      "scene": "install",
-      "note": "curl の打鍵 50/60「l」（このフレームで 2 字）",
-      "source": "src/scenes/Install.tsx:14 TYPE"
-    },
-    {
-      "frame": 1720,
-      "type": "key",
-      "scene": "install",
-      "note": "curl の打鍵 51/60「.」（このフレームで 2 字）",
-      "source": "src/scenes/Install.tsx:14 TYPE"
-    },
-    {
-      "frame": 1720,
+      "frame": 2290,
       "type": "sub-in",
       "scene": "install",
       "note": "要件行「macOS 14+・無料・local-first flow timer」が浮かび始める",
       "source": "src/scenes/Install.tsx:15 SUB_IN"
     },
     {
-      "frame": 1721,
+      "frame": 2291,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 52/60「s」",
+      "note": "curl の打鍵 46/54「s」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1722,
+      "frame": 2291,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 53/60「h」（このフレームで 2 字）",
+      "note": "curl の打鍵 47/54「h」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1722,
+      "frame": 2292,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 54/60「␣」（このフレームで 2 字）",
+      "note": "curl の打鍵 48/54「␣」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1723,
+      "frame": 2293,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 55/60「|」",
+      "note": "curl の打鍵 49/54「|」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1724,
+      "frame": 2294,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 56/60「␣」（このフレームで 2 字）",
+      "note": "curl の打鍵 50/54「␣」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1724,
+      "frame": 2294,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 57/60「b」（このフレームで 2 字）",
+      "note": "curl の打鍵 51/54「b」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1725,
+      "frame": 2295,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 58/60「a」",
+      "note": "curl の打鍵 52/54「a」",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1726,
+      "frame": 2296,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 59/60「s」（このフレームで 2 字）",
+      "note": "curl の打鍵 53/54「s」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1726,
+      "frame": 2296,
       "type": "key",
       "scene": "install",
-      "note": "curl の打鍵 60/60「h」（このフレームで 2 字）",
+      "note": "curl の打鍵 54/54「h」（このフレームで 2 字）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1726,
+      "frame": 2296,
       "type": "type-end",
       "scene": "install",
       "note": "コマンドを打ち終わる（キャレットは点灯のまま、Enter は押さない）",
       "source": "src/scenes/Install.tsx:14 TYPE"
     },
     {
-      "frame": 1734,
+      "frame": 2304,
       "type": "sub-full",
       "scene": "install",
       "note": "要件行が出きる。以降は全要素が静止",
       "source": "src/scenes/Install.tsx:65 rise(SUB_IN)"
     },
     {
-      "frame": 1799,
+      "frame": 2369,
       "type": "final",
       "scene": "install",
       "note": "最終フレーム（サムネになる止め絵）",

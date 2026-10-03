@@ -1,7 +1,29 @@
-import { Easing } from "remotion";
-import { loadFont as loadMincho } from "@remotion/google-fonts/ZenOldMincho";
-import { loadFont as loadSans } from "@remotion/google-fonts/IBMPlexSansJP";
-import { loadFont as loadMono } from "@remotion/google-fonts/IBMPlexMono";
+import { cancelRender, continueRender, delayRender, Easing, staticFile } from "remotion";
+
+// フォントは public/fonts/ に同梱した TTF（SIL OFL 1.1、ライセンスは同じフォルダ）から読む。
+// Google Fonts から読むと日本語が百数十のチャンクに分かれ、並列の書き出しで取得が詰まってタイムアウトしたため
+const loadLocalFont = (family: string, file: string, weight: string) => {
+  // audio/cues.ts が Node からこのファイルを読み込むので、ブラウザ以外では何もしない
+  if (typeof FontFace === "undefined" || typeof document === "undefined") return;
+  const handle = delayRender(`Loading font ${file}`, { timeoutInMilliseconds: 120000 });
+  const face = new FontFace(family, `url(${staticFile(`fonts/${file}`)}) format("truetype")`, { weight });
+  face
+    .load()
+    .then(() => {
+      document.fonts.add(face);
+      continueRender(handle);
+    })
+    .catch((err) => cancelRender(err));
+};
+
+const MINCHO = "Zen Old Mincho";
+const SANS = "IBM Plex Sans JP";
+const MONO = "IBM Plex Mono";
+loadLocalFont(MINCHO, "ZenOldMincho-Bold.ttf", "700");
+loadLocalFont(SANS, "IBMPlexSansJP-Medium.ttf", "500");
+loadLocalFont(SANS, "IBMPlexSansJP-Bold.ttf", "700");
+loadLocalFont(MONO, "IBMPlexMono-Medium.ttf", "500");
+loadLocalFont(MONO, "IBMPlexMono-Bold.ttf", "700");
 
 // 色はアプリ（Sources/Pomo/DesignTokens.swift）と LP（docs/index.html）のトークンをそのまま使う
 export const color = {
@@ -19,18 +41,9 @@ export const color = {
 };
 
 export const font = {
-  mincho: loadMincho("normal", {
-    weights: ["700"],
-    subsets: ["japanese", "latin"],
-    ignoreTooManyRequestsWarning: true,
-  }).fontFamily,
-  sans: loadSans("normal", {
-    weights: ["500", "700"],
-    subsets: ["japanese", "latin"],
-    // 日本語は Google Fonts 側で百数十個のチャンクに分かれているため、リクエスト数の警告は避けられない
-    ignoreTooManyRequestsWarning: true,
-  }).fontFamily,
-  mono: loadMono("normal", { weights: ["500", "700"], subsets: ["latin"] }).fontFamily,
+  mincho: `"${MINCHO}"`,
+  sans: `"${SANS}"`,
+  mono: `"${MONO}"`,
 };
 
 // 静かな側の出入りに使う減速カーブ（v1 から共通）

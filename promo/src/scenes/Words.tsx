@@ -1,12 +1,13 @@
 import { AbsoluteFill, interpolate, interpolateColors, useCurrentFrame } from "remotion";
 import { clamp, color, ease, font } from "../theme";
 
-// 51–55秒: 結びの二行。2行目が揃ったら動かさず、終端は Install のフェードに任せる。
-// 入りのフェード（f0–15）の間は何も出さない。2行目と「静けさ」の染まりは f70 で止まり、
-// Install のフェードが始まる f120 まで 50f（約 1.7 秒）静止する
+// 69–74秒（150f）: 結びの二行。文言はアプリの PhilosophyPage の結びそのまま（動画だけ言い換えない）。
+// 2行目が揃ったら動かさず、終端は Install のフェードに任せる。
+// 入りのフェード（f0–15）の間は何も出さない。1行目は f36 で出きって 2行目まで 24f 単独で読ませ、
+// 2行目と「静けさ」の染まりは f86 で止まり、Install のフェードが始まる f150 まで 64f（約 2.1 秒）静止する
 
-const LINE1 = 12;
-const LINE2 = 44;
+const LINE1 = 16;
+const LINE2 = 60;
 
 const Line: React.FC<{ from: number; frame: number; children: React.ReactNode }> = ({ from, frame, children }) => (
   <div

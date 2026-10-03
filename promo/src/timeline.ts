@@ -8,10 +8,11 @@
 export const FPS = 30;
 export const WIDTH = 1920;
 export const HEIGHT = 1080;
-export const DURATION = 60 * FPS; // 1800
+export const DURATION = 79 * FPS; // 2370
 
 export type SceneId =
-  | "boot"
+  | "zone"
+  | "cut"
   | "noise"
   | "silence"
   | "desktop"
@@ -31,21 +32,22 @@ const s = (sec: number) => Math.round(sec * FPS);
 const cut: TransitionIn = { kind: "none" };
 
 export const SCENE_DEFS: SceneDef[] = [
-  { id: "boot", from: s(0), transitionIn: cut },
-  // ノイズ側はハードカット（グリッチは各シーン内で描く）
-  { id: "noise", from: s(3), transitionIn: cut },
+  // 前半は「集中を止めるもの」2つ: 乗ってきたところで切る 25 分のタイマーと、積み上がる記録
+  { id: "zone", from: s(0), transitionIn: cut },
+  { id: "cut", from: s(15), transitionIn: cut },
+  { id: "noise", from: s(19), transitionIn: cut },
   // Noise は最後に白へ抜けきるので、静寂へはカットで繋がる
-  { id: "silence", from: s(15), transitionIn: cut },
-  { id: "desktop", from: s(17), transitionIn: { kind: "fade", frames: 20 } },
+  { id: "silence", from: s(29), transitionIn: cut },
+  { id: "desktop", from: s(31), transitionIn: { kind: "fade", frames: 20 } },
   // Desktop → Presence → Follow → FlowBreak は同じデスクトップの上で続くので、カットで繋ぐ
   // （境界フレームでパネルの状態を揃えるのは各シーンの責務）
-  { id: "presence", from: s(22), transitionIn: cut },
-  { id: "follow", from: s(28), transitionIn: cut },
-  { id: "flowBreak", from: s(33), transitionIn: cut },
-  { id: "modes", from: s(40), transitionIn: { kind: "fade", frames: 15 } },
-  { id: "promises", from: s(45), transitionIn: { kind: "fade", frames: 15 } },
-  { id: "words", from: s(51), transitionIn: { kind: "fade", frames: 15 } },
-  { id: "install", from: s(55), transitionIn: { kind: "fade", frames: 15 } },
+  { id: "presence", from: s(36), transitionIn: cut },
+  { id: "follow", from: s(42), transitionIn: cut },
+  { id: "flowBreak", from: s(47), transitionIn: cut },
+  { id: "modes", from: s(58), transitionIn: { kind: "fade", frames: 15 } },
+  { id: "promises", from: s(63), transitionIn: { kind: "fade", frames: 15 } },
+  { id: "words", from: s(69), transitionIn: { kind: "fade", frames: 15 } },
+  { id: "install", from: s(74), transitionIn: { kind: "fade", frames: 15 } },
 ];
 
 const transitionFrames = (t: TransitionIn) => (t.kind === "none" ? 0 : t.frames);
