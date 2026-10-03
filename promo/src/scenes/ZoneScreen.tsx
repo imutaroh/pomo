@@ -2,9 +2,11 @@ import { Easing, interpolate, random } from "remotion";
 import { GO_CODE } from "../components/Desktop";
 import { clamp, color, font, formatTime } from "../theme";
 
-// Zone と Cut が共有する「夜の Mac の画面」。Cut の frame 0 は Zone の最終フレームと同じ構図から始めるので、
-// 画面の描画はフレーム番号（Zone の時間軸）だけで決まる関数にしてここに置く。
-// 後半の Desktop と同じ Go のプロジェクト（GO_CODE）を、夜のダークテーマで書いている。
+// 全カット共通の汎用ポモドーロ（GenericTimer）と、コードを書いている画面（ZoneScreen）。
+// ZoneScreen は「エンジニア向けすぎる」との判断でモンタージュから外した（4 カット目はメール = ZoneMail）。差し戻せるよう残してある。
+// 画面の描画はフレーム番号（この画面の時間軸）だけで決まる関数にしてある。モンタージュはこの時間軸をずらして借りる。
+// 後半の Desktop と同じ Go のプロジェクト（GO_CODE）を、ダークテーマで書いている。
+// timerRemaining / URGENT_FROM は Zone の時間軸そのもの（00:15 → 00:00）で、全カット・4 分割・Cut が共有する。
 
 export const ZONE_LENGTH = 450;
 
@@ -35,7 +37,7 @@ type Tok = [string, Kind];
 const CONTENT_TYPE_LINE = 16;
 const RESET_FUNC: Tok[][] = [
   [],
-  [["// handleReset は、今回の作業を捨てる（どこにも保存しない）", "c"]],
+  [["// handleReset は、計測を最初からやり直す", "c"]],
   [["func", "k"], [" handleReset", "f"], ["(w ", "p"], ["http.ResponseWriter", "t"], [", r *", "p"], ["http.Request", "t"], [") {", "p"]],
   [["\tstart = time.Now()", "p"]],
   [["\tw.WriteHeader(http.StatusNoContent)", "p"]],
@@ -279,7 +281,7 @@ const Editor: React.FC<{ frame: number }> = ({ frame }) => {
           <span key={c} style={{ width: 16, height: 16, borderRadius: "50%", backgroundColor: c }} />
         ))}
         <span style={{ flex: 1, textAlign: "center", marginRight: 80, fontFamily: font.sans, fontWeight: 500, fontSize: 17, color: TEXT_DIM }}>
-          main.go — session
+          main.go
         </span>
       </div>
       {/* タブ */}
@@ -371,10 +373,9 @@ const Editor: React.FC<{ frame: number }> = ({ frame }) => {
           borderTop: "1px solid rgba(255,255,255,0.08)",
         }}
       >
-        <div style={{ fontFamily: font.sans, fontWeight: 700, fontSize: 14, letterSpacing: "0.08em", color: TEXT_DIM, marginBottom: 8 }}>TERMINAL</div>
         <Terminal frame={frame} />
       </div>
-      {/* ステータスバー: エラーの数 */}
+      {/* 下端の細い帯（特定のエディタの表記に似せないため、エラーの印だけ） */}
       <div
         style={{
           position: "absolute",
@@ -393,10 +394,7 @@ const Editor: React.FC<{ frame: number }> = ({ frame }) => {
           backgroundColor: CHROME,
         }}
       >
-        <span style={{ color: problems > 0 ? color.alarm : TEXT_DIM }}>{problems > 0 ? `⚠ ${problems} problem` : "✓ 0 problems"}</span>
-        <div style={{ flex: 1 }} />
-        <span>Go 1.23</span>
-        <span>UTF-8</span>
+        <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: problems > 0 ? color.alarm : OK_GREEN }} />
       </div>
     </div>
   );
@@ -423,7 +421,8 @@ const Tomato: React.FC<{ body: string }> = ({ body }) => (
   </svg>
 );
 
-const GenericTimer: React.FC<{ frame: number }> = ({ frame }) => {
+// 置き場所は呼び出し側が決める（left/top/scale）。Zone のモンタージュでは全カットの同じ隅に、4 分割では各画面の隅に置く
+export const GenericTimer: React.FC<{ frame: number; left: number; top: number; scale?: number }> = ({ frame, left, top, scale = 1 }) => {
   const remaining = timerRemaining(frame);
   const urgent = frame >= URGENT_FROM;
   const tick = (ZONE_LENGTH - frame) % 30;
@@ -433,8 +432,9 @@ const GenericTimer: React.FC<{ frame: number }> = ({ frame }) => {
     <div
       style={{
         position: "absolute",
-        left: TIMER.x,
-        top: TIMER.y,
+        left,
+        top,
+        transformOrigin: "100% 0",
         width: TIMER.w,
         height: TIMER.h,
         borderRadius: 22,
@@ -442,7 +442,7 @@ const GenericTimer: React.FC<{ frame: number }> = ({ frame }) => {
         alignItems: "center",
         gap: 22,
         padding: "0 26px",
-        scale: String(pulse),
+        scale: String(pulse * scale),
         backgroundColor: done ? color.alarm : "rgba(28,28,30,0.9)",
         boxShadow: urgent
           ? `0 0 0 1px rgba(255,59,48,0.7), 0 0 ${40 * pulse}px rgba(255,59,48,0.45), 0 18px 40px rgba(0,0,0,0.5)`
@@ -492,8 +492,8 @@ const MenuBar: React.FC = () => (
       boxShadow: "0 0.5px 0 rgba(255,255,255,0.08)",
     }}
   >
-    <span style={{ fontWeight: 700, color: TEXT_PRIMARY }}>Code</span>
-    {["ファイル", "編集", "選択", "表示", "移動", "実行", "ターミナル"].map((m) => (
+    <span style={{ fontWeight: 700, color: TEXT_PRIMARY }}>エディタ</span>
+    {["ファイル", "編集", "表示"].map((m) => (
       <span key={m}>{m}</span>
     ))}
     <div style={{ flex: 1 }} />
@@ -540,7 +540,8 @@ const camAt = (frame: number) => {
 
 // ---------------------------------------------------------------- 画面
 
-export const ZoneScreen: React.FC<{ frame: number }> = ({ frame }) => {
+// showTimer: モンタージュではタイマーを画面側（全カット共通の隅）に描くので、ここでは出さない
+export const ZoneScreen: React.FC<{ frame: number; showTimer?: boolean }> = ({ frame, showTimer = true }) => {
   const cam = camAt(frame);
   // タイマーへ寄ると、コードは少しだけピントの外へ（拡大後の画面で 2px 程度。打っているのが分かる程度に留める）
   const defocus = interpolate(frame, [PUSH_FROM + 10, ZONE_LENGTH], [0, 1.2], clamp);
@@ -572,7 +573,7 @@ export const ZoneScreen: React.FC<{ frame: number }> = ({ frame }) => {
         <div style={{ position: "absolute", inset: 0, filter: defocus > 0 ? `blur(${defocus}px)` : undefined }}>
           <Editor frame={frame} />
         </div>
-        <GenericTimer frame={frame} />
+        {showTimer ? <GenericTimer frame={frame} left={TIMER.x} top={TIMER.y} /> : null}
         <MenuBar />
       </div>
     </div>

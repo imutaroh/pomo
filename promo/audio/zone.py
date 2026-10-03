@@ -2,11 +2,16 @@
 
   python3 promo/audio/zone.py
 
-- Zone: 「いま、いいところ」。ローファイ寄りのビートと温かいエレピ。1 小節目はこもった音（フィルタが閉じている）で始まり、
-  1 回目のテストが通る（ok）瞬間にフィルタが開いてビートが入る。2 回目の ok で上に息のパッドとフレーズの変化が乗り、
-  最後の小節はスネアのロールで「次の小節で一番いいところへ行く」ところまで上がる。そこで 00:00 が来る
-- 拍は 2 回の ok から逆算する（1 回目の ok が 2 小節目の頭、2 回目の ok が 4 小節目の頭）。絵の打鍵・ok・秒のチックは
-  cues.json のフレームちょうどに置く
+- Zone: 「いま、いいところ」。4 つの仕事のモンタージュ（資料 → 表 → デザイン → メール）→ 4 分割。
+  ローファイ寄りのビートと温かいエレピ。1 小節目はこもった音（フィルタが閉じている）で始まり、
+  資料の箇条書きが一気に埋まっている最中の 2 小節目の頭でフィルタが開いてビートが入る。デザインへのカット（4 小節目の頭）で
+  上に息のパッドとフレーズの変化が乗り、最後の小節（4 分割）はスネアのロールで「次の小節で一番いいところへ行く」ところまで
+  上がる。そこで 00:00 が来る
+- 拍はモンタージュのカットから逆算する（デザインへのカットが 4 小節目の頭、メールへのカットが 5 小節目の頭）。
+  ほかのカット（表へ・4 分割へ）も拍に乗る（どちらも 4 拍目＝スネア）。乗っていなければ止める
+- 効果音は各カットの山場に置く: 資料は見出しが並ぶ瞬間に澄んだ 2 音（A5→D6）、表は Enter・行が埋まる粒・棒が立つ高い粒、
+  デザインはガイドに吸い付く小さなコト・揃った瞬間に 2 音（C#6→E6）、メールは送信で 2 音（E6→A6）。2 音は仕事が進むほど
+  一段ずつ上がる。打鍵は映っている画面のぶんだけ鳴らし（4 分割では 4 画面の位置に振り分ける）、すべて cues.json のフレームちょうどに置く
 - 汎用ポモドーロの残り 5 秒（赤くなる）から秒のチックがかすかに鳴り、00:03〜00:01 ではっきり聞こえる
 - Cut: 00:00 で全部を断ち切る（残響ごと 2f の完全な無音）→ タイマーのアラーム（2 音の交互、8kHz 以上を削る）→
   白フラッシュの一撃 → 赤地のグリッチ（絵のグリッチ強度に沿わせる）→ 暗転で止める → 「いま、いいところだったのに。」の下で、
@@ -63,7 +68,7 @@ CHORDS = [
 # 後半の Quiet のモチーフ（A・B・C#・E の短・短・長）はこの形を受け継いでいる
 HOOK = [(0.0, 78, 0.5), (0.5, 81, 0.5), (1.0, 83, 1.5), (2.5, 81, 0.5), (3.0, 76, 1.0)]
 HOOK_ANSWER = [(0.0, 78, 0.5), (0.5, 81, 0.5), (1.0, 83, 1.5), (2.5, 85, 0.5), (3.0, 81, 1.0)]
-# 2 回目の ok から上に足す息のパッド（E5・A5・B5。G・F#m・Em・A のどれにも合う共通音）
+# デザインへのカットから上に足す息のパッド（E5・A5・B5。G・F#m・Em・A のどれにも合う共通音）
 AIR = [76, 81, 83]
 
 
@@ -81,6 +86,32 @@ def f2s(frame: float) -> int:
     return int(round(frame * SPF))
 
 
+# デザインへのカットが何小節目の頭か（0 始まり）。メールへのカットがその次の小節の頭
+DESIGN_BAR = 3
+# 最後の小節でスネアのロールに切り替わる拍（0 始まり）。それより前は普段の小節と同じキックとスネア
+ROLL_FROM = 2.0
+# ロールの強さ（最初, 00:00 直前）と、上がっていく帯域ノイズの大きさ。最後の 1 秒が Zone で一番大きくなるように
+# （小節の頭の和音とキックが 00:00 の 2 秒以上前にあるので、ロールとノイズだけで上がりきる必要がある）
+ROLL_VEL = (0.5, 2.2)
+RISER_GAIN = 0.7
+
+
+def grid(cues: list[dict]) -> tuple[float, float, float]:
+    """(1 小節目の頭, 1 小節, 1 拍) のフレーム。モンタージュのカット（表・デザイン・メール・4 分割）から逆算する。
+
+    quiet.py も 25:00 の引用の速さにこれを使う。"""
+    cuts = frames(cues, "zone", "montage-cut")
+    assert len(cuts) == 4, cuts
+    _, design, mail, _ = cuts
+    bar = mail - design
+    beat = bar / 4
+    bar0 = design - DESIGN_BAR * bar
+    for c in cuts:
+        x = (c - bar0) / beat
+        assert abs(x - round(x)) * beat <= 0.5, ("カットが拍に乗っていない", c, x)
+    return bar0, bar, beat
+
+
 def main() -> None:
     data = load_cues()
     sec = {s["id"]: s for s in data["sections"]}
@@ -91,12 +122,10 @@ def main() -> None:
     N = f2s(end)
     rng = np.random.default_rng(SEED)
 
-    # ---- 拍: 2 回の ok から逆算
-    ok1, ok2 = frames(cues, "zone", "test-ok")
-    bar = (ok2 - ok1) / 2
-    beat = bar / 4
-    bar0 = ok1 - bar  # 1 小節目の頭
+    # ---- 拍: モンタージュのカットから逆算
+    bar0, bar, beat = grid(cues)
     bars = [bar0 + k * bar for k in range(len(CHORDS))]
+    open_at, lift_at = bars[1], bars[DESIGN_BAR]  # フィルタが開いてビートが入る / パッドとフレーズの変化が乗る
     assert bars[-1] < cut_at < bars[-1] + bar, ("最後の小節の途中で 00:00 が来る想定", bars, cut_at)
     at = lambda b, x: bars[b] + x * beat  # noqa: E731  b 小節目の x 拍目のフレーム
     print(f"拍: {beat:.3f}f（{60 * 30 / beat:.1f} BPM）、小節の頭 {[round(b, 2) for b in bars]}")
@@ -104,7 +133,7 @@ def main() -> None:
     music = Bus(N)  # エレピ・ベース・フレーズ（1 小節目はフィルタで閉じる）
     drums = Bus(N)
     low = Bus(N)  # ベース（ビートと一緒に入るのでフィルタはかけない）
-    sfx = Bus(N)  # 打鍵・ok・チック（フィルタをかけない）
+    sfx = Bus(N)  # 打鍵・山場の 2 音・チック（フィルタをかけない）
     send = Bus(N)
     kicks: list[float] = []
 
@@ -123,7 +152,7 @@ def main() -> None:
             s = zi.rhodes(m, v * 0.55, beat * 1.2 / 30, rng)
             music.add(f2s(at(b, 2.5) + i * 0.25), s, pan=0.25 - 0.25 * i, gain=0.3)
 
-    # ---- ベース: 2 小節目（1 回目の ok）から
+    # ---- ベース: 2 小節目（フィルタが開く）から
     for b in range(1, len(CHORDS)):
         _, _, root, fifth = CHORDS[b]
         for x, m, d, v in ((0, root, 1.6, 1.0), (2.5, root, 0.9, 0.8), (3.5, fifth, 0.4, 0.6)):
@@ -140,48 +169,57 @@ def main() -> None:
                 music.add(f2s(at(b, x)), s, pan=0.18, gain=0.3 * g)
                 send.add(f2s(at(b, x)), s, pan=-0.2, gain=0.14 * g)
 
-    # ---- 息のパッド: 2 回目の ok から
-    n = f2s(cut_at + 30) - f2s(ok2)
-    music.add(f2s(ok2), np.vstack([zi.air_pad(AIR, n, rng, 1.6), zi.air_pad(AIR, n, rng, 1.6)]), gain=0.09)
+    # ---- 息のパッド: デザインへのカット（4 小節目の頭）から
+    n = f2s(cut_at + 30) - f2s(lift_at)
+    music.add(f2s(lift_at), np.vstack([zi.air_pad(AIR, n, rng, 1.6), zi.air_pad(AIR, n, rng, 1.6)]), gain=0.09)
 
-    # ---- ドラム: 1 回目の ok でフィルタが開くのと同時に入る
+    # ---- ドラム: 2 小節目の頭（資料が一気に埋まっている最中）でフィルタが開くのと同時に入る
     for b in range(1, len(CHORDS)):
         last = b == len(CHORDS) - 1
         for x in (0.0, 1.75, 2.5):
-            if last and x > 0:
+            if last and x >= ROLL_FROM:
                 break
             drums.add(f2s(at(b, x)), zi.kick(1.0 if x == 0 else 0.8), gain=0.6)
             kicks.append(at(b, x))
+        for x in (1.0, 3.0):
+            if last and x >= ROLL_FROM:
+                break
+            s = zi.snare(rng, 0.85)
+            drums.add(f2s(at(b, x)), s, pan=0.05, gain=0.45)
+            send.add(f2s(at(b, x)), s, gain=0.12)
         if not last:
-            for x in (1.0, 3.0):
-                s = zi.snare(rng, 0.85)
-                drums.add(f2s(at(b, x)), s, pan=0.05, gain=0.45)
-                send.add(f2s(at(b, x)), s, gain=0.12)
-            if b >= 3:
+            if b >= DESIGN_BAR:
                 drums.add(f2s(at(b, 3.75)), zi.snare(rng, 0.18, tight=0.6), pan=0.1, gain=0.45)
-        # ハイハット: 8 分（裏はスウィングで少し遅らせて弱く）。2 回目の ok からは 16 分のゴーストと、3.5 拍目の開いた音
+        # ハイハット: 8 分（裏はスウィングで少し遅らせて弱く）。デザインへのカットからは 16 分のゴーストと、3.5 拍目の開いた音
         for k in range(8):
             x = k / 2 + (0.06 if k % 2 else 0.0)
             drums.add(f2s(at(b, x)), zi.hat(rng, 0.55 if k % 2 == 0 else 0.36), pan=0.3, gain=0.22)
-            if b >= 3:
+            if b >= DESIGN_BAR:
                 drums.add(f2s(at(b, x + 0.25 + 0.03)), zi.hat(rng, 0.14), pan=0.4, gain=0.22)
-        if 3 <= b < len(CHORDS) - 1:
+        if DESIGN_BAR <= b < len(CHORDS) - 1:
             drums.add(f2s(at(b, 3.5)), zi.hat(rng, 0.3, open_=True), pan=0.3, gain=0.22)
 
-    # 最後の小節: 小節頭のキックのあと、スネアの 16 分のロールが強まっていく（次の小節の頭で「来る」はずだった）
+    # 最後の小節: 前半 2 拍は普段どおりのキックとスネア、3 拍目からスネアの 16 分のロールが強まっていく
+    # （次の小節の頭で「来る」はずだった）。ロールの強まりは 00:00 までの残りで測るので、小節が長くても最後が一番大きい
     lb = len(CHORDS) - 1
-    x = 0.5
+    roll0 = at(lb, ROLL_FROM)
+    assert cut_at - roll0 >= beat, ("ロールが短すぎる", roll0, cut_at)
+    x = ROLL_FROM
     while at(lb, x) < cut_at:
-        k = (at(lb, x) - bars[lb]) / (cut_at - bars[lb])
-        s = zi.snare(rng, 0.2 + 0.75 * k**1.3, tight=0.55)
+        k = (at(lb, x) - roll0) / (cut_at - roll0)
+        s = zi.snare(rng, ROLL_VEL[0] + (ROLL_VEL[1] - ROLL_VEL[0]) * k**1.3, tight=0.55)
         drums.add(f2s(at(lb, x)), s, pan=0.05, gain=0.45)
         send.add(f2s(at(lb, x)), s, gain=0.1 * k)
         x += 0.25
-    # 上がっていく帯域ノイズ（最後の小節の頭から）
-    r0, r1 = f2s(bars[lb]), f2s(cut_at)
+    # ロールの下でキックも詰まっていく（8 分 → 16 分）。和音を沈ませるダッキングには入れない（上がりきる途中で引かない）
+    for x, v in ((2.0, 0.8), (2.5, 0.9), (3.0, 1.0), (3.25, 1.1)):
+        if at(lb, x) < cut_at:
+            drums.add(f2s(at(lb, x)), zi.kick(v), gain=0.6)
+    # 上がっていく帯域ノイズ（ロールと同じく 3 拍目から）
+    r0, r1 = f2s(roll0), f2s(cut_at)
     u = np.linspace(0, 1, r1 - r0)
-    riser = svf(rng.standard_normal((2, r1 - r0)), 500 * (6000 / 500) ** u, q=1.5, mode="bp") * u**2
-    drums.add(r0, riser, gain=0.12)
+    riser = svf(rng.standard_normal((2, r1 - r0)), 500 * (6000 / 500) ** u, q=1.5, mode="bp") * u**1.5
+    drums.add(r0, riser, gain=RISER_GAIN)
 
     # シェイカー: 1 小節目から 16 分で薄く刻み、ビートが入ってからは一歩下がる
     f = 0.0
@@ -192,9 +230,9 @@ def main() -> None:
         drums.add(f2s(f), zi.shaker(rng, v), pan=-0.35, gain=0.18)
         f = bar0 + (k + 1) * beat / 4 if f >= bar0 else bar0
 
-    # ---- フィルタ: 1 小節目はこもらせ（600Hz → 2.2kHz）、1 回目の ok の 3f 前から一気に開く
+    # ---- フィルタ: 1 小節目はこもらせ（600Hz → 2.2kHz）、2 小節目の頭の 3f 前から一気に開く
     fr = np.arange(N) / SPF
-    fc = np.interp(fr, [0, ok1 - 3, ok1 + 1, ok1 + 2], [600, 2200, 14000, 20000])
+    fc = np.interp(fr, [0, open_at - 3, open_at + 1, open_at + 2], [600, 2200, 14000, 20000])
     music.x = svf(music.x, fc, q=0.8)
     music.x = svf(music.x, fc, q=0.8)  # 2 段で 24dB/oct（閉じているのを分かりやすく）
 
@@ -210,25 +248,54 @@ def main() -> None:
     vinyl = zi.crackle(f2s(cut_at), rng)
     music.add(0, vinyl, gain=0.05)
 
-    # ---- 打鍵（絵の打鍵のフレームちょうど）。速く打つところは密度に応じて一打ずつ小さくし、粒の帯として聞かせる
-    keys = frames(cues, "zone", "key")
-    karr = np.array(keys)
+    # ---- 打鍵（絵の打鍵のフレームちょうど）。映っている画面のぶんだけ。速く打つところは密度に応じて一打ずつ小さくし、粒の帯として聞かせる。
+    # 1 画面のカットでは中央寄り、4 分割では画面の位置（左上 資料・右上 表・左下 デザイン・右下 メール）に振り分ける
+    split = frames(cues, "zone", "montage-cut")[-1]
+    quad_pan = {"doc": -0.5, "sheet": 0.5, "design": -0.35, "mail": 0.35}
+    keys = sorted((c["frame"], c["type"].split(":")[1]) for c in cues if c["scene"] == "zone" and c["type"].startswith("key:"))
+    assert keys, "Zone の打鍵のキューが無い"
+    karr = np.array([f for f, _ in keys])
     seen: dict[int, int] = {}
-    for f in keys:
+    for f, app in keys:
         j = seen.get(f, 0)
         seen[f] = j + 1
         dens = np.sum(np.abs(karr - f) <= 3)
         g = 0.36 / np.sqrt(max(1.0, dens / 2.5))
-        sfx.add(f2s(f + 0.45 * j), zi.key_thock(rng, rng.uniform(0.7, 1.1)), pan=rng.uniform(-0.3, 0.1), gain=g)
-    for f in frames(cues, "zone", "key-enter"):
-        sfx.add(f2s(f), zi.key_thock(rng, 1.0, heavy=True), pan=-0.1, gain=0.5)
+        p = quad_pan[app] + rng.uniform(-0.1, 0.1) if f >= split else rng.uniform(-0.3, 0.1)
+        sfx.add(f2s(f + 0.45 * j), zi.key_thock(rng, rng.uniform(0.7, 1.1)), pan=p, gain=g)
 
-    # ---- テストが通る: 澄んだ 2 音（1 回目は C#6→E6、2 回目は E6→A6 と一段上がる）
-    for f, notes in ((ok1, (85, 88)), (ok2, (88, 93))):
+    # 山場の澄んだ 2 音（2.5f 差）。仕事が進むほど一段ずつ上がる
+    def glass2(f: float, notes: tuple[int, int], pan: float, gain: float) -> None:
         for i, m in enumerate(notes):
             s = zi.glass(m, 1.0, rng)
-            sfx.add(f2s(f + 2.5 * i), s, pan=0.15 + 0.15 * i, gain=0.13)
+            sfx.add(f2s(f + 2.5 * i), s, pan=pan + 0.15 * i, gain=gain)
             send.add(f2s(f + 2.5 * i), s, pan=0.3, gain=0.1)
+
+    # ① 資料: 見出しが 2 つ光って並ぶ（構成が見えた）。1 音ずつ、見出しの出るフレームに
+    for f, m in zip(frames(cues, "zone", "doc-outline"), (81, 86)):
+        s = zi.glass(m, 1.0, rng)
+        sfx.add(f2s(f), s, pan=-0.1, gain=0.1)
+        send.add(f2s(f), s, pan=0.3, gain=0.1)
+    # ② 表: Enter（重い打鍵）→ 下へ引いて行が埋まる粒 → 合計 → 棒が立つたびに高い粒（Em9 の構成音で上がる）
+    sfx.add(f2s(one(cues, "zone", "sheet-enter")), zi.key_thock(rng, 1.0, heavy=True), pan=-0.1, gain=0.5)
+    for i, f in enumerate(frames(cues, "zone", "sheet-fill")):
+        sfx.add(f2s(f), zi.key_thock(rng, 0.45 + 0.08 * i), pan=0.1, gain=0.3)
+    sfx.add(f2s(one(cues, "zone", "sheet-total")), zi.key_thock(rng, 0.9, heavy=True), pan=0.05, gain=0.35)
+    for i, (f, m) in enumerate(zip(frames(cues, "zone", "sheet-bar"), (86, 88, 90, 91, 95, 98))):
+        s = zi.glass(m, 1.0, rng, dur=0.7)
+        sfx.add(f2s(f), s, pan=-0.2 + 0.08 * i, gain=0.045)
+        send.add(f2s(f), s, pan=0.3, gain=0.05)
+    # ③ デザイン: ガイドに吸い付く小さなコト → 全部揃った瞬間に 2 音
+    for f in frames(cues, "zone", "design-snap"):
+        sfx.add(f2s(f), zi.key_thock(rng, 0.8), pan=0.1, gain=0.32)
+    glass2(one(cues, "zone", "design-aligned"), (85, 88), 0.15, 0.13)
+    # ④ メール: 送信を押す（重い打鍵）と同時に 2 音
+    sent = one(cues, "zone", "mail-sent")
+    sfx.add(f2s(sent), zi.key_thock(rng, 1.0, heavy=True), pan=-0.1, gain=0.5)
+    glass2(sent, (88, 93), 0.15, 0.13)
+    # 4 分割へのカット（4 拍目のスネア）に、開いたハイハットを一枚足して「4 人同時」を開く
+    drums.add(f2s(split), zi.hat(rng, 0.45, open_=True), pan=-0.2, gain=0.22)
+    drums.add(f2s(split), zi.hat(rng, 0.45, open_=True), pan=0.2, gain=0.22)
 
     # ---- 汎用ポモドーロの秒のチック: 赤くなる残り 5 秒からかすかに、00:03 からはっきり。タイマーのある右寄りに置く
     urgent = one(cues, "zone", "urgent")

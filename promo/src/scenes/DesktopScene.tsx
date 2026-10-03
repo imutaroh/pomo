@@ -3,7 +3,7 @@ import { Caption } from "../components/Caption";
 import { clamp, ease } from "../theme";
 import { CAM_NEAR, CAM_WIDE, Camera, camEase, clockString, DesktopPanel, lerpCam, TYPED_DESKTOP, WorkDesktop } from "./DesktopShared";
 
-// 17–22秒: 白から、Go を書いている最中の Mac が現れる。右上にパネルが静かに出てきて、
+// 31–36秒: 白から、提案書を書いている最中の Mac が現れる。右上にパネルが静かに出てきて、
 // カメラはそのパネルへゆっくり寄る。パネルはまだ待機（00:00・いつでもどうぞ）。
 // 待機を長く見せすぎない（Presence の 1.3 秒目で再生する）。
 // 最終フレーム = Presence の frame 0（CAM_NEAR・待機のパネル・ポインタはタイプ中で非表示）

@@ -360,7 +360,7 @@ export const Noise: React.FC = () => {
       {/* 止まった瞬間の白い一閃 */}
       {freezeHit > 0 ? <AbsoluteFill style={{ backgroundColor: color.washi, opacity: freezeHit }} /> : null}
 
-      {/* HUD */}
+      {/* HUD。仕事をする人向けなので、ゲームや端末風の英語表記にせず平易な日本語で */}
       <div
         style={{
           position: "absolute",
@@ -370,7 +370,7 @@ export const Noise: React.FC = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          fontFamily: font.mono,
+          fontFamily: font.sans,
           fontWeight: 500,
           fontSize: 26,
           color: TEXT_SECONDARY,
@@ -382,7 +382,7 @@ export const Noise: React.FC = () => {
         }}
       >
         <span>
-          FOCUS.EXE — INTERRUPTIONS{" "}
+          今日の中断{"\u2002"}
           <span
             style={{
               display: "inline-block",
@@ -391,13 +391,13 @@ export const Noise: React.FC = () => {
               scale: String(1 + kick * 0.25),
             }}
           >
-            ×{String(shown).padStart(2, "0")}
+            {shown}回
           </span>
         </span>
         <span>
           {/* 赤は録画ランプの小さな点だけ */}
-          <span style={{ color: color.alarm, opacity: frame % 16 < 10 ? 1 : 0.35 }}>●</span> REC  STREAK 12  SCORE{" "}
-          <span style={{ color: TEXT_PRIMARY, fontWeight: 700 }}>{String(score).padStart(2, "0")}</span>
+          <span style={{ color: color.alarm, opacity: frame % 16 < 10 ? 1 : 0.35 }}>●</span> 記録中　連続 12 日　集中スコア{" "}
+          <span style={{ color: TEXT_PRIMARY, fontWeight: 700, fontFamily: font.mono }}>{score}</span>
         </span>
       </div>
 

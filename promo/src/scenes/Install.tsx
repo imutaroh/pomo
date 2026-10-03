@@ -1,18 +1,14 @@
 import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from "remotion";
-import { Terminal } from "../components/Terminal";
 import { clamp, color, ease, font } from "../theme";
 
-// 55–60秒: 名前 → インストールの一行 → 要件。入りのフェード（f0–15）の間は何も出さない。
-// f84 以降は全要素が止まり（65f ≈ 2.2 秒）、最終フレームがサムネになる
+// 74–79秒: 名前 → URL → 要件。入りのフェード（f0–15）の間は何も出さない。
+// f64 以降は全要素が止まり（86f ≈ 2.9 秒）、最終フレームがサムネになる
 
-// 本物のインストーラ（#73）の呼び出し。コピペされる前提なので一字一句変えない
-const COMMAND = "curl -fsSL https://quiet.imutaro.com/install.sh | bash";
+const URL_TEXT = "quiet.imutaro.com";
 
-const LOGO_IN = 12;
-const TERM_IN = 22;
-// 最後の 2 秒の静止を残すため、タイプは 40f（約 1.3 秒）に収める
-const TYPE: [number, number] = [36, 76];
-const SUB_IN = 70;
+const LOGO_IN = 16;
+const URL_IN = 30;
+const SUB_IN = 46;
 
 const rise = (frame: number, from: number, len: number) => {
   const p = interpolate(frame, [from, from + len], [0, 1], { ...clamp, easing: ease });
@@ -21,7 +17,6 @@ const rise = (frame: number, from: number, len: number) => {
 
 export const Install: React.FC = () => {
   const frame = useCurrentFrame();
-  const typed = interpolate(frame, TYPE, [0, COMMAND.length], clamp);
 
   return (
     <AbsoluteFill
@@ -32,14 +27,14 @@ export const Install: React.FC = () => {
         flexDirection: "column",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 28, marginLeft: -38, ...rise(frame, LOGO_IN, 26) }}>
-        {/* icon.png は内側に余白があり、そのままだと群が約 19px 右に寄って見える。marginLeft で左へ戻す */}
-        <Img src={staticFile("icon.png")} style={{ width: 176, height: 176 }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 24, marginLeft: -32, ...rise(frame, LOGO_IN, 24) }}>
+        {/* icon.png は内側に余白があり、そのままだと群が右に寄って見える。marginLeft で左へ戻す */}
+        <Img src={staticFile("icon.png")} style={{ width: 150, height: 150 }} />
         <div
           style={{
             fontFamily: font.mincho,
             fontWeight: 700,
-            fontSize: 132,
+            fontSize: 112,
             letterSpacing: "0.02em",
             color: color.sumi,
             lineHeight: 1,
@@ -49,23 +44,66 @@ export const Install: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ marginTop: 64, ...rise(frame, TERM_IN, 22) }}>
-        {/* frame を固定してキャレットを点灯のままにする。点滅させると最後の 2 秒が静止しない */}
-        <Terminal command={COMMAND} typed={typed} frame={frame} blink={false} width={1640} fontSize={40} />
+      {/* 動画を見た人が打ち込む・検索する唯一の手がかり。スマホ幅（×0.203）でも 25px 前後で読める大きさにし、
+          字形の取り違え（i / l）が起きにくいサンセリフで組む */}
+      <div
+        style={{
+          marginTop: 72,
+          fontFamily: font.sans,
+          fontWeight: 700,
+          fontSize: 124,
+          letterSpacing: "0.01em",
+          color: color.sumi,
+          lineHeight: 1,
+          ...rise(frame, URL_IN, 22),
+        }}
+      >
+        {URL_TEXT}
       </div>
+
+      {/* URL の下にティールの細線を一本。リンクであることを示し、群の重心を下に置く */}
+      <div
+        style={{
+          marginTop: 28,
+          width: interpolate(frame, [URL_IN + 6, URL_IN + 30], [0, 220], { ...clamp, easing: ease }),
+          height: 6,
+          borderRadius: 3,
+          backgroundColor: color.teal,
+        }}
+      />
 
       <div
         style={{
-          marginTop: 56,
-          fontFamily: font.sans,
-          fontWeight: 700,
-          fontSize: 44,
-          letterSpacing: "0.08em",
-          color: color.tealText,
-          ...rise(frame, SUB_IN, 14),
+          marginTop: 52,
+          display: "flex",
+          alignItems: "baseline",
+          gap: 28,
+          ...rise(frame, SUB_IN, 18),
         }}
       >
-        macOS 14+・無料・local-first flow timer
+        <div
+          style={{
+            fontFamily: font.sans,
+            fontWeight: 700,
+            fontSize: 56,
+            letterSpacing: "0.08em",
+            color: color.tealText,
+          }}
+        >
+          Mac 用・無料
+        </div>
+        <div
+          style={{
+            fontFamily: font.sans,
+            fontWeight: 500,
+            fontSize: 34,
+            letterSpacing: "0.04em",
+            color: color.sumi,
+            opacity: 0.6,
+          }}
+        >
+          macOS 14 以降・Apple Silicon
+        </div>
       </div>
     </AbsoluteFill>
   );

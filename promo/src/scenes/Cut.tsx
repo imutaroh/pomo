@@ -1,15 +1,18 @@
 import { AbsoluteFill, interpolate, random, useCurrentFrame } from "remotion";
 import { clamp, color, font } from "../theme";
-import { ZONE_LENGTH, ZoneScreen } from "./ZoneScreen";
+import { ZoneSplit } from "./ZoneMontage";
+import { ZONE_LENGTH } from "./ZoneScreen";
 
-// 15–19秒: Zone の最終フレーム（タイマーに寄った構図）からカットで 00:00。
+// 15–19秒: Zone の最終フレーム（4 人が同時に乗っている 4 分割）からカットで、4 つのタイマーが同時に 00:00（約 0.5 秒止めて見せる）。
 // 白く飛んで、赤地のグリッチで「時間です。」（v1 Boot のアラーム表現）→ 暗転して明朝で
 // 「いま、いいところだったのに。」。暗いまま Noise（暗い壁紙に通知バナー）へカットで渡す
 
 const CYAN = "#00E5FF";
 const DARK = "#0B0D12"; // Noise の地と同じ
 
-const ZERO_TO = 6; // 00:00 を見せる長さ
+// 00:00 を見せる長さ。「4 つ全部が同時に 0」と気づける間を取る（揺れは頭の SHAKE_TO まで、あとは止めて見せる）
+const ZERO_TO = 14;
+const SHAKE_TO = 4;
 const ALARM = ZERO_TO + 2; // 白飛び 2 フレームのあと赤
 const ALARM_OUT = 60; // ここで暗転
 const COPY_FROM = 64;
@@ -102,12 +105,12 @@ export const Cut: React.FC = () => {
   const frame = useCurrentFrame();
 
   if (frame < ZERO_TO) {
-    // Zone の続き。タイマーは 00:00 で赤く染まり、画面が小さく揺れる
-    const shake = interpolate(frame, [0, ZERO_TO], [10, 3], clamp);
+    // Zone の続き。4 つのタイマーが同時に 00:00 で赤く染まり、画面が小さく揺れる
+    const shake = interpolate(frame, [0, SHAKE_TO], [10, 0], clamp);
     return (
       <AbsoluteFill style={{ backgroundColor: DARK }}>
         <AbsoluteFill style={{ translate: `${(random(`sx-${frame}`) - 0.5) * 2 * shake}px ${(random(`sy-${frame}`) - 0.5) * 2 * shake}px` }}>
-          <ZoneScreen frame={ZONE_LENGTH} />
+          <ZoneSplit frame={ZONE_LENGTH} />
         </AbsoluteFill>
       </AbsoluteFill>
     );

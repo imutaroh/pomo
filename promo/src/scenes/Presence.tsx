@@ -18,12 +18,13 @@ import {
   runningOpacity,
   TYPED_DESKTOP,
   TYPED_PRESENCE_END,
+  TYPED_PRESENCE_MID,
   WORKED_PRESENCE_END,
   WorkDesktop,
   workedAt,
 } from "./DesktopShared";
 
-// 22–28秒: 存在感の3段階。待機のパネルを再生 → ポインタが離れると 30% に溶け込み、作業が進む
+// 36–42秒: 存在感の3段階。待機のパネルを再生 → ポインタが離れると 30% に溶け込み、提案書が進む
 // → 手を乗せると 100% に戻って操作が顔を出す → 離れるとまた溶ける。
 // 右の段階表（LP「存在感の3段階」）は、いまのパネルの状態と連動して光る。
 // frame 0 = DesktopScene の最終フレーム、最終フレーム = Follow の frame 0（9:00・溶けた状態・ポインタ非表示）
@@ -151,7 +152,7 @@ export const Presence: React.FC = () => {
     interpolate(frame, [4, 10], [0, 1], clamp) *
     interpolate(frame, [66, 72], [1, 0], clamp) +
     interpolate(frame, [84, 90], [0, 1], clamp) * interpolate(frame, [162, 170], [1, 0], clamp);
-  const typed = interpolate(frame, [0, 66, 84, 160, 179], [TYPED_DESKTOP[1], TYPED_DESKTOP[1], 0.62, 0.62, TYPED_PRESENCE_END], clamp);
+  const typed = interpolate(frame, [0, 66, 84, 160, 179], [TYPED_DESKTOP[1], TYPED_DESKTOP[1], TYPED_PRESENCE_MID, TYPED_PRESENCE_MID, TYPED_PRESENCE_END], clamp);
 
   return (
     <AbsoluteFill>

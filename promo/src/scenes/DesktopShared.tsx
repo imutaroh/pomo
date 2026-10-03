@@ -1,5 +1,6 @@
 import { Easing, interpolate } from "remotion";
 import {
+  docTypedAt,
   Editor,
   MENU_BAR_HEIGHT,
   MenuBar,
@@ -13,7 +14,7 @@ import { Panel, PanelProps } from "../components/Panel";
 import { clamp, color, font } from "../theme";
 
 // DesktopScene → Presence → Follow → FlowBreak は同じデスクトップの上でハードカットで繋がる。
-// 境界フレームの見た目（カメラ・パネル・カーソル・エディタ・計測値）をここで一か所に決め、
+// 境界フレームの見た目（カメラ・パネル・カーソル・文書・計測値）をここで一か所に決め、
 // 各シーンは「自分の frame 0 = 前のシーンの最終フレーム」になるようにこの定数から始める。
 
 // ---------------------------------------------------------------- 数字（嘘にしない）
@@ -200,7 +201,7 @@ export const cursorAt = (frame: number, path: [number, number, number][]) => {
   return { x: last[1], y: last[2] };
 };
 
-// エディタでタイプ中の置き場所（macOS はタイプ中にポインタを隠すので、ここでは見えない）
+// 文書でタイプ中の置き場所（macOS はタイプ中にポインタを隠すので、ここでは見えない）
 export const CURSOR_EDITOR = { x: 1120, y: 600 };
 
 // パネル（ガラス 196pt 四方）の世界座標での一辺と矩形
@@ -231,63 +232,50 @@ export const hoverEventsFor = (
   return events;
 };
 
-// ---------------------------------------------------------------- エディタ
+// ---------------------------------------------------------------- 文書（提案書）の進み具合
 
-// タイプの進み具合。DesktopScene 0.30→0.50、Presence 0.50→0.74、Follow は手を止めて読む、FlowBreak 0.74→0.95（テストのあと 1）
-export const TYPED_DESKTOP: [number, number] = [0.3, 0.5];
-export const TYPED_PRESENCE_END = 0.74;
+// DOC_LINES の行番号で決める。DesktopScene は「1. 背景」の途中から「2. 提案」の見出しまで、
+// Presence は「2. 提案」を書き上げる（溶けている間に進む）。Follow は手を止めて参考資料を読み、
+// FlowBreak で冒頭（ZoneDoc）で切られた「3. 期待効果」の続きを書き上げる
+export const TYPED_DESKTOP: [number, number] = [docTypedAt(3, 0.2), docTypedAt(6, 0)];
+export const TYPED_PRESENCE_MID = docTypedAt(7, 0.4);
+export const TYPED_PRESENCE_END = docTypedAt(9, 0);
 
 // ---------------------------------------------------------------- 作業中のデスクトップ
 
-// Go のドキュメントを開いたブラウザ。Presence までは隠してある（⌘H）ので画面に出ない。
+// 参考資料（先月の問い合わせの分析）を開いたブラウザ。Presence までは隠してある（⌘H）ので画面に出ない。
 // Follow の ⌘Tab で前に出ると、パネルの真下にブラウザの本文（右の目次）が入ってくる。
-// エディタへ戻ったあとは、エディタの後ろで右端（目次）がのぞいたまま残る。
-// 実在ブラウザのロゴや固有の UI は描かない（汎用のウィンドウ枠＋アドレス欄だけ）
+// 文書へ戻ったあとは、文書の後ろで右端（目次）がのぞいたまま残る。後ろに回ったときはアドレス欄を描かない
+// （ツールバーの上端だけが文書の上にのぞき、文字が横に半分切れて描画の崩れに見えるため）。
+// 実在のサイトやブラウザのロゴ・固有の UI は描かない（汎用のウインドウ枠＋アドレス欄だけ）
 export const BROWSER_RECT = { x: 700, y: MENU_BAR_HEIGHT + 8, w: 1210, h: 996 };
 export type BrowserState = "hidden" | "back" | "front";
 
-// 目次に並べる net/http の識別子（実在するもの）
-const DOC_INDEX = [
-  "Constants",
-  "Variables",
-  "func Error",
-  "func Handle",
-  "func HandleFunc",
-  "func ListenAndServe",
-  "func NotFound",
-  "type Client",
-  "type Handler",
-  "type Request",
-  "type ResponseWriter",
-  "type Server",
+const REPORT_INDEX = ["概要", "集計の方法", "件数の推移", "質問の内訳", "課題", "まとめ"];
+const REPORT_ACTIVE = "質問の内訳";
+// 問い合わせの内訳（%）。上位 4 つで 6 割になり、提案書の「1. 背景」の根拠として読んでいる
+export const REPORT_BARS: [string, number][] = [
+  ["パスワード再設定", 24],
+  ["請求書の再発行", 18],
+  ["配送状況の確認", 12],
+  ["解約の手続き", 8],
 ];
 
-const DocCode: React.FC<{ children: string }> = ({ children }) => (
-  <div
-    style={{
-      marginTop: 18,
-      padding: "18px 24px",
-      borderRadius: 10,
-      backgroundColor: color.usugumo,
-      fontFamily: font.mono,
-      fontSize: 22,
-      lineHeight: 1.6,
-      color: color.sumi,
-      whiteSpace: "pre",
-    }}
-  >
-    {children}
-  </div>
-);
-
-export const BrowserWindow: React.FC = () => {
+export const BrowserWindow: React.FC<{ state?: BrowserState }> = ({ state = "front" }) => {
   const k = SCREEN_SCALE;
   const text = {
     fontFamily: font.sans,
-    fontSize: 22,
+    fontSize: 23,
     fontWeight: 500,
     lineHeight: 1.7,
     color: "rgba(26,35,48,0.78)",
+  } as const;
+  const h2 = {
+    marginTop: 34,
+    fontFamily: font.sans,
+    fontSize: 30,
+    fontWeight: 700,
+    color: color.sumi,
   } as const;
   return (
     <div
@@ -337,89 +325,86 @@ export const BrowserWindow: React.FC = () => {
         >
           ‹ ›
         </span>
-        <div
-          style={{
-            marginLeft: 40 * k,
-            width: 300 * k,
-            height: 24 * k,
-            borderRadius: 7 * k,
-            backgroundColor: "#fff",
-            boxShadow: `0 0 0 1px ${color.line}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: font.sans,
-            fontSize: 12 * k,
-            fontWeight: 500,
-            color: "rgba(26,35,48,0.6)",
-          }}
-        >
-          net/http ドキュメント
-        </div>
+        {state === "back" ? null : (
+          <div
+            style={{
+              marginLeft: 40 * k,
+              width: 300 * k,
+              height: 24 * k,
+              borderRadius: 7 * k,
+              backgroundColor: "#fff",
+              boxShadow: `0 0 0 1px ${color.line}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: font.sans,
+              fontSize: 12 * k,
+              fontWeight: 500,
+              color: "rgba(26,35,48,0.6)",
+            }}
+          >
+            参考資料 — 問い合わせ分析
+          </div>
+        )}
       </div>
       <div style={{ display: "flex" }}>
-        {/* 本文（Go 標準ライブラリのドキュメントの文面） */}
+        {/* 本文（分析レポートの 1 ページ） */}
         <div style={{ flex: 1, minWidth: 0, padding: "40px 56px" }}>
           <div
             style={{
               fontFamily: font.sans,
-              fontSize: 44,
-              fontWeight: 700,
-              color: color.sumi,
-            }}
-          >
-            package http
-          </div>
-          <div
-            style={{
-              marginTop: 6,
-              fontFamily: font.mono,
               fontSize: 22,
+              fontWeight: 700,
               color: color.tealText,
+              letterSpacing: "0.06em",
             }}
           >
-            import &quot;net/http&quot;
-          </div>
-          <div style={{ ...text, marginTop: 22 }}>
-            Package http provides HTTP client and server implementations.
+            問い合わせ分析　9月
           </div>
           <div
             style={{
-              marginTop: 36,
+              marginTop: 8,
               fontFamily: font.sans,
-              fontSize: 30,
+              fontSize: 42,
               fontWeight: 700,
+              lineHeight: 1.35,
               color: color.sumi,
             }}
           >
-            func HandleFunc
+            問い合わせの中身
           </div>
-          <DocCode>
-            {
-              "func HandleFunc(pattern string,\n    handler func(ResponseWriter, *Request))"
-            }
-          </DocCode>
-          <div style={{ ...text, marginTop: 16 }}>
-            HandleFunc registers the handler function for the given pattern.
+          <div style={{ ...text, marginTop: 18 }}>
+            先月の問い合わせ 3,400 件を分類した。対応にかかった
+            <br />
+            時間は、月に 120 時間。
           </div>
-          <div
-            style={{
-              marginTop: 36,
-              fontFamily: font.sans,
-              fontSize: 30,
-              fontWeight: 700,
-              color: color.sumi,
-            }}
-          >
-            type Handler
+          <div style={h2}>質問の内訳</div>
+          <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 16 }}>
+            {REPORT_BARS.map(([label, pct]) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                <div style={{ ...text, width: 210, flexShrink: 0, lineHeight: 1.3 }}>{label}</div>
+                {/* 棒は短めに。Follow の ⌘Tab の注釈（パネルの下に右揃えで出る）と重ならず、
+                    文書の後ろに回ったときは数字まで文書の陰（x 1440 より左）に隠れる長さ */}
+                <div
+                  style={{
+                    width: pct * 8,
+                    height: 26,
+                    borderRadius: 4,
+                    backgroundColor: color.teal,
+                    opacity: 0.35 + pct / 40,
+                  }}
+                />
+                <div style={{ ...text, fontFamily: font.mono, lineHeight: 1.3, color: color.sumi }}>
+                  {pct}%
+                </div>
+              </div>
+            ))}
           </div>
-          <DocCode>
-            {
-              "type Handler interface {\n    ServeHTTP(ResponseWriter, *Request)\n}"
-            }
-          </DocCode>
-          <div style={{ ...text, marginTop: 16 }}>
-            A Handler responds to an HTTP request.
+          <div style={h2}>課題</div>
+          <div style={{ ...text, marginTop: 12 }}>
+            上の 4 つだけで、全体の 6 割を占めている。
+            <br />
+            回答は、担当者がそのつど一から書いている。
           </div>
         </div>
         {/* 右の目次。前に出たとき、目次欄の白い地がパネルの真下に来る。
@@ -433,28 +418,29 @@ export const BrowserWindow: React.FC = () => {
             padding: `${PANEL_POS.y + PANEL_SIZE_WORLD + 64 - (BROWSER_RECT.y + 38 * k)}px 32px 40px`,
             boxSizing: "border-box",
             borderLeft: `1px solid ${color.line}`,
-            fontFamily: font.mono,
+            fontFamily: font.sans,
             fontSize: 22,
+            fontWeight: 500,
             lineHeight: 2,
             color: "rgba(26,35,48,0.72)",
           }}
         >
           <div
             style={{
-              fontFamily: font.sans,
               fontSize: 24,
               fontWeight: 700,
               color: color.sumi,
               marginBottom: 8,
             }}
           >
-            Index
+            目次
           </div>
-          {DOC_INDEX.map((t) => (
+          {REPORT_INDEX.map((t) => (
             <div
               key={t}
               style={{
-                color: t === "func HandleFunc" ? color.tealText : undefined,
+                color: t === REPORT_ACTIVE ? color.tealText : undefined,
+                fontWeight: t === REPORT_ACTIVE ? 700 : 500,
               }}
             >
               {t}
@@ -466,44 +452,25 @@ export const BrowserWindow: React.FC = () => {
   );
 };
 
-/** 作業中のデスクトップ。Desktop（共有部品）と同じ重なり順に、エディタの後ろのブラウザを足したもの */
+/** 作業中のデスクトップ。Desktop（共有部品）と同じ重なり順に、文書の後ろのブラウザを足したもの */
 export const WorkDesktop: React.FC<{
   statusIcon?: StatusIcon;
   statusTitle?: string;
   clock?: string;
   typed?: number;
+  /** 文書のスクロール量（世界の px） */
+  scroll?: number;
   /** ブラウザの状態。前面ならメニューバーもブラウザのものになる */
   browser?: BrowserState;
-  /** children に描いた別アプリのウィンドウが前面のとき、メニューバーをそのアプリのものにする */
-  frontApp?: AppMenu;
-  /** エディタの後ろに回った別アプリのウィンドウ */
-  behind?: React.ReactNode;
   children?: React.ReactNode;
-}> = ({
-  statusIcon,
-  statusTitle,
-  clock,
-  typed,
-  browser = "hidden",
-  frontApp,
-  behind,
-  children,
-}) => (
+}> = ({ statusIcon, statusTitle, clock, typed, scroll, browser = "hidden", children }) => (
   <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
     <Wallpaper />
-    {browser === "back" ? <BrowserWindow /> : null}
-    {behind}
-    <Editor typed={typed} />
+    {browser === "back" ? <BrowserWindow state="back" /> : null}
+    <Editor typed={typed} scroll={scroll} />
     {browser === "front" ? <BrowserWindow /> : null}
     {children}
-    {frontApp ? (
-      <AppMenuBar
-        app={frontApp}
-        statusIcon={statusIcon}
-        statusTitle={statusTitle}
-        clock={clock}
-      />
-    ) : browser !== "front" ? (
+    {browser !== "front" ? (
       <MenuBar
         statusIcon={statusIcon}
         statusTitle={statusTitle}
@@ -519,9 +486,9 @@ export const WorkDesktop: React.FC<{
   </div>
 );
 
-// ブラウザが前面のときのメニューバー。共有の MenuBar はアプリ名とメニューが「Code」固定なので、
+// ブラウザが前面のときのメニューバー。共有の MenuBar はアプリ名とメニューが文書アプリ固定なので、
 // 見た目（寸法・色・ステータス項目・時計）を揃えたまま項目だけ差し替えて描く
-export type AppMenu = { name: string; items: string[] };
+type AppMenu = { name: string; items: string[] };
 const BROWSER_MENU: AppMenu = {
   name: "ブラウザ",
   items: ["ファイル", "編集", "表示", "履歴", "ブックマーク", "ウインドウ"],

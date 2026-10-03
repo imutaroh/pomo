@@ -7,9 +7,9 @@
 - 拍はシーンの長さから逆算する（各シーンを整数拍に割る）ので、コードはシーン境界ちょうどで変わる
 - 起伏は物語に沿わせる: desktop（静かな導入）→ presence（脈が始まる）→ follow（脈が少し動く）→
   flowBreak（25:00 を越えて密度と明るさが一段上がり、冒頭の Zone のフレーズを同じエレピで静かに引用し、
-  テストが通ると冒頭と同じ澄んだ 2 音が鳴る。休憩でふっと開いて脈が止まる）→ modes（軽い拍が戻る）→
+  提案書の肝（期待効果の数字）が書き上がると冒頭の送信と同じ澄んだ 2 音が鳴る。休憩でふっと開いて脈が止まる）→ modes（軽い拍が戻る）→
   promises（線を引くたびに一音ずつ減る）→ words（ほぼパッドだけ）→ install（高いアルペジオで重心が上がり、
-  ロゴで解決して余韻で消える）。音量の段差はパッドとベースの SECTION_LEVEL で付ける
+  ロゴで解決し、URL の出現からモチーフが解決の D まで上がって余韻で消える）。音量の段差はパッドとベースの SECTION_LEVEL で付ける
 - 効果音のフレームは cues.json から読む。ここに数値を書かない
 - 外部の音源・サンプルは使わない。乱数は固定シード
 """
@@ -23,6 +23,7 @@ from scipy.io import wavfile
 import synth_quiet_instruments as ins
 import synth_zone_instruments as zi
 from zone import HOOK
+from zone import grid as zone_grid
 
 HERE = Path(__file__).resolve().parent
 CUES = json.loads((HERE / "cues.json").read_text())
@@ -106,7 +107,7 @@ PULSE_FB_REACH = 1.2  # 到達後の脈の強さ
 OFFBEAT_FB = (85, 88)  # C#6・E6
 OFFBEAT_VEL = 0.25
 SHIMMER_GAIN = 0.16
-# 25:00 到達でそっと広がる高い和音（C#6・F#6・B6）。テストの ok（E6→A6）と同じ高さを避け、その残響で ok を埋めない
+# 25:00 到達でそっと広がる高い和音（C#6・F#6・B6）。書き上がりの 2 音（E6→A6）と同じ高さを避け、その残響で 2 音を埋めない
 SHIMMER_FB = (85, 90, 95)
 # 25:00 のあと、引用が弾き終わってから休憩まで保つ高いパッドの層（E5・B5・F#6）と、その大きさ。
 # F#m11 のパッドは 150〜500Hz が厚く、倍音を開いても重心はほとんど上がらないので、上に別の層を重ねて明るさを持続させる。
@@ -118,7 +119,7 @@ ZONE_HOOK = HOOK
 QUOTE_VEL = 0.45
 QUOTE_GAIN = 0.55
 OK_GLASS_GAIN = 0.08
-# 2 音目の A6 は引用の A5（2 音目）の 2 倍音の尾の上で鳴るので、1 音目より一段大きくして尾から立たせる
+# 書き上がりの 2 音（E6→A6）。2 音目の A6 は引用の A5（2 音目）の 2 倍音の尾の上で鳴るので、1 音目より一段大きくして尾から立たせる
 OK_GLASS_TOP = 1.3
 
 
@@ -202,7 +203,7 @@ def build():
     washi_at = cue("flowBreak", "washi-start")
     reach = cues("flowBreak", "reach")[0]
     # 引用の間（25:00 の少し前〜最後の音の前半）は、脈・裏拍・高い層を鳴らさず引用に場所を譲る
-    zb = (cue("zone", "test-ok", 1) - cue("zone", "test-ok", 0)) / 8  # Zone の 1 拍（zone.py と同じ逆算）
+    zb = zone_grid(CUES["cues"])[2]  # Zone の 1 拍（zone.py と同じ逆算）
     hx, _, hd = ZONE_HOOK[-1]
     quote_from, quote_to = reach - 3, reach + (hx + 0.5 * hd) * zb
     for i, (a, b, ch) in enumerate(segs):
@@ -346,11 +347,12 @@ def build():
     for i, (x, note, d) in enumerate(ZONE_HOOK):
         sig = ins.lowpass(zi.rhodes(note, QUOTE_VEL, (d * zb + 30) / 30, rng5), 3600)
         m.add("piano", ins.pan(sig, 0.15), reach + x * zb, label="zone hook quote" if i == 0 else "", gain=QUOTE_GAIN)
-    # テストが通りきる（ok）: 冒頭の 2 回目の ok と同じ 2 音（E6→A6）
-    for f in cues("flowBreak", "test-ok"):
+    # 提案書の肝が書き上がる（期待効果の数字が出そろう）: 冒頭のメールの送信と同じ 2 音（E6→A6）。
+    # 冒頭で 25 分に切られた同じ提案書が、今度は最後まで書ける
+    for f in cues("flowBreak", "written"):
         for i, note in enumerate((88, 93)):
             m.add("sfx", ins.pan(zi.glass(note, 1.0, rng5), 0.2 + 0.15 * i), f + 2.5 * i,
-                  label="test ok glass" if i == 0 else "", gain=OK_GLASS_GAIN * (OK_GLASS_TOP if i else 1.0),
+                  label="written glass" if i == 0 else "", gain=OK_GLASS_GAIN * (OK_GLASS_TOP if i else 1.0),
                   cue_frame=f)
     for f in cues("flowBreak", "press"):
         m.add("sfx", ins.soft_click(rng, 0.9), f, label="chip press", gain=0.28)
@@ -416,30 +418,23 @@ def build():
     piano_chord(m, rng, [n for n in CHORDS["E/D"]["piano"] if n >= 54], l2, 0.20, label="words line2", roll=0.04)
     m.add("sfx", ins.small_bell(95, rng, dur=3.2), cue("words", "tint-start"), label="tint bell", gain=0.06)
 
-    # ---- Install: ロゴで解決／curl の打鍵／最後まで余韻
+    # ---- Install: ロゴで解決／URL の出現でモチーフが解決／最後まで余韻
     logo = cue("install", "logo-in")
     # 根音の D が主音として立つよう、低い音は他の和音と同じ控えめさ（0.65）に留める。重心はアルペジオで上に置く
     piano_chord(m, rng, CHORDS["Dadd9"]["piano"], logo, 0.36, label="logo resolve", roll=0.035, low=LOGO_LOW)
-    # モチーフの解決: desktop と同じ短・短・長で、最後の E を D に替える
+    # モチーフの解決: desktop と同じ短・短・長で、最後の E を D に替える。URL が浮かぶフレームから弾き始める
+    # （1 拍 = 30f なので、2 音目が「Mac 用・無料」の出現、3 音目が下線の伸びきりに重なる）
     beat = (SECTIONS["install"][1] - SECTIONS["install"][0]) / BEATS["install"]
+    url_in = cue("install", "url-in")
     for i, (r, note) in enumerate(zip(MOTIF_RHYTHM, MOTIF[:3] + (74,))):
         m.add("piano", ins.felt_piano(note + 12, 0.24 if i < 3 else 0.27, rng2, dur=3.0),
-              logo + 18 + r * beat, label="logo motif" if i == 0 else "", cue_frame=logo)
-    keys = cues("install", "key")
-    seen: dict[int, int] = {}
-    for f in keys:
-        j = seen.get(f, 0)
-        seen[f] = j + 1
-        # 同じフレームに 2 字あるときは、2 字目を半フレーム後ろに置く
-        v = 0.75 + 0.25 * rng.random()
-        m.add("sfx", ins.soft_key(rng, v, p=0.15 + 0.2 * rng.random(), pitch=1.05 + 0.1 * rng.random()),
-              f + 0.5 * j, label="curl key", gain=0.14, cue_frame=f)
+              url_in + r * beat, label="url motif" if i == 0 else "", cue_frame=url_in)
 
     # 高いアルペジオ（16 分）で重心を上げる。頭は Asus の上で宙づり、ロゴから Dadd9。
-    # 打鍵の間は一歩下がって打鍵の粒に場所を譲り、打ち終えてから少しずつ弱めて余韻へ渡す
+    # URL と要件が出てくる間は一歩下がってモチーフに場所を譲り、全要素が止まってから少しずつ弱めて余韻へ渡す
     a0, a1 = SECTIONS["install"]
     step = beat / 4
-    type_end = cue("install", "type-end")
+    still = cue("install", "sub-full")
     pat_sus = (81, 86, 88, 83)
     pat_res = (81, 86, 88, 90, 93, 90, 88, 86)
     f, i = a0, 0
@@ -448,10 +443,10 @@ def build():
         pat = pat_sus if f < logo else pat_res
         note = pat[i % len(pat)]
         v = 0.34 * min(1.0, (f - a0 + 4) / 12)
-        if keys[0] - 2 <= f <= type_end + 2:
+        if url_in - 2 <= f <= still + 2:
             v *= 0.7
-        elif f > type_end:
-            v *= max(0.25, 1 - (f - type_end) / (last - type_end))
+        elif f > still:
+            v *= max(0.25, 1 - (f - still) / (last - still))
         if i % 4 == 0:
             v *= 1.15
         m.add("piano", ins.lowpass(ins.felt_piano(note, v, rng3, dur=0.9), 6000), f,

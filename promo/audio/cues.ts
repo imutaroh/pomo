@@ -13,9 +13,15 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { Easing, interpolate } from "remotion";
-import { GO_CODE } from "../src/components/Desktop";
-import { BREAK_CHIP, CURSOR_EDITOR, hoverEventsFor, panelPoint, PLAY_BUTTON, TYPED_PRESENCE_END } from "../src/scenes/DesktopShared";
-import { A_KEYS, B_KEYS, M_KEYS, PUSH_FROM, RUN1, RUN2, RUN_OK, timerRemaining, URGENT_FROM, ZONE_LENGTH } from "../src/scenes/ZoneScreen";
+import { DOC_LINES, docTypedAt } from "../src/components/Desktop";
+import { BREAK_CHIP, CURSOR_EDITOR, hoverEventsFor, panelPoint, PLAY_BUTTON, TYPED_DESKTOP, TYPED_PRESENCE_END, TYPED_PRESENCE_MID } from "../src/scenes/DesktopShared";
+import { keyTimes } from "../src/scenes/ZoneChrome";
+import { DESIGN_ALIGNED } from "../src/scenes/ZoneDesign";
+import { DOC_OUTLINE } from "../src/scenes/ZoneDoc";
+import { MAIL_SENT } from "../src/scenes/ZoneMail";
+import { CUTS } from "../src/scenes/ZoneMontage";
+import { timerRemaining, URGENT_FROM, ZONE_LENGTH } from "../src/scenes/ZoneScreen";
+import { SHEET_ENTER } from "../src/scenes/ZoneSheet";
 import { DURATION, FPS, SCENE_DEFS, SceneId, sceneFrom, sceneLength } from "../src/timeline";
 
 const PROMO = process.cwd();
@@ -43,6 +49,16 @@ const grab = (file: string, re: RegExp, label: string): Grab => {
     }
   }
   throw new Error(`見つからない: ${file} ${re}（シーンのソースの形が変わった。cues.ts の正規表現を直す）`);
+};
+/** file の中で re に一致する行をすべて、出てくる順に返す */
+const grabAll = (file: string, re: RegExp, label: string, count: number): Grab[] => {
+  const out: Grab[] = [];
+  linesOf(file).forEach((l, i) => {
+    const m = l.match(re);
+    if (m) out.push({ raw: m.slice(1), nums: m.slice(1).map(Number), ref: `src/${file}:${i + 1} ${label}` });
+  });
+  if (out.length !== count) throw new Error(`${file} ${re} が ${out.length} 行（${count} 行のはず。シーンのソースの形が変わった）`);
+  return out;
 };
 /** `const NAME = 44;` の値 */
 const num = (file: string, name: string) => {
@@ -106,45 +122,151 @@ const fadeInCues = (scene: SceneId) => {
 };
 
 // ================================================================= Zone（0–450）
+// 4 つの仕事のモンタージュ（資料 → 表 → デザイン → メール）→ 4 分割。各画面の打鍵は画面ごとの type（key:doc など）で出す。
+// 画面に映っている間（そのカットと 4 分割）の打鍵だけを数える
 {
-  const F = "scenes/ZoneScreen.tsx";
+  const M = "scenes/ZoneMontage.tsx";
   const Z = "scenes/Zone.tsx";
-  const zoneRef = (name: string) => grab(F, new RegExp(`^export const ${name}\\b`), name).ref;
   if (ZONE_LENGTH !== sceneLength("zone")) throw new Error(`ZONE_LENGTH ${ZONE_LENGTH} と timeline の zone ${sceneLength("zone")} が違う`);
-  // 打鍵: ZoneScreen が export している時刻列そのもの（区間 A・B・M）。描画は keys[n] <= frame で字が出るので、
-  // 音は ceil したフレームに置く。Zone の外（00:00 以降）にこぼれる M の打鍵は捨てる
-  const keySpans: [string, number[], string][] = [
-    ["A", A_KEYS, "17 行目（Content-Type）"],
-    ["B", B_KEYS, "handleReset"],
-    ["M", M_KEYS, "main"],
-  ];
-  for (const [name, keys, what] of keySpans) {
-    const ref = zoneRef(`${name}_KEYS`);
+  const cutsRef = grab(M, /^export const CUTS = \{/, "CUTS").ref;
+  const order = ["doc", "sheet", "design", "mail", "split"] as const;
+  for (const k of order) if (!Number.isInteger(CUTS[k])) throw new Error(`CUTS.${k} が読めない`);
+  if (CUTS.doc !== 0) throw new Error(`CUTS.doc が 0 でない: ${CUTS.doc}`);
+  const label = { doc: "資料", sheet: "表", design: "デザイン", mail: "メール", split: "4 分割" } as const;
+  for (const k of order.slice(1)) add("zone", CUTS[k], "montage-cut", `カットが「${label[k]}」に切り替わる`, cutsRef);
+
+  // 各画面が映っている区間（そのカット ∪ 4 分割）
+  type App = "doc" | "sheet" | "design" | "mail";
+  const until: Record<App, number> = { doc: CUTS.sheet, sheet: CUTS.design, design: CUTS.mail, mail: CUTS.split };
+  const visible = (app: App, f: number) => (f >= CUTS[app] && f < until[app]) || (f >= CUTS.split && f < ZONE_LENGTH);
+  const keyCues = (app: App, keys: number[], what: string, ref: string) => {
     keys.forEach((t, i) => {
-      const f = Math.ceil(t);
-      if (f >= ZONE_LENGTH) return;
-      add("zone", f, "key", `打鍵 ${name} ${i + 1}/${keys.length}（${what}）`, ref);
+      // 描画は keys[n] <= t で字が出るので、音は ceil したフレームに置く
+      const f = CUTS[app] + Math.ceil(t);
+      if (f < 0 || !visible(app, f)) return;
+      add("zone", f, `key:${app}`, `${label[app]}の打鍵 ${i + 1}/${keys.length}（${what}）${f >= CUTS.split ? "・4 分割" : ""}`, ref);
     });
+  };
+
+  // `const NAME = typed("…", START, g0, g1, "seed");` を読み、START の式（数・定数・前の行の最後の打鍵 + n）を評価して keyTimes で時刻列を作る
+  const typedLines = (file: string, consts: Record<string, number>) => {
+    const env = new Map<string, number[]>();
+    const out: { name: string; text: string; keys: number[]; ref: string }[] = [];
+    linesOf(file).forEach((l, i) => {
+      const m = l.match(/^const (\w+) = typed\("([^"]*)", (.+), ([\d.]+), ([\d.]+), "([^"]+)"\);/);
+      if (!m) return;
+      let expr = m[3].replace(/(\w+)\.keys!\[\1\.keys!\.length - 1\]/g, (_, n: string) => {
+        const k = env.get(n);
+        if (!k) throw new Error(`${file}:${i + 1} ${n} が先に読めていない`);
+        return String(k[k.length - 1]);
+      });
+      expr = expr.replace(/[A-Z_][A-Z0-9_]*/g, (n) => {
+        if (!(n in consts)) throw new Error(`${file}:${i + 1} 定数 ${n} を知らない（cues.ts に足す）`);
+        return String(consts[n]);
+      });
+      if (!/^[\d.\s+\-]+$/.test(expr)) throw new Error(`${file}:${i + 1} 開始の式が読めない: ${m[3]}`);
+      const start = assertNum(Function(`return (${expr});`)() as number, `${file}:${i + 1}`);
+      const keys = keyTimes(m[2].length, start, Number(m[4]), Number(m[5]), m[6]);
+      env.set(m[1], keys);
+      out.push({ name: m[1], text: m[2], keys, ref: `src/${file}:${i + 1} ${m[1]}` });
+    });
+    if (!out.length) throw new Error(`${file} の typed(...) の行が読めない`);
+    return out;
+  };
+
+  // ---- ① 資料: 見出しが並ぶ（構成が見えた）→ 箇条書きが一気に埋まる
+  {
+    const F = "scenes/ZoneDoc.tsx";
+    const outlineRef = grab(F, /^export const DOC_OUTLINE = (\d+);/, "DOC_OUTLINE").ref;
+    add("zone", CUTS.doc + DOC_OUTLINE, "doc-outline", "資料の見出し「2. 提案」が光って並ぶ（構成が見えた）", outlineRef);
+    const h2 = grab(F, /text: "3\. 期待効果", appear: DOC_OUTLINE \+ (\d+)/, "「3. 期待効果」の appear");
+    add("zone", CUTS.doc + DOC_OUTLINE + h2.nums[0], "doc-outline", "見出し「3. 期待効果」が光って並ぶ", h2.ref);
+    const lines = typedLines(F, {});
+    for (const l of lines) keyCues("doc", l.keys, `${l.name}「${l.text}」`, l.ref);
+    // 一気に埋まる区間: 見出しのあとの最初の行の頭から、間が開くまで
+    const rush = lines.filter((l) => l.keys[0] > DOC_OUTLINE && l.keys[0] < until.doc - CUTS.doc);
+    const fast = rush.filter((l) => {
+      const g = (l.keys[l.keys.length - 1] - l.keys[0]) / Math.max(1, l.keys.length - 1);
+      return g < 1.2;
+    });
+    if (!fast.length) throw new Error("資料の一気に埋まる行が見つからない");
+    add("zone", CUTS.doc + Math.ceil(fast[0].keys[0]), "doc-rush", `箇条書きが一気に埋まり始める（${fast[0].name}）`, fast[0].ref);
+    const last = fast[fast.length - 1];
+    add("zone", CUTS.doc + Math.ceil(last.keys[last.keys.length - 1]), "doc-rush-end", `一気に埋まる行が打ち終わる（${last.name}）`, last.ref);
   }
-  // ↑ で go test を呼び戻して Enter。RUN_OK 後に ok が出る
-  for (const [name, at] of [["RUN1", RUN1], ["RUN2", RUN2]] as [string, number][]) {
-    add("zone", at, "key-enter", `ターミナルで ↑Enter（go test ./... を走らせる）`, zoneRef(name));
-    add("zone", at + RUN_OK, "test-ok", `「ok  session」が緑に光る（テストが通る）`, zoneRef("RUN_OK"));
+
+  // ---- ② 表: 数式を入れて Enter → 下へ引くと列が埋まる → 合計 → グラフが立つ
+  {
+    const F = "scenes/ZoneSheet.tsx";
+    const FORMULA = str(F, "FORMULA");
+    const fk = grab(F, /^const F_KEYS = keyTimes\(FORMULA\.length, ([\d.]+), ([\d.]+), ([\d.]+), "(\w+)"\);/, "F_KEYS");
+    keyCues("sheet", keyTimes(FORMULA.v.length, fk.nums[0], fk.nums[1], fk.nums[2], fk.raw[3]), `数式「${FORMULA.v}」`, fk.ref);
+    const enterRef = grab(F, /^export const SHEET_ENTER = (\d+);/, "SHEET_ENTER").ref;
+    add("zone", CUTS.sheet + SHEET_ENTER, "sheet-enter", "Enter。D2 が値になる", enterRef);
+    const FILL_FROM = num(F, "FILL_FROM");
+    const FILL_STEP = num(F, "FILL_STEP");
+    const rowsN = (grab(F, /^const MONTHS = \[(.+)\];/, "MONTHS").raw[0].match(/"/g) ?? []).length / 2;
+    if (rowsN !== 6) throw new Error(`MONTHS の数が想定と違う: ${rowsN}`);
+    for (let i = 1; i < rowsN; i++) {
+      add("zone", CUTS.sheet + Math.ceil(FILL_FROM.v + FILL_STEP.v * i), "sheet-fill", `下へ引いて ${i + 1} 行目が埋まる`, FILL_STEP.ref);
+    }
+    const tot = grab(F, /^const TOTAL_AT = FILL_FROM \+ FILL_STEP \* (\d+) \+ (\d+);/, "TOTAL_AT");
+    add("zone", CUTS.sheet + Math.ceil(FILL_FROM.v + FILL_STEP.v * tot.nums[0] + tot.nums[1]), "sheet-total", "合計のセルが出る", tot.ref);
+    const BARS_FROM = num(F, "BARS_FROM");
+    const br = grab(F, /\[BARS_FROM \+ i \* (\d+), BARS_FROM \+ i \* \d+ \+ (\d+)\]/, "棒の立ち上がり");
+    for (let i = 0; i < rowsN; i++) {
+      add("zone", CUTS.sheet + BARS_FROM.v + i * br.nums[0], "sheet-bar", `グラフの棒 ${i + 1}/${rowsN} が立ち上がり始める（${br.nums[1]}f）`, br.ref);
+    }
+    const eh = grab(F, /^const E_HEAD = keyTimes\((\d+), ([\d.]+), ([\d.]+), ([\d.]+), "(\w+)"\);/, "E_HEAD");
+    keyCues("sheet", keyTimes(eh.nums[0], eh.nums[1], eh.nums[2], eh.nums[3], eh.raw[4]), "前年比の見出し", eh.ref);
+    const YOY = JSON.parse(`[${grab(F, /^const YOY = \[(.+)\];/, "YOY").raw[0]}]`) as string[];
+    const ec = grab(F, /^const E_CELLS = YOY\.map\(\(v, i\) => keyTimes\(v\.length, (\d+) \+ i \* (\d+), ([\d.]+), ([\d.]+), `(\w+)\$\{i\}`\)\);/, "E_CELLS");
+    YOY.forEach((v, i) =>
+      keyCues("sheet", keyTimes(v.length, ec.nums[0] + i * ec.nums[1], ec.nums[2], ec.nums[3], `${ec.raw[4]}${i}`), `前年比「${v}」`, ec.ref),
+    );
   }
+
+  // ---- ③ デザイン: 掴んで寄せるとガイドに吸い付く → 全部揃う
+  {
+    const F = "scenes/ZoneDesign.tsx";
+    const ls = linesOf(F);
+    ls.forEach((l, i) => {
+      const m = l.match(/id: "(\w+)".*drag: \[(\d+), (\d+)\]/);
+      if (m) add("zone", CUTS.design + Number(m[3]), "design-snap", `「${m[1]}」がガイドに吸い付く`, `src/${F}:${i + 1} ELS`);
+    });
+    const al = grab(F, /^export const DESIGN_ALIGNED = (\d+);/, "DESIGN_ALIGNED").ref;
+    add("zone", CUTS.design + DESIGN_ALIGNED, "design-aligned", "左端と上端がぴたりと揃い、ガイドが全部光る", al);
+    const NOTE = str(F, "NOTE");
+    const nk = grab(F, /^const NOTE_KEYS = \[(\d+), (\d+), \.\.\.keyTimes\(NOTE\.length - 2, (\d+), ([\d.]+), ([\d.]+), "(\w+)"\)\];/, "NOTE_KEYS");
+    const keys = [nk.nums[0], nk.nums[1], ...keyTimes(NOTE.v.length - 2, nk.nums[2], nk.nums[3], nk.nums[4], nk.raw[5])];
+    keyCues("design", keys, `書き足す一行「${NOTE.v}」`, nk.ref);
+  }
+
+  // ---- ④ メール: 返信を打ち切って送信 → ✓ → 次の一通
+  {
+    const F = "scenes/ZoneMail.tsx";
+    const sentRef = grab(F, /^export const MAIL_SENT = (\d+);/, "MAIL_SENT").ref;
+    const next = grab(F, /^const NEXT = MAIL_SENT \+ (\d+);/, "NEXT");
+    for (const l of typedLines(F, { NEXT: MAIL_SENT + next.nums[0] })) keyCues("mail", l.keys, `${l.name}「${l.text}」`, l.ref);
+    add("zone", CUTS.mail + MAIL_SENT, "mail-sent", "「送信」を押す（ボタンが沈み「✓ 送信しました」に変わる）", sentRef);
+    const ck = grab(F, /const check = interpolate\(t, \[MAIL_SENT \+ (\d+), MAIL_SENT \+ (\d+)\]/, "check");
+    add("zone", CUTS.mail + MAIL_SENT + ck.nums[0], "mail-check", "受信箱の一通に ✓ が付く", ck.ref);
+    add("zone", CUTS.mail + MAIL_SENT + next.nums[0], "mail-next", "次の一通の返信に移る", next.ref);
+  }
+
   const COPY_FROM = num(Z, "COPY_FROM");
   const COPY_TO = num(Z, "COPY_TO");
   add("zone", COPY_FROM.v, "caption-in", "コピー「いま、いいところ。」が浮かび始める（15f）", COPY_FROM.ref);
   add("zone", COPY_TO.v, "caption-out-end", "コピー「いま、いいところ。」が消えきる", COPY_TO.ref);
   // 汎用ポモドーロの残り秒が変わるフレーム（00:15 → 00:01）。00:00 は Cut の頭
-  const remRef = zoneRef("timerRemaining");
+  const remRef = grab("scenes/ZoneScreen.tsx", /^export const timerRemaining\b/, "timerRemaining").ref;
   for (let f = 1; f < ZONE_LENGTH; f++) {
     if (timerRemaining(f) !== timerRemaining(f - 1)) {
       add("zone", f, "timer-sec", `汎用ポモドーロが 00:${String(timerRemaining(f)).padStart(2, "0")} になる${f >= URGENT_FROM ? "（赤く脈打つ）" : ""}`, remRef);
     }
   }
-  add("zone", URGENT_FROM, "urgent", "残り 5 秒。タイマーが赤くなり、秒ごとに脈打ち始める", zoneRef("URGENT_FROM"));
-  add("zone", PUSH_FROM, "camera-start", "タイマーへ寄り始める（打ち続けたまま）", zoneRef("PUSH_FROM"));
-  add("zone", ZONE_LENGTH - 1, "scene-end", "Zone の最終フレーム（00:01、打鍵は止まっていない）", zoneRef("ZONE_LENGTH"));
+  add("zone", URGENT_FROM, "urgent", "残り 5 秒。タイマーが赤くなり、秒ごとに脈打ち始める", grab("scenes/ZoneScreen.tsx", /^export const URGENT_FROM\b/, "URGENT_FROM").ref);
+  add("zone", ZONE_LENGTH - 1, "scene-end", "Zone の最終フレーム（4 分割・00:01、打鍵は止まっていない）", grab("scenes/ZoneScreen.tsx", /^export const ZONE_LENGTH\b/, "ZONE_LENGTH").ref);
 }
 
 // ================================================================= Cut（450–570）
@@ -259,12 +381,19 @@ const fadeInCues = (scene: SceneId) => {
 add("silence", 0, "silence-start", "白・無音の 2 秒の始まり（Noise から絵は変わらない washi 一色）", grab("scenes/Silence.tsx", /export const Silence/, "Silence").ref);
 
 // ================================================================= Desktop（930–1080）
-// エディタのタイプ（GO_CODE の文字数 × typed の割合）。増える区間を「打鍵の帯」として出す
-const CODE_CHARS = GO_CODE.reduce((n, line) => n + line.reduce((m, [t]) => m + t.length, 0) + 1, 0);
+// 文書（提案書）のタイプ（DOC_LINES の文字数 × typed の割合）。増える区間を「打鍵の帯」として出す。
+// 文字数は Desktop.tsx の DOC_CHARS と同じ数え方（kpi はセルの文字の合計、改行も 1 字）
+const DOC_CHARS = DOC_LINES.reduce((n, l) => n + (l.kind === "kpi" ? l.cells.reduce((m, [a, b]) => m + a.length + b.length, 0) : l.text.length) + 1, 0);
+// docTypedAt と数え方が揃っているか（最後の行の頭 + その行の長さ + 1 = 全体）
+{
+  const lastLine = DOC_LINES[DOC_LINES.length - 1];
+  const lastLen = lastLine.kind === "kpi" ? 0 : lastLine.text.length;
+  if (Math.round(docTypedAt(DOC_LINES.length - 1) * DOC_CHARS) + lastLen + 1 !== DOC_CHARS) throw new Error("DOC_CHARS の数え方が Desktop.tsx と違う");
+}
 // 字が増えない間が TYPING_GAP フレーム以下なら同じ帯とみなす（等速の早回しは 1 字/数 f で途切れ途切れになるため）
 const TYPING_GAP = 6;
 const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: number, ref: string) => {
-  const shown = (f: number) => Math.floor(typedAt(f) * CODE_CHARS);
+  const shown = (f: number) => Math.floor(typedAt(f) * DOC_CHARS);
   const grows: number[] = [];
   for (let f = 1; f <= last; f++) if (shown(f) > shown(f - 1)) grows.push(f);
   let i = 0;
@@ -275,7 +404,7 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
     const b = grows[j];
     const chars = shown(b) - shown(a - 1);
     const len = b - a + 1;
-    add(scene, a, "editor-typing-start", `エディタに Go のコードがタイプされ始める（${len}f で ${chars} 字、約 ${(chars / len).toFixed(2)} 字/f。字が増えるのは ${j - i + 1} フレーム）`, ref);
+    add(scene, a, "editor-typing-start", `文書（提案書）がタイプされ始める（${len}f で ${chars} 字、約 ${(chars / len).toFixed(2)} 字/f。字が増えるのは ${j - i + 1} フレーム）`, ref);
     add(scene, b, "editor-typing-end", "エディタのタイプが止まる（最後に字が増えるフレーム）", ref);
     i = j + 1;
   }
@@ -286,9 +415,8 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   const PANEL_IN = pair(F, "PANEL_IN");
   const PUSH = pair(F, "PUSH");
   const CAPTION = pair(F, "CAPTION");
-  const tg = grab(F, /const typed = interpolate\(frame, \[(\d+), (\d+)\], TYPED_DESKTOP/, "typed");
-  const TD = grab("scenes/DesktopShared.tsx", /TYPED_DESKTOP: \[number, number\] = \[([\d.]+), ([\d.]+)\]/, "TYPED_DESKTOP").nums;
-  typingSpans("desktop", (f) => interpolate(f, [tg.nums[0], tg.nums[1]], [TD[0], TD[1]], clamp), sceneLength("desktop") - 1, tg.ref);
+  const tg = grab(F, /const typed = interpolate\(frame, \[(\d+), (\d+)\], TYPED_DESKTOP, clamp\)/, "typed");
+  typingSpans("desktop", (f) => interpolate(f, [tg.nums[0], tg.nums[1]], TYPED_DESKTOP, clamp), sceneLength("desktop") - 1, tg.ref);
   add("desktop", PANEL_IN.v[0], "panel-in-start", "右上にパネル（待機 00:00）が静かに現れ始める（下から 10px、ease）", PANEL_IN.ref);
   add("desktop", PANEL_IN.v[1], "panel-in-end", "パネルが出きる", PANEL_IN.ref);
   add("desktop", PUSH.v[0], "camera-start", "カメラがパネルへゆっくり寄り始める（camEase）", PUSH.ref);
@@ -342,10 +470,10 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   add("presence", rin.v[0], "rail-in", "右下に「存在感の3段階」の表が出始める", rin.ref);
   add("presence", rout.v[0], "rail-out-start", "段階表が消え始める", rout.ref);
   add("presence", rout.v[1], "rail-out-end", "段階表が消えきる", rout.ref);
-  const tp = grab(F, /const typed = interpolate\(frame, \[(\d+), (\d+), (\d+), (\d+), (\d+)\], \[TYPED_DESKTOP\[1\], TYPED_DESKTOP\[1\], ([\d.]+), ([\d.]+), TYPED_PRESENCE_END\]/, "typed");
+  const tp = grab(F, /const typed = interpolate\(frame, \[(\d+), (\d+), (\d+), (\d+), (\d+)\], \[TYPED_DESKTOP\[1\], TYPED_DESKTOP\[1\], TYPED_PRESENCE_MID, TYPED_PRESENCE_MID, TYPED_PRESENCE_END\], clamp\)/, "typed");
   typingSpans(
     "presence",
-    (f) => interpolate(f, tp.nums.slice(0, 5), [0.5, 0.5, tp.nums[5], tp.nums[6], 0.74], clamp),
+    (f) => interpolate(f, tp.nums, [TYPED_DESKTOP[1], TYPED_DESKTOP[1], TYPED_PRESENCE_MID, TYPED_PRESENCE_MID, TYPED_PRESENCE_END], clamp),
     sceneLength("presence") - 1,
     tp.ref,
   );
@@ -361,22 +489,21 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   const SWIPE_OUT = pair(F, "SWIPE_OUT");
   const SWIPE_BACK = pair(F, "SWIPE_BACK");
   const TO_EDITOR = num(F, "TO_EDITOR");
-  const k1 = grab(F, /keyFrom: (12),/, "STEPS[0].keyFrom");
-  const k1to = grab(F, /keyTo: (44),/, "STEPS[0].keyTo");
-  const l1to = grab(F, /^\s*to: (70),/, "STEPS[0].to");
-  const k2 = grab(F, /keyFrom: (68),/, "STEPS[1].keyFrom");
-  const k2to = grab(F, /keyTo: (98),/, "STEPS[1].keyTo");
+  // STEPS の 2 つ（⌘Tab と 3 本指スワイプ）を出てくる順に読む
+  const [k1, k2] = grabAll(F, /^\s*keyFrom: (\d+),/, "STEPS[].keyFrom", 2);
+  const [k1to, k2to] = grabAll(F, /^\s*keyTo: (\d+),/, "STEPS[].keyTo", 2);
+  const [l1to, l2to] = grabAll(F, /^\s*to: (\d+),/, "STEPS[].to", 2);
   const l2from = grab(F, /from: SWIPE_OUT\[1\] - (\d+),/, "STEPS[1].from");
-  const l2to = grab(F, /^\s*to: (132),/, "STEPS[1].to");
+  const [t1, t2] = grabAll(F, /^\s*text: "([^"]+)",/, "STEPS[].text", 2).map((g) => g.raw[0]);
   const ping2 = grab(F, /const PINGS = \[TO_BROWSER, SWIPE_OUT\[1\] - (\d+)\]/, "PINGS");
   add("follow", PULL.v[0], "camera-start", "カメラが少し引き始める", PULL.ref);
   add("follow", PULL.v[1], "camera-end", "引ききる（CAM_FOLLOW）", PULL.ref);
   add("follow", k1.nums[0], "keycap-in", "キーキャップ「⌘」「tab」が出る", k1.ref);
   add("follow", TO_BROWSER.v - 2, "key-down", "⌘Tab のキーキャップが沈み始める（2f 前から）", grab(F, /\[step\.press - (\d+), step\.press, step\.press \+ (\d+)\]/, "pressed").ref);
-  add("follow", TO_BROWSER.v, "key-press", "⌘Tab 押下。隠していたブラウザが前面に出る（一瞬で切り替わる）。ラベル「別のアプリを前に出しても」が出始める", TO_BROWSER.ref);
+  add("follow", TO_BROWSER.v, "key-press", `⌘Tab 押下。隠していたブラウザが前面に出る（一瞬で切り替わる）。ラベル「${t1}」が出始める`, TO_BROWSER.ref);
   add("follow", TO_BROWSER.v, "ping", "パネルのまわりにティールのリングが一度広がる（24f）", ping2.ref);
   add("follow", k1to.nums[0], "keycap-out", "⌘Tab のキーキャップが消えきる", k1to.ref);
-  add("follow", l1to.nums[0], "label-out", "ラベル「別のアプリを前に出しても」が消えきる", l1to.ref);
+  add("follow", l1to.nums[0], "label-out", `ラベル「${t1}」が消えきる`, l1to.ref);
   add("follow", k2.nums[0], "keycap-in", "キーキャップ「3本指スワイプ」が出る", k2.ref);
   const swipeEase = Easing.bezier(0.35, 0, 0.15, 1);
   grab(F, /const swipeEase = Easing\.bezier\(0\.35, 0, 0\.15, 1\)/, "swipeEase");
@@ -386,14 +513,14 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   const outHalf = firstFrame(SWIPE_OUT.v[0], SWIPE_OUT.v[1], (f) => out(f) >= 0.5);
   add("follow", outHalf, "swipe-mid", `行きのスワイプが半分を越える（最速の付近、進み ${(out(outHalf) * 100).toFixed(0)}%）`, SWIPE_OUT.ref);
   const outLand = firstFrame(SWIPE_OUT.v[0], SWIPE_OUT.v[1], (f) => out(f) >= 0.98);
-  add("follow", outLand, "swipe-land", `フルスクリーンのターミナルの Space に吸い付く（進み ${(out(outLand) * 100).toFixed(1)}%）`, SWIPE_OUT.ref);
+  add("follow", outLand, "swipe-land", `フルスクリーンのスライドの Space に吸い付く（進み ${(out(outLand) * 100).toFixed(1)}%）`, SWIPE_OUT.ref);
   add("follow", SWIPE_OUT.v[1] - ping2.nums[0], "ping", "Space が着いた瞬間にパネルのリングが広がる", ping2.ref);
-  add("follow", SWIPE_OUT.v[1] - l2from.nums[0], "label-in", "ラベル「フルスクリーンの Space に移っても」が出始める", l2from.ref);
+  add("follow", SWIPE_OUT.v[1] - l2from.nums[0], "label-in", `ラベル「${t2}」が出始める`, l2from.ref);
   add("follow", k2to.nums[0], "keycap-out", "3本指スワイプのキーキャップが消えきる", k2to.ref);
   add("follow", SWIPE_BACK.v[0], "swipe-start", "3本指スワイプ（戻り）。画面が右へ流れ始める（キーキャップは出さない）", SWIPE_BACK.ref);
   const backLand = firstFrame(SWIPE_BACK.v[0], SWIPE_BACK.v[1], (f) => back(f) >= 0.98);
   add("follow", backLand, "swipe-land", "元の Space（ブラウザが前面のデスクトップ）に戻り着く", SWIPE_BACK.ref);
-  add("follow", l2to.nums[0], "label-out", "ラベル「フルスクリーンの Space に移っても」が消えきる", l2to.ref);
+  add("follow", l2to.nums[0], "label-out", `ラベル「${t2}」が消えきる`, l2to.ref);
   add("follow", TO_EDITOR.v, "app-switch", "⌘Tab でエディタへ戻る（ブラウザが後ろに回る。注釈なし・一瞬）", TO_EDITOR.ref);
   captionCues("follow", "画面を切り替えても、ちゃんとそこにいる。", pair(F, "CAPTION"));
 }
@@ -408,10 +535,6 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   const OVERLAY_FADE = num(F, "OVERLAY_FADE");
   const WASHI_OUT = pair(F, "WASHI_OUT");
   const CAM_PUSH = pair(F, "CAM_PUSH");
-  const TERM_IN = pair(F, "TERM_IN");
-  const TERM_BACK = num(F, "TERM_BACK");
-  const TEST_CMD = str(F, "TEST_CMD");
-  const TEST_TYPE_FROM = num(F, "TEST_TYPE_FROM");
   const HOVER_SPOT = panelPoint(176, 126);
   grab(F, /const HOVER_SPOT = panelPoint\(176, 126\)/, "HOVER_SPOT");
   const pathRef = grab(F, /^const CURSOR_PATH/, "CURSOR_PATH").ref;
@@ -428,35 +551,39 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
   ];
   const HOVER_IN = hoverEventsFor(path)[0][0];
   const FADE = num("scenes/DesktopShared.tsx", "FADE");
-  const tp = grab(F, /const typed = interpolate\(frame, \[0, (\d+), TERM_BACK, TERM_BACK \+ (\d+)\], \[TYPED_PRESENCE_END, ([\d.]+), ([\d.]+), (\d+)\]/, "typed");
-  const [t1, tEnd, v1, v2, v3] = tp.nums;
-  typingSpans(
-    "flowBreak",
-    (f) => interpolate(f, [0, t1, TERM_BACK.v, TERM_BACK.v + tEnd], [TYPED_PRESENCE_END, v1, v2, v3], clamp),
-    sceneLength("flowBreak") - 1,
-    tp.ref,
-  );
-  add("flowBreak", CAM_PUSH.v[0], "camera-start", "テストとパネルが収まる構図へ寄り始める", CAM_PUSH.ref);
-  add("flowBreak", TERM_IN.v[0], "terminal-in", "ターミナルが前に出始める", TERM_IN.ref);
-  // go test -v を 1 フレーム 1 字で打つ（frame - TEST_TYPE_FROM の floor 字）
-  for (let c = 1; c <= TEST_CMD.v.length; c++) {
-    const ch = TEST_CMD.v[c - 1];
-    add("flowBreak", TEST_TYPE_FROM.v + c, "key", `go test の打鍵 ${c}/${TEST_CMD.v.length}「${ch === " " ? "␣" : ch}」`, TEST_TYPE_FROM.ref);
+  // 書く速さは TYPED_KEYS の折れ線（workedAt = 線形の interpolate）。frame は数か「SATURATE + n」、値は docTypedAt(i)・TYPED_PRESENCE_END・数
+  const tkRef = grab(F, /^const TYPED_KEYS: \[number, number\]\[\] = \[/, "TYPED_KEYS").ref;
+  if (!/workedAt\(frame, TYPED_KEYS\)/.test(linesOf(F).join("\n"))) throw new Error("FlowBreak の typed が workedAt(frame, TYPED_KEYS) でなくなった");
+  const TK: [number, number][] = [];
+  {
+    const ls = linesOf(F);
+    const start = ls.findIndex((l) => l.startsWith("const TYPED_KEYS"));
+    for (let i = start + 1; i < ls.length && !ls[i].startsWith("];"); i++) {
+      const m = ls[i].match(/^\s*\[(SATURATE \+ )?(\d+), (docTypedAt\((\d+)\)|TYPED_PRESENCE_END|[\d.]+)\],/);
+      if (!m) throw new Error(`src/${F}:${i + 1} TYPED_KEYS の行が読めない: ${ls[i]}`);
+      const at = (m[1] ? SATURATE.v : 0) + Number(m[2]);
+      const v = m[4] !== undefined ? docTypedAt(Number(m[4])) : m[3] === "TYPED_PRESENCE_END" ? TYPED_PRESENCE_END : Number(m[3]);
+      TK.push([at, v]);
+    }
+    if (TK.length < 3) throw new Error("TYPED_KEYS が読めない");
   }
-  // テストの出力行（RUN / PASS / ok）
-  const ls = linesOf(F);
-  const start = ls.findIndex((l) => l.startsWith("const TEST_LINES"));
-  for (let i = start + 1; i < ls.length && !ls[i].startsWith("];"); i++) {
-    const m = ls[i].match(/\{ at: (SATURATE \+ )?(\d+), text: "([^"]*)"(, pass: true)? \}/);
-    if (!m) continue;
-    const at = (m[1] ? SATURATE.v : 0) + Number(m[2]);
-    const text = m[3].replace(/\\t/g, " ");
-    const type = text.startsWith("ok") ? "test-ok" : m[4] ? "test-pass" : "test-run";
-    add("flowBreak", at, type, `ターミナルに「${text}」が出る`, `src/${F}:${i + 1} TEST_LINES`);
-  }
+  const typedFB = (f: number) => interpolate(f, TK.map((k) => k[0]), TK.map((k) => k[1]), clamp);
+  typingSpans("flowBreak", typedFB, sceneLength("flowBreak") - 1, tkRef);
+  add("flowBreak", CAM_PUSH.v[0], "camera-start", "書いている本文とパネルが収まる構図へ寄り始める", CAM_PUSH.ref);
+  // 提案書の肝: 「3. 期待効果」の数字（kpi の行）。セルの値が出そろうフレームを、エディタと同じ floor(typed × 文字数) で求める
+  const kpiIdx = DOC_LINES.findIndex((l) => l.kind === "kpi");
+  const kpi = DOC_LINES[kpiIdx];
+  if (kpi.kind !== "kpi") throw new Error("DOC_LINES に kpi の行が無い");
+  const shownFB = (f: number) => Math.floor(typedFB(f) * DOC_CHARS);
+  let at = Math.round(docTypedAt(kpiIdx) * DOC_CHARS);
+  kpi.cells.forEach(([name, value], i) => {
+    at += name.length + value.length;
+    const f = firstFrame(0, sceneLength("flowBreak") - 1, (x) => shownFB(x) >= at);
+    const last = i === kpi.cells.length - 1;
+    add("flowBreak", f, last ? "written" : "kpi-cell", last ? `提案書の肝が書き上がる（期待効果の数字の最後「${name} ${value}」が出そろう）` : `期待効果の数字「${name} ${value}」が出る`, tkRef);
+  });
   add("flowBreak", SATURATE.v, "reach", "25:00 に到達。進捗バーが満ちて薄まる（止まらない。冒頭なら止められていたところ）", SATURATE.ref);
   captionCues("flowBreak", "25分で、切らない。", pair(F, "CAPTION_SATURATE"));
-  add("flowBreak", TERM_BACK.v, "terminal-back", "エディタへ戻って続きを書く（ターミナルは後ろへ）", TERM_BACK.ref);
   captionCues("flowBreak", "区切りは、止めたところ。", pair(F, "CAPTION_STOP"));
   const po = grab(F, /const pointerOpacity = interpolate\(frame, \[CURSOR_PATH\[0\]\[0\] - (\d+), CURSOR_PATH\[0\]\[0\] \+ (\d+)\]/, "pointerOpacity");
   add("flowBreak", P[0] - po.nums[0], "cursor-in", "手を止めてマウスへ。ポインタが現れてパネルへ向かう", po.ref);
@@ -568,31 +695,21 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
 {
   const F = "scenes/Install.tsx";
   fadeInCues("install");
-  const COMMAND = str(F, "COMMAND");
+  const URL_TEXT = str(F, "URL_TEXT");
   const LOGO_IN = num(F, "LOGO_IN");
-  const TERM_IN = num(F, "TERM_IN");
-  const TYPE = pair(F, "TYPE");
+  const URL_IN = num(F, "URL_IN");
   const SUB_IN = num(F, "SUB_IN");
   const logo = grab(F, /\.\.\.rise\(frame, LOGO_IN, (\d+)\)/, "rise(LOGO_IN)");
-  const term = grab(F, /\.\.\.rise\(frame, TERM_IN, (\d+)\)/, "rise(TERM_IN)");
+  const url = grab(F, /\.\.\.rise\(frame, URL_IN, (\d+)\)/, "rise(URL_IN)");
   const sub = grab(F, /\.\.\.rise\(frame, SUB_IN, (\d+)\)/, "rise(SUB_IN)");
+  const line = grab(F, /interpolate\(frame, \[URL_IN \+ (\d+), URL_IN \+ (\d+)\], \[0, (\d+)\]/, "URL の下線");
   add("install", LOGO_IN.v, "logo-in", "アイコンと「Quiet」のロゴが浮かび始める", LOGO_IN.ref);
   add("install", LOGO_IN.v + logo.nums[0], "logo-full", "ロゴが出きる", logo.ref);
-  add("install", TERM_IN.v, "terminal-in", "ターミナルのウィンドウが浮かび始める", TERM_IN.ref);
-  add("install", TERM_IN.v + term.nums[0], "terminal-full", "ターミナルが出きる", term.ref);
-  // Terminal は floor(typed) 文字を出す。typed は TYPE の区間で 0 → 全長に線形
-  const L = COMMAND.v.length;
-  const typed = (f: number) => interpolate(f, TYPE.v, [0, L], clamp);
-  for (let f = TYPE.v[0]; f <= TYPE.v[1]; f++) {
-    const before = Math.floor(typed(f - 1));
-    const now = Math.floor(typed(f));
-    for (let c = before; c < now; c++) {
-      const ch = COMMAND.v[c];
-      add("install", f, "key", `curl の打鍵 ${c + 1}/${L}「${ch === " " ? "␣" : ch}」${now - before > 1 ? `（このフレームで ${now - before} 字）` : ""}`, TYPE.ref);
-    }
-  }
-  add("install", TYPE.v[1], "type-end", "コマンドを打ち終わる（キャレットは点灯のまま、Enter は押さない）", TYPE.ref);
-  add("install", SUB_IN.v, "sub-in", "要件行「macOS 14+・無料・local-first flow timer」が浮かび始める", SUB_IN.ref);
+  add("install", URL_IN.v, "url-in", `URL「${URL_TEXT.v}」が浮かび始める`, URL_IN.ref);
+  add("install", URL_IN.v + url.nums[0], "url-full", "URL が出きる", url.ref);
+  add("install", URL_IN.v + line.nums[0], "underline-start", `URL の下にティールの線が伸び始める（${line.nums[2]}px まで）`, line.ref);
+  add("install", URL_IN.v + line.nums[1], "underline-end", "下線が伸びきる", line.ref);
+  add("install", SUB_IN.v, "sub-in", "「Mac 用・無料」と要件が浮かび始める", SUB_IN.ref);
   add("install", SUB_IN.v + sub.nums[0], "sub-full", "要件行が出きる。以降は全要素が静止", sub.ref);
   add("install", sceneLength("install") - 1, "final", "最終フレーム（サムネになる止め絵）", grab("timeline.ts", /export const DURATION/, "DURATION").ref);
 }

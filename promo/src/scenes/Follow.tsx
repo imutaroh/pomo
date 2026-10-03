@@ -16,6 +16,7 @@ import {
   lerpCam,
   PANEL_SIZE_WORLD,
   panelPoint,
+  REPORT_BARS,
   runningOpacity,
   TYPED_PRESENCE_END,
   WORKED_FOLLOW_END,
@@ -23,12 +24,12 @@ import {
   WorkDesktop,
 } from "./DesktopShared";
 
-// 28–33秒: 実行中（30% に溶けたまま・手は乗せない）のパネルが、画面を切り替えても居続ける。
-// ① ⌘Tab で隠してあったブラウザ（Go のドキュメント）を前に出す → パネルの真下が壁紙からブラウザの目次に変わるが、
+// 42–47秒: 実行中（30% に溶けたまま・手は乗せない）のパネルが、画面を切り替えても居続ける。
+// ① ⌘Tab で隠してあったブラウザ（参考資料の問い合わせ分析）を前に出す → パネルの真下が壁紙からブラウザの目次に変わるが、
 //    パネルはその上（level .floating）
-// ② 3本指スワイプで隣の Space のフルスクリーンのターミナルへ → 壁紙もウィンドウもメニューバーも横へ流れるが、
+// ② 3本指スワイプで隣の Space（フルスクリーンにした発表用スライド）へ → 壁紙もウインドウもメニューバーも横へ流れるが、
 //    パネルは同じ画面位置に留まる（canJoinAllSpaces + fullScreenAuxiliary）。フルスクリーンではメニューバーが隠れる
-// ③ 元の Space へ戻り、⌘Tab でエディタへ（ブラウザは後ろに回って右端がのぞく）→ FlowBreak の frame 0 と同じ画面
+// ③ 元の Space へ戻り、⌘Tab で文書へ（ブラウザは後ろに回って右端がのぞく）→ FlowBreak の frame 0 と同じ画面
 // パネルのまわりのリング・キーキャップ・ラベルは動画側の注釈（アプリには無い）。パネル自体は光らせない。
 // frame 0 = Presence の最終フレーム（CAM_NEAR・9:00）、最終フレーム = FlowBreak の frame 0（CAM_FOLLOW・20:00）
 
@@ -37,7 +38,8 @@ const TO_BROWSER = 24; // ⌘Tab（引き終わってから。前面の切り替
 const SWIPE_OUT: [number, number] = [76, 92];
 const SWIPE_BACK: [number, number] = [128, 142];
 const TO_EDITOR = 145;
-const CAPTION: [number, number] = [6, 150]; // 完全表示 24–138
+// 最終フレーム（149）で消えきる（FlowBreak の frame 0 と画素で揃える）。完全表示 24–137
+const CAPTION: [number, number] = [6, 149];
 const LABEL_FADE = 8;
 // 操作の注釈（キーキャップ）とその結果のラベルを1行に並べる。キーは操作の少し前に出て、押した瞬間に沈む
 const STEPS: {
@@ -55,18 +57,18 @@ const STEPS: {
     keyFrom: 12,
     keyTo: 44,
     text: "別のアプリを前に出しても",
-    from: TO_BROWSER,
-    to: 70,
-  }, // ラベル完全表示 32–62。消えてから次のキーを出す（1行に2つの話が並ばないように）
+    from: 14,
+    to: 76,
+  }, // キーと同時に出す。ラベル完全表示 22–68 の 46f。次のキーとは位置が違うので、消え際に重なってよい
   {
     keys: ["3本指スワイプ"],
     press: SWIPE_OUT[0],
     keyFrom: 68,
     keyTo: 98,
-    text: "フルスクリーンの Space に移っても",
-    from: SWIPE_OUT[1] - 4,
-    to: 132,
-  }, // 完全表示 96–124
+    text: "フルスクリーンの画面に移っても",
+    from: SWIPE_OUT[1] - 10,
+    to: 137,
+  }, // 完全表示 90–129 の 39f。戻りのスワイプの途中まで残す
 ];
 // 注釈のリングを打つフレーム（前面が変わった瞬間と、Space が着いた瞬間）
 const PINGS = [TO_BROWSER, SWIPE_OUT[1] - 2];
@@ -80,51 +82,131 @@ const isSwiping = (f: number) =>
   (f > SWIPE_OUT[0] && f < SWIPE_OUT[1]) ||
   (f > SWIPE_BACK[0] && f < SWIPE_BACK[1]);
 
-// ---------------------------------------------------------------- 隣の Space（フルスクリーンのターミナル）
+// ---------------------------------------------------------------- 隣の Space（フルスクリーンにした発表用スライド）
 
-const TERM_LINES: [string, string][] = [
-  ["~/session % ", "go vet ./..."],
-  ["~/session % ", "go test ./..."],
-  ["", "ok      session          0.412s"],
-  ["", "ok      session/store    0.208s"],
-  ["~/session % ", "go run ."],
-  ["", "listening on :8080"],
-  ["", "GET /session  200  1.2ms"],
-  ["", "GET /session  200  0.9ms"],
-];
+// 同じ提案の発表用スライドを、スライドのアプリでフルスクリーンにして作っている。
+// 実在のアプリに似せない汎用の見た目（暗い作業面・左にスライド一覧・中央に白いスライド・下にノート）。
+// パネルが重なる右上（x 1602〜, y 60〜354）には何も置かない（30% の数字と混ざらないように）
+const SLIDES = ["表紙", "1. 背景", "2. 提案", "3. 期待効果", "4. 進め方"];
+const CURRENT_SLIDE = 1;
+const CANVAS = { x: 380, y: 130, w: 1160, h: 652 };
+const dimText = "rgba(250,251,252,0.62)";
 
-// フルスクリーンのアプリはメニューバーもウィンドウ枠も出さない（画面の上端までが本文）
-const FullscreenTerminal: React.FC = () => (
+const SlideCanvas: React.FC = () => (
+  <div
+    style={{
+      position: "absolute",
+      left: CANVAS.x,
+      top: CANVAS.y,
+      width: CANVAS.w,
+      height: CANVAS.h,
+      boxSizing: "border-box",
+      padding: "64px 80px",
+      backgroundColor: "#fff",
+      boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+      fontFamily: font.sans,
+      color: color.sumi,
+    }}
+  >
+    <div style={{ fontSize: 28, fontWeight: 700, color: color.tealText, letterSpacing: "0.06em" }}>1. 背景</div>
+    <div style={{ marginTop: 10, fontSize: 60, fontWeight: 700, lineHeight: 1.3 }}>問い合わせに、毎月 120 時間。</div>
+    <div style={{ marginTop: 44, display: "flex", flexDirection: "column", gap: 20 }}>
+      {REPORT_BARS.map(([label, pct]) => (
+        <div key={label} style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <div style={{ width: 250, flexShrink: 0, fontSize: 26, fontWeight: 500, color: "rgba(26,35,48,0.78)" }}>
+            {label}
+          </div>
+          <div
+            style={{
+              width: pct * 22,
+              height: 34,
+              borderRadius: 5,
+              backgroundColor: color.teal,
+              opacity: 0.35 + pct / 40,
+            }}
+          />
+          <div style={{ fontFamily: font.mono, fontSize: 26, fontWeight: 500 }}>{pct}%</div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// フルスクリーンのアプリはメニューバーもウインドウ枠も出さない（画面の上端までがアプリ）
+const FullscreenSlides: React.FC = () => (
   <div
     style={{
       position: "absolute",
       inset: 0,
       backgroundColor: color.night,
-      padding: "64px 96px",
-      fontFamily: font.mono,
-      fontSize: 30,
-      lineHeight: 1.75,
-      color: "rgba(250,251,252,0.6)",
-      whiteSpace: "pre",
+      fontFamily: font.sans,
     }}
   >
-    {TERM_LINES.map(([prompt, text], i) => (
-      <div key={i} style={{ color: prompt ? color.washi : undefined }}>
-        {prompt ? <span style={{ color: color.teal }}>{prompt}</span> : null}
-        {text}
-      </div>
-    ))}
-    <div>
-      <span style={{ color: color.teal }}>~/session % </span>
-      <span
-        style={{
-          display: "inline-block",
-          width: 17,
-          height: 32,
-          verticalAlign: "text-bottom",
-          backgroundColor: "rgba(250,251,252,0.85)",
-        }}
-      />
+    {/* 上のツールバー（右上はパネルの場所なので空ける） */}
+    <div
+      style={{
+        position: "absolute",
+        left: 40,
+        top: 30,
+        display: "flex",
+        alignItems: "center",
+        gap: 40,
+        fontSize: 22,
+        fontWeight: 500,
+        color: dimText,
+      }}
+    >
+      <span style={{ fontWeight: 700, color: color.washi }}>問い合わせ対応の改善 — スライド</span>
+      {["＋ スライド", "テキスト", "図形", "グラフ"].map((t) => (
+        <span key={t}>{t}</span>
+      ))}
+    </div>
+    {/* 左のスライド一覧 */}
+    {SLIDES.map((title, i) => {
+      const on = i === CURRENT_SLIDE;
+      return (
+        <div key={title} style={{ position: "absolute", left: 40, top: CANVAS.y + i * 176, display: "flex", gap: 14 }}>
+          <div style={{ width: 22, textAlign: "right", fontSize: 18, fontWeight: 500, color: dimText }}>{i + 1}</div>
+          <div
+            style={{
+              width: 256,
+              height: 144,
+              boxSizing: "border-box",
+              padding: "18px 20px",
+              borderRadius: 6,
+              backgroundColor: "#fff",
+              boxShadow: on ? `0 0 0 4px ${color.teal}` : undefined,
+              opacity: on ? 1 : 0.86,
+              fontSize: 18,
+              fontWeight: 700,
+              color: color.sumi,
+            }}
+          >
+            {title}
+            <div style={{ marginTop: 14, width: 150, height: 8, borderRadius: 4, backgroundColor: color.line }} />
+            <div style={{ marginTop: 8, width: 110, height: 8, borderRadius: 4, backgroundColor: color.line }} />
+          </div>
+        </div>
+      );
+    })}
+    <SlideCanvas />
+    {/* 発表者のノート */}
+    <div
+      style={{
+        position: "absolute",
+        left: CANVAS.x,
+        top: CANVAS.y + CANVAS.h + 34,
+        width: CANVAS.w,
+        paddingTop: 22,
+        borderTop: "1px solid rgba(250,251,252,0.14)",
+        fontSize: 24,
+        fontWeight: 500,
+        lineHeight: 1.7,
+        color: dimText,
+      }}
+    >
+      <span style={{ fontWeight: 700, color: color.washi }}>ノート　</span>
+      数字は先月の問い合わせ 3,400 件から。6 割は同じ質問。
     </div>
   </div>
 );
@@ -138,26 +220,30 @@ const Spaces: React.FC = () => {
   const browser =
     frame < TO_BROWSER ? "hidden" : frame < TO_EDITOR ? "front" : "back";
   const x = -1920 * spaceAt(frame);
+  // 元の Space に居る間は移動もスライドも描かない（重ね方の違いで影の画素が揺れ、FlowBreak の frame 0 とずれるため）
+  const moved = x !== 0;
   return (
-    <AbsoluteFill style={{ translate: `${x}px 0px` }}>
+    <AbsoluteFill style={moved ? { translate: `${x}px 0px` } : undefined}>
       <WorkDesktop
         typed={TYPED_PRESENCE_END}
         browser={browser}
         statusTitle={" " + formatTime(worked)}
         clock={clockString(worked)}
       />
-      <div
-        style={{
-          position: "absolute",
-          left: 1920,
-          top: 0,
-          width: 1920,
-          height: 1080,
-          overflow: "hidden",
-        }}
-      >
-        <FullscreenTerminal />
-      </div>
+      {moved ? (
+        <div
+          style={{
+            position: "absolute",
+            left: 1920,
+            top: 0,
+            width: 1920,
+            height: 1080,
+            overflow: "hidden",
+          }}
+        >
+          <FullscreenSlides />
+        </div>
+      ) : null}
     </AbsoluteFill>
   );
 };

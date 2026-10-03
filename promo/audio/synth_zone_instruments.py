@@ -171,7 +171,7 @@ def key_thock(rng: np.random.Generator, vel: float = 1.0, heavy: bool = False) -
 
 
 def glass(midi: float, vel: float, rng: np.random.Generator, dur: float = 2.2) -> np.ndarray:
-    """テストが通る瞬間の澄んだ音。正弦の芯に少しだけ非整数倍音（ガラスを軽く弾いたような）。"""
+    """仕事の山場（揃う・送信・書き上がる）の澄んだ音。正弦の芯に少しだけ非整数倍音（ガラスを軽く弾いたような）。"""
     f = midi_hz(midi)
     n = int(dur * SR)
     t = _t(n)
