@@ -1,0 +1,3802 @@
+{
+  "fps": 30,
+  "duration": 2370,
+  "sampleRate": 48000,
+  "samplesPerFrame": 1600,
+  "conventions": "frame は本編（QuietPromo）の絶対フレーム。サンプル位置 = frame × 1600。sections の to は含まない（次の from）。フェードで入るシーンは from から transition の長さだけ前のシーンと重なる。cues は frame 昇順、同フレームは出来事の順。source は生成時に正規表現で見つけた行。",
+  "sections": [
+    {
+      "id": "zone",
+      "from": 0,
+      "to": 450
+    },
+    {
+      "id": "cut",
+      "from": 450,
+      "to": 570
+    },
+    {
+      "id": "noise",
+      "from": 570,
+      "to": 870
+    },
+    {
+      "id": "silence",
+      "from": 870,
+      "to": 930
+    },
+    {
+      "id": "desktop",
+      "from": 930,
+      "to": 1080
+    },
+    {
+      "id": "presence",
+      "from": 1080,
+      "to": 1260
+    },
+    {
+      "id": "follow",
+      "from": 1260,
+      "to": 1410
+    },
+    {
+      "id": "flowBreak",
+      "from": 1410,
+      "to": 1740
+    },
+    {
+      "id": "modes",
+      "from": 1740,
+      "to": 1890
+    },
+    {
+      "id": "promises",
+      "from": 1890,
+      "to": 2070
+    },
+    {
+      "id": "words",
+      "from": 2070,
+      "to": 2220
+    },
+    {
+      "id": "install",
+      "from": 2220,
+      "to": 2370
+    }
+  ],
+  "cues": [
+    {
+      "frame": 0,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 2/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 1,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 3/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 3,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 4/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 5,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 5/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 7,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 6/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 9,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 7/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 10,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 8/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 12,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 9/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 14,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 10/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 16,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 11/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 18,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 12/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 20,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 13/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 21,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 14/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 23,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 15/15（L3「・同じ質問への回答が全体の6割」）",
+      "source": "src/scenes/ZoneDoc.tsx:25 L3"
+    },
+    {
+      "frame": 30,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:14 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 34,
+      "type": "doc-outline",
+      "scene": "zone",
+      "note": "資料の見出し「2. 提案」が光って並ぶ（構成が見えた）",
+      "source": "src/scenes/ZoneDoc.tsx:12 DOC_OUTLINE"
+    },
+    {
+      "frame": 39,
+      "type": "doc-outline",
+      "scene": "zone",
+      "note": "見出し「3. 期待効果」が光って並ぶ",
+      "source": "src/scenes/ZoneDoc.tsx:42 「3. 期待効果」の appear"
+    },
+    {
+      "frame": 44,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 1/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 44,
+      "type": "doc-rush",
+      "scene": "zone",
+      "note": "箇条書きが一気に埋まり始める（L5）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 45,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 2/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 46,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 3/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 47,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 4/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 47,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 5/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 48,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 6/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 49,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 7/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 50,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 8/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 50,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 9/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 51,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 10/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 52,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 11/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 52,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 12/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 53,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 13/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 53,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 14/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 54,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 15/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 54,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 16/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 55,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 17/17（L5「・よくある質問は自動で一次回答する」）",
+      "source": "src/scenes/ZoneDoc.tsx:26 L5"
+    },
+    {
+      "frame": 58,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 1/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 58,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 2/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 59,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 3/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 59,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 4/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 59,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 5/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 60,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 6/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 60,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 7/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 60,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:13 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 61,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 8/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 61,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 9/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 62,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 10/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 62,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 11/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 63,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 12/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 63,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 13/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 63,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 14/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 64,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 15/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 64,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 16/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 64,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 17/17（L6「・担当者は込み入った相談に集中する」）",
+      "source": "src/scenes/ZoneDoc.tsx:27 L6"
+    },
+    {
+      "frame": 68,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 1/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 69,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 2/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 69,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 3/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 69,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 4/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 70,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 5/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 70,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 6/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 71,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 7/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 71,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 8/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 72,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 9/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 72,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 10/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 73,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 11/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 73,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 12/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 73,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 13/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 74,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 14/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 74,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 15/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 74,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 16/16（L8「・対応時間を月40時間まで減らす」）",
+      "source": "src/scenes/ZoneDoc.tsx:28 L8"
+    },
+    {
+      "frame": 77,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 1/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 78,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 2/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 78,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 3/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 78,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 4/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 79,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 5/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 79,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 6/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 80,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 7/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 80,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 8/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 81,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 9/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 81,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 10/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 81,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 11/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 82,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 12/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 82,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 13/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 82,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 14/14（L9「・お客さまの待ち時間を半分に」）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 82,
+      "type": "doc-rush-end",
+      "scene": "zone",
+      "note": "一気に埋まる行が打ち終わる（L9）",
+      "source": "src/scenes/ZoneDoc.tsx:29 L9"
+    },
+    {
+      "frame": 88,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 1/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 90,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 2/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 90,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:12 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 92,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 3/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 95,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 4/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 98,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 5/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 100,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 6/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 101,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 7/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 105,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 8/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 106,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 9/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 109,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 10/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 111,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 11/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 113,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 12/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 115,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 13/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 118,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 14/15（L10「・浮いた時間で新しい窓口を試す」）",
+      "source": "src/scenes/ZoneDoc.tsx:30 L10"
+    },
+    {
+      "frame": 120,
+      "type": "montage-cut",
+      "scene": "zone",
+      "note": "カットが「表」に切り替わる",
+      "source": "src/scenes/ZoneMontage.tsx:14 CUTS"
+    },
+    {
+      "frame": 120,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:11 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 122,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 1/6（数式「=B2*C2」）",
+      "source": "src/scenes/ZoneSheet.tsx:17 F_KEYS"
+    },
+    {
+      "frame": 126,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 2/6（数式「=B2*C2」）",
+      "source": "src/scenes/ZoneSheet.tsx:17 F_KEYS"
+    },
+    {
+      "frame": 129,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 3/6（数式「=B2*C2」）",
+      "source": "src/scenes/ZoneSheet.tsx:17 F_KEYS"
+    },
+    {
+      "frame": 131,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 4/6（数式「=B2*C2」）",
+      "source": "src/scenes/ZoneSheet.tsx:17 F_KEYS"
+    },
+    {
+      "frame": 134,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 5/6（数式「=B2*C2」）",
+      "source": "src/scenes/ZoneSheet.tsx:17 F_KEYS"
+    },
+    {
+      "frame": 137,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 6/6（数式「=B2*C2」）",
+      "source": "src/scenes/ZoneSheet.tsx:17 F_KEYS"
+    },
+    {
+      "frame": 142,
+      "type": "sheet-enter",
+      "scene": "zone",
+      "note": "Enter。D2 が値になる",
+      "source": "src/scenes/ZoneSheet.tsx:18 SHEET_ENTER"
+    },
+    {
+      "frame": 150,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:10 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 151,
+      "type": "sheet-fill",
+      "scene": "zone",
+      "note": "下へ引いて 2 行目が埋まる",
+      "source": "src/scenes/ZoneSheet.tsx:20 FILL_STEP"
+    },
+    {
+      "frame": 153,
+      "type": "sheet-fill",
+      "scene": "zone",
+      "note": "下へ引いて 3 行目が埋まる",
+      "source": "src/scenes/ZoneSheet.tsx:20 FILL_STEP"
+    },
+    {
+      "frame": 156,
+      "type": "sheet-fill",
+      "scene": "zone",
+      "note": "下へ引いて 4 行目が埋まる",
+      "source": "src/scenes/ZoneSheet.tsx:20 FILL_STEP"
+    },
+    {
+      "frame": 158,
+      "type": "sheet-fill",
+      "scene": "zone",
+      "note": "下へ引いて 5 行目が埋まる",
+      "source": "src/scenes/ZoneSheet.tsx:20 FILL_STEP"
+    },
+    {
+      "frame": 160,
+      "type": "sheet-bar",
+      "scene": "zone",
+      "note": "グラフの棒 1/6 が立ち上がり始める（16f）",
+      "source": "src/scenes/ZoneSheet.tsx:254 棒の立ち上がり"
+    },
+    {
+      "frame": 161,
+      "type": "sheet-fill",
+      "scene": "zone",
+      "note": "下へ引いて 6 行目が埋まる",
+      "source": "src/scenes/ZoneSheet.tsx:20 FILL_STEP"
+    },
+    {
+      "frame": 164,
+      "type": "sheet-bar",
+      "scene": "zone",
+      "note": "グラフの棒 2/6 が立ち上がり始める（16f）",
+      "source": "src/scenes/ZoneSheet.tsx:254 棒の立ち上がり"
+    },
+    {
+      "frame": 167,
+      "type": "sheet-total",
+      "scene": "zone",
+      "note": "合計のセルが出る",
+      "source": "src/scenes/ZoneSheet.tsx:21 TOTAL_AT"
+    },
+    {
+      "frame": 168,
+      "type": "sheet-bar",
+      "scene": "zone",
+      "note": "グラフの棒 3/6 が立ち上がり始める（16f）",
+      "source": "src/scenes/ZoneSheet.tsx:254 棒の立ち上がり"
+    },
+    {
+      "frame": 172,
+      "type": "sheet-bar",
+      "scene": "zone",
+      "note": "グラフの棒 4/6 が立ち上がり始める（16f）",
+      "source": "src/scenes/ZoneSheet.tsx:254 棒の立ち上がり"
+    },
+    {
+      "frame": 176,
+      "type": "sheet-bar",
+      "scene": "zone",
+      "note": "グラフの棒 5/6 が立ち上がり始める（16f）",
+      "source": "src/scenes/ZoneSheet.tsx:254 棒の立ち上がり"
+    },
+    {
+      "frame": 180,
+      "type": "sheet-bar",
+      "scene": "zone",
+      "note": "グラフの棒 6/6 が立ち上がり始める（16f）",
+      "source": "src/scenes/ZoneSheet.tsx:254 棒の立ち上がり"
+    },
+    {
+      "frame": 180,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:09 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 198,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 1/3（前年比の見出し）",
+      "source": "src/scenes/ZoneSheet.tsx:25 E_HEAD"
+    },
+    {
+      "frame": 202,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 2/3（前年比の見出し）",
+      "source": "src/scenes/ZoneSheet.tsx:25 E_HEAD"
+    },
+    {
+      "frame": 206,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 3/3（前年比の見出し）",
+      "source": "src/scenes/ZoneSheet.tsx:25 E_HEAD"
+    },
+    {
+      "frame": 210,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:08 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 220,
+      "type": "montage-cut",
+      "scene": "zone",
+      "note": "カットが「デザイン」に切り替わる",
+      "source": "src/scenes/ZoneMontage.tsx:14 CUTS"
+    },
+    {
+      "frame": 226,
+      "type": "caption-in",
+      "scene": "zone",
+      "note": "コピー「いま、いいところ。」が浮かび始める（15f）",
+      "source": "src/scenes/Zone.tsx:13 COPY_FROM"
+    },
+    {
+      "frame": 236,
+      "type": "design-snap",
+      "scene": "zone",
+      "note": "「sub」がガイドに吸い付く",
+      "source": "src/scenes/ZoneDesign.tsx:18 ELS"
+    },
+    {
+      "frame": 240,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:07 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 254,
+      "type": "design-snap",
+      "scene": "zone",
+      "note": "「button」がガイドに吸い付く",
+      "source": "src/scenes/ZoneDesign.tsx:19 ELS"
+    },
+    {
+      "frame": 270,
+      "type": "design-snap",
+      "scene": "zone",
+      "note": "「image」がガイドに吸い付く",
+      "source": "src/scenes/ZoneDesign.tsx:20 ELS"
+    },
+    {
+      "frame": 270,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:06 になる",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 274,
+      "type": "design-aligned",
+      "scene": "zone",
+      "note": "左端と上端がぴたりと揃い、ガイドが全部光る",
+      "source": "src/scenes/ZoneDesign.tsx:22 DESIGN_ALIGNED"
+    },
+    {
+      "frame": 284,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 1/11（書き足す一行「参加無料・先着100名」）",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 291,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 2/11（書き足す一行「参加無料・先着100名」）",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 297,
+      "type": "caption-out-end",
+      "scene": "zone",
+      "note": "コピー「いま、いいところ。」が消えきる",
+      "source": "src/scenes/Zone.tsx:14 COPY_TO"
+    },
+    {
+      "frame": 300,
+      "type": "montage-cut",
+      "scene": "zone",
+      "note": "カットが「メール」に切り替わる",
+      "source": "src/scenes/ZoneMontage.tsx:14 CUTS"
+    },
+    {
+      "frame": 300,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 11/17（R1_L4「ご要望の3点は、すべて含めました。」）",
+      "source": "src/scenes/ZoneMail.tsx:28 R1_L4"
+    },
+    {
+      "frame": 300,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:05 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 300,
+      "type": "urgent",
+      "scene": "zone",
+      "note": "残り 5 秒。タイマーが赤くなり、秒ごとに脈打ち始める",
+      "source": "src/scenes/ZoneScreen.tsx:412 URGENT_FROM"
+    },
+    {
+      "frame": 301,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 12/17（R1_L4「ご要望の3点は、すべて含めました。」）",
+      "source": "src/scenes/ZoneMail.tsx:28 R1_L4"
+    },
+    {
+      "frame": 303,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 13/17（R1_L4「ご要望の3点は、すべて含めました。」）",
+      "source": "src/scenes/ZoneMail.tsx:28 R1_L4"
+    },
+    {
+      "frame": 304,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 14/17（R1_L4「ご要望の3点は、すべて含めました。」）",
+      "source": "src/scenes/ZoneMail.tsx:28 R1_L4"
+    },
+    {
+      "frame": 305,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 15/17（R1_L4「ご要望の3点は、すべて含めました。」）",
+      "source": "src/scenes/ZoneMail.tsx:28 R1_L4"
+    },
+    {
+      "frame": 307,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 16/17（R1_L4「ご要望の3点は、すべて含めました。」）",
+      "source": "src/scenes/ZoneMail.tsx:28 R1_L4"
+    },
+    {
+      "frame": 308,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 17/17（R1_L4「ご要望の3点は、すべて含めました。」）",
+      "source": "src/scenes/ZoneMail.tsx:28 R1_L4"
+    },
+    {
+      "frame": 311,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 1/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 312,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 2/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 313,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 3/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 314,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 4/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 315,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 5/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 316,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 6/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 317,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 7/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 318,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 8/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 319,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 9/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 319,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 10/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 320,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 11/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 321,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 12/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 322,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 13/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 322,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 14/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 323,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 15/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 324,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 16/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 325,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 17/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 326,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 18/18（R1_L5「納期は11月14日でお受けできます。」）",
+      "source": "src/scenes/ZoneMail.tsx:29 R1_L5"
+    },
+    {
+      "frame": 330,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:04 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 334,
+      "type": "mail-sent",
+      "scene": "zone",
+      "note": "「送信」を押す（ボタンが沈み「✓ 送信しました」に変わる）",
+      "source": "src/scenes/ZoneMail.tsx:10 MAIL_SENT"
+    },
+    {
+      "frame": 336,
+      "type": "mail-check",
+      "scene": "zone",
+      "note": "受信箱の一通に ✓ が付く",
+      "source": "src/scenes/ZoneMail.tsx:126 check"
+    },
+    {
+      "frame": 346,
+      "type": "mail-next",
+      "scene": "zone",
+      "note": "次の一通の返信に移る",
+      "source": "src/scenes/ZoneMail.tsx:12 NEXT"
+    },
+    {
+      "frame": 352,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 1/4（R2_L1「みなさま」）",
+      "source": "src/scenes/ZoneMail.tsx:33 R2_L1"
+    },
+    {
+      "frame": 355,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 2/4（R2_L1「みなさま」）",
+      "source": "src/scenes/ZoneMail.tsx:33 R2_L1"
+    },
+    {
+      "frame": 356,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 3/4（R2_L1「みなさま」）",
+      "source": "src/scenes/ZoneMail.tsx:33 R2_L1"
+    },
+    {
+      "frame": 358,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 4/4（R2_L1「みなさま」）",
+      "source": "src/scenes/ZoneMail.tsx:33 R2_L1"
+    },
+    {
+      "frame": 360,
+      "type": "montage-cut",
+      "scene": "zone",
+      "note": "カットが「4 分割」に切り替わる",
+      "source": "src/scenes/ZoneMontage.tsx:14 CUTS"
+    },
+    {
+      "frame": 360,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 4/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 360,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:03 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 362,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 5/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 362,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 3/3（前年比「+8%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 364,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 6/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 364,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 1/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 366,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 3/11（書き足す一行「参加無料・先着100名」）・4 分割",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 366,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 2/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 367,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 3/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 368,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 7/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 370,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 4/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 371,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 8/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 371,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 5/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 372,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 1/4（前年比「+11%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 372,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 6/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 375,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 9/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 375,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 7/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 376,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 10/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 376,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 4/11（書き足す一行「参加無料・先着100名」）・4 分割",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 378,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 2/4（前年比「+11%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 378,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 8/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 379,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 11/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 380,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 9/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 382,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 12/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 382,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 10/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 383,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 3/4（前年比「+11%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 384,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 11/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 385,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 13/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 387,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 4/4（前年比「+11%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 387,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 12/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 388,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 14/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 390,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 15/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 390,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 1/3（前年比「+9%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 390,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 13/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 390,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:02 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 391,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 5/11（書き足す一行「参加無料・先着100名」）・4 分割",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 391,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 14/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 393,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 16/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 393,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 15/15（R2_L2「定例は木曜の10時に移します。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:34 R2_L2"
+    },
+    {
+      "frame": 395,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 2/3（前年比「+9%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 396,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 17/17（L12「・11月に一部の窓口で小さく始める」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:31 L12"
+    },
+    {
+      "frame": 398,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 3/3（前年比「+9%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 398,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 1/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 400,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 2/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 401,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 1/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 401,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 6/11（書き足す一行「参加無料・先着100名」）・4 分割",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 403,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 3/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 404,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 4/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 405,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 2/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 406,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 5/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 408,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 1/4（前年比「+14%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 408,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 6/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 409,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 3/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 409,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 7/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 412,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 4/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 412,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 2/4（前年比「+14%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 412,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 8/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 413,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 7/11（書き足す一行「参加無料・先着100名」）・4 分割",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 413,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 9/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 415,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 5/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 415,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 10/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 417,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 3/4（前年比「+14%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 418,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 11/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 419,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 6/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 419,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 12/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 420,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 8/11（書き足す一行「参加無料・先着100名」）・4 分割",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 420,
+      "type": "timer-sec",
+      "scene": "zone",
+      "note": "汎用ポモドーロが 00:01 になる（赤く脈打つ）",
+      "source": "src/scenes/ZoneScreen.tsx:410 timerRemaining"
+    },
+    {
+      "frame": 421,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 4/4（前年比「+14%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 422,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 13/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 423,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 7/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 423,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 14/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 424,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 15/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 425,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 8/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 425,
+      "type": "key:mail",
+      "scene": "zone",
+      "note": "メールの打鍵 16/16（R2_L3「議題は、見積もりの進み具合です。」）・4 分割",
+      "source": "src/scenes/ZoneMail.tsx:35 R2_L3"
+    },
+    {
+      "frame": 426,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 1/4（前年比「+16%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 429,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 9/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 430,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 9/11（書き足す一行「参加無料・先着100名」）・4 分割",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 431,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 2/4（前年比「+16%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 432,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 10/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 435,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 11/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 435,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 3/4（前年比「+16%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 439,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 12/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 440,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 4/4（前年比「+16%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 442,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 13/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 442,
+      "type": "key:design",
+      "scene": "zone",
+      "note": "デザインの打鍵 10/11（書き足す一行「参加無料・先着100名」）・4 分割",
+      "source": "src/scenes/ZoneDesign.tsx:26 NOTE_KEYS"
+    },
+    {
+      "frame": 444,
+      "type": "key:doc",
+      "scene": "zone",
+      "note": "資料の打鍵 14/14（L13「・効果は月末の定例で確かめる」）・4 分割",
+      "source": "src/scenes/ZoneDoc.tsx:32 L13"
+    },
+    {
+      "frame": 444,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 1/4（前年比「+21%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 449,
+      "type": "key:sheet",
+      "scene": "zone",
+      "note": "表の打鍵 2/4（前年比「+21%」）・4 分割",
+      "source": "src/scenes/ZoneSheet.tsx:26 E_CELLS"
+    },
+    {
+      "frame": 449,
+      "type": "scene-end",
+      "scene": "zone",
+      "note": "Zone の最終フレーム（4 分割・00:01、打鍵は止まっていない）",
+      "source": "src/scenes/ZoneScreen.tsx:11 ZONE_LENGTH"
+    },
+    {
+      "frame": 450,
+      "type": "zero",
+      "scene": "cut",
+      "note": "00:00。タイマーが赤く染まり画面が揺れる（ここで音楽を断ち切る）",
+      "source": "src/timeline.ts:37 SCENE_DEFS cut"
+    },
+    {
+      "frame": 464,
+      "type": "flash",
+      "scene": "cut",
+      "note": "白フラッシュ（2f）",
+      "source": "src/scenes/Cut.tsx:14 ZERO_TO"
+    },
+    {
+      "frame": 466,
+      "type": "alarm",
+      "scene": "cut",
+      "note": "赤地に「時間です。」がグリッチで割れて出る（1.22→1 のパンチ、グリッチ 110）",
+      "source": "src/scenes/Cut.tsx:16 ALARM"
+    },
+    {
+      "frame": 472,
+      "type": "glitch-settle",
+      "scene": "cut",
+      "note": "グリッチが 30 まで落ちる",
+      "source": "src/scenes/Cut.tsx:54 glitch"
+    },
+    {
+      "frame": 478,
+      "type": "glitch-calm",
+      "scene": "cut",
+      "note": "グリッチが 8 で静まる（読める）",
+      "source": "src/scenes/Cut.tsx:54 glitch"
+    },
+    {
+      "frame": 505,
+      "type": "glitch-up",
+      "scene": "cut",
+      "note": "暗転の直前にグリッチが 150 へ割れる",
+      "source": "src/scenes/Cut.tsx:54 glitch"
+    },
+    {
+      "frame": 510,
+      "type": "blackout",
+      "scene": "cut",
+      "note": "暗転（赤が消えて暗い地だけ）",
+      "source": "src/scenes/Cut.tsx:17 ALARM_OUT"
+    },
+    {
+      "frame": 514,
+      "type": "caption-in",
+      "scene": "cut",
+      "note": "明朝「いま、いいところだったのに。」が浮かび始める",
+      "source": "src/scenes/Cut.tsx:18 COPY_FROM"
+    },
+    {
+      "frame": 528,
+      "type": "caption-full",
+      "scene": "cut",
+      "note": "明朝のコピーが出きる（Noise へカットまで静止）",
+      "source": "src/scenes/Cut.tsx:122 copy in"
+    },
+    {
+      "frame": 569,
+      "type": "scene-end",
+      "scene": "cut",
+      "note": "Cut の最終フレーム",
+      "source": "src/timeline.ts:38 SCENE_DEFS noise"
+    },
+    {
+      "frame": 570,
+      "type": "cut",
+      "scene": "noise",
+      "note": "noise へハードカット",
+      "source": "src/timeline.ts:38 SCENE_DEFS noise"
+    },
+    {
+      "frame": 570,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 1/29 が飛び込む: Streak「🔥 12日連続！ 今日も途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×01・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 590,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 2/29 が飛び込む: Focus Score「集中スコア 62 / 100 平均を下回っています」（5f で着地、カメラが拍で揺れる・HUD ×02・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 607,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 3/29 が飛び込む: Insight「昨日より 18分 少ないです」（5f で着地、カメラが拍で揺れる・HUD ×03・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 622,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 4/29 が飛び込む: 今週の集中時間（棒グラフ）（5f で着地、カメラが拍で揺れる・HUD ×04・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 635,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 5/29 が飛び込む: Goal「目標まで あと47分 達成率 61%」（5f で着地、カメラが拍で揺れる・HUD ×05・読ませる大きさ）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 646,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 6/29 が飛び込む: Ranking「ランキング 4,812位 先週より ↓312」（5f で着地、カメラが拍で揺れる・HUD ×06）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 655,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 7/29 が飛び込む: Badge「🏅 バッジまで あと3日」（5f で着地、カメラが拍で揺れる・HUD ×07）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 663,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 8/29 が飛び込む: Sync「記録を同期しています… 37%」（5f で着地、カメラが拍で揺れる・HUD ×08）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 670,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 9/29 が飛び込む: Weekly Report「今週のレポートが 届きました」（5f で着地、カメラが拍で揺れる・HUD ×09）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 676,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 10/29 が飛び込む: Streak「ストリークが 途切れそうです！」（5f で着地、カメラが拍で揺れる・HUD ×10）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 681,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 11/29 が飛び込む: Goal「⚠ 今日の目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×11）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 686,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 12/29 が飛び込む: History「集中の記録 1,284件」（5f で着地、カメラが拍で揺れる・HUD ×12）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 689,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 13/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×13）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 693,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 14/29 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×14）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 696,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 15/29 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×15）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 699,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 16/29 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×16）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 702,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 17/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×17）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 705,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 18/29 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×18）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 708,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 19/29 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×19）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 711,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 20/29 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×20）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 714,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 21/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×21）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 717,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 22/29 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×22）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 720,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 23/29 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×23）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 723,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 24/29 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×24）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 726,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 25/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×25）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 729,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 26/29 が飛び込む: Score「スコア ↓4」（5f で着地、カメラが拍で揺れる・HUD ×26）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 732,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 27/29 が飛び込む: Goal「目標 未達成」（5f で着地、カメラが拍で揺れる・HUD ×27）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 735,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 28/29 が飛び込む: Ranking「順位が下がりました」（5f で着地、カメラが拍で揺れる・HUD ×28）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 738,
+      "type": "popup",
+      "scene": "noise",
+      "note": "通知 29/29 が飛び込む: Streak「途切れさせないで」（5f で着地、カメラが拍で揺れる・HUD ×29）",
+      "source": "src/scenes/Noise.tsx:69 APPEAR"
+    },
+    {
+      "frame": 742,
+      "type": "freeze",
+      "scene": "noise",
+      "note": "積み上げが止まる。白の一閃（1f だけ washi 35%）、揺れも止まる",
+      "source": "src/scenes/Noise.tsx:82 FREEZE"
+    },
+    {
+      "frame": 746,
+      "type": "caption-bar-in",
+      "scene": "noise",
+      "note": "黒帯のコピー「集中にとって、ぜんぶノイズだった。」が割り込む（8f で横に開く、9f の色収差と横ずれ、赤い縁）",
+      "source": "src/scenes/Noise.tsx:83 CAPTION"
+    },
+    {
+      "frame": 754,
+      "type": "caption-bar-full",
+      "scene": "noise",
+      "note": "黒帯が開ききって静止",
+      "source": "src/scenes/Noise.tsx:283 CaptionBar wipe"
+    },
+    {
+      "frame": 774,
+      "type": "hud-out-start",
+      "scene": "noise",
+      "note": "上の HUD（INTERRUPTIONS・REC・SCORE）が消え始める",
+      "source": "src/scenes/Noise.tsx:337 hudOpacity"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "1 番目に消える通知（29 枚目）が沈みながらぼけ始める（eraseAt=214.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "2 番目に消える通知（28 枚目）が沈みながらぼけ始める（eraseAt=214.04）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "3 番目に消える通知（27 枚目）が沈みながらぼけ始める（eraseAt=214.16）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "4 番目に消える通知（26 枚目）が沈みながらぼけ始める（eraseAt=214.37）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 785,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "5 番目に消える通知（25 枚目）が沈みながらぼけ始める（eraseAt=214.65）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 786,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "6 番目に消える通知（24 枚目）が沈みながらぼけ始める（eraseAt=215.02）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 786,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "7 番目に消える通知（23 枚目）が沈みながらぼけ始める（eraseAt=215.47）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 787,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "8 番目に消える通知（22 枚目）が沈みながらぼけ始める（eraseAt=216.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 787,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "9 番目に消える通知（21 枚目）が沈みながらぼけ始める（eraseAt=216.61）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 788,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "10 番目に消える通知（20 枚目）が沈みながらぼけ始める（eraseAt=217.31）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 789,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "11 番目に消える通知（19 枚目）が沈みながらぼけ始める（eraseAt=218.08）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 789,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "12 番目に消える通知（18 枚目）が沈みながらぼけ始める（eraseAt=218.94）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 790,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "13 番目に消える通知（17 枚目）が沈みながらぼけ始める（eraseAt=219.88）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 791,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "14 番目に消える通知（16 枚目）が沈みながらぼけ始める（eraseAt=220.90）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 793,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "15 番目に消える通知（15 枚目）が沈みながらぼけ始める（eraseAt=222.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 794,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "29 枚目の通知が消えきる（1/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 794,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "16 番目に消える通知（14 枚目）が沈みながらぼけ始める（eraseAt=223.18）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 795,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "28 枚目の通知が消えきる（2/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 795,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "27 枚目の通知が消えきる（3/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 795,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "26 枚目の通知が消えきる（4/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 795,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "25 枚目の通知が消えきる（5/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 795,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "17 番目に消える通知（13 枚目）が沈みながらぼけ始める（eraseAt=224.45）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 796,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "24 枚目の通知が消えきる（6/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 796,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "23 枚目の通知が消えきる（7/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 796,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "22 枚目の通知が消えきる（8/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 796,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "18 番目に消える通知（12 枚目）が沈みながらぼけ始める（eraseAt=225.80）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 797,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "21 枚目の通知が消えきる（9/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 798,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "20 枚目の通知が消えきる（10/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 798,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "19 番目に消える通知（11 枚目）が沈みながらぼけ始める（eraseAt=227.22）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 799,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "19 枚目の通知が消えきる（11/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 799,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "18 枚目の通知が消えきる（12/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 799,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "20 番目に消える通知（10 枚目）が沈みながらぼけ始める（eraseAt=228.73）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 800,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "17 枚目の通知が消えきる（13/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 801,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "16 枚目の通知が消えきる（14/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 801,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "21 番目に消える通知（9 枚目）が沈みながらぼけ始める（eraseAt=230.33）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 802,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "15 枚目の通知が消えきる（15/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 803,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "22 番目に消える通知（8 枚目）が沈みながらぼけ始める（eraseAt=232.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 804,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "14 枚目の通知が消えきる（16/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 804,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "23 番目に消える通知（7 枚目）が沈みながらぼけ始める（eraseAt=233.76）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 805,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "13 枚目の通知が消えきる（17/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 806,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "12 枚目の通知が消えきる（18/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 806,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "24 番目に消える通知（6 枚目）が沈みながらぼけ始める（eraseAt=235.59）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 808,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "11 枚目の通知が消えきる（19/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 808,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "25 番目に消える通知（5 枚目）が沈みながらぼけ始める（eraseAt=237.51）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 809,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "10 枚目の通知が消えきる（20/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 810,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "26 番目に消える通知（4 枚目）が沈みながらぼけ始める（eraseAt=239.51）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 811,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "9 枚目の通知が消えきる（21/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 812,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "8 枚目の通知が消えきる（22/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 812,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "27 番目に消える通知（3 枚目）が沈みながらぼけ始める（eraseAt=241.59）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 813,
+      "type": "white-start",
+      "scene": "noise",
+      "note": "中央から washi の円が広がり始める（Easing.inOut(cubic)。最初の数フレームは半径数 px で見えない）",
+      "source": "src/scenes/Noise.tsx:89 TO_WHITE"
+    },
+    {
+      "frame": 814,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "7 枚目の通知が消えきる（23/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 814,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "28 番目に消える通知（2 枚目）が沈みながらぼけ始める（eraseAt=243.76）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 816,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "6 枚目の通知が消えきる（24/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 817,
+      "type": "popup-erase-start",
+      "scene": "noise",
+      "note": "29 番目に消える通知（1 枚目）が沈みながらぼけ始める（eraseAt=246.00）",
+      "source": "src/scenes/Noise.tsx:114 eraseAt"
+    },
+    {
+      "frame": 818,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "5 枚目の通知が消えきる（25/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 819,
+      "type": "white-visible",
+      "scene": "noise",
+      "note": "白の円が目に見える大きさになる（半径 58px）",
+      "source": "src/scenes/Noise.tsx:409 白の円の半径"
+    },
+    {
+      "frame": 820,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "4 枚目の通知が消えきる（26/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 822,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "3 枚目の通知が消えきる（27/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 824,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "2 枚目の通知が消えきる（28/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 826,
+      "type": "popup-gone",
+      "scene": "noise",
+      "note": "1 枚目の通知が消えきる（29/29）",
+      "source": "src/scenes/Noise.tsx:87 ERASE_FADE"
+    },
+    {
+      "frame": 827,
+      "type": "white-mid",
+      "scene": "noise",
+      "note": "白の円が半径の半分。ここで最も速く広がる",
+      "source": "src/scenes/Noise.tsx:89 TO_WHITE"
+    },
+    {
+      "frame": 842,
+      "type": "white-full",
+      "scene": "noise",
+      "note": "白が画面を満たしきる（黒帯のコピーだけが残る）",
+      "source": "src/scenes/Noise.tsx:89 TO_WHITE"
+    },
+    {
+      "frame": 848,
+      "type": "wipe-start",
+      "scene": "noise",
+      "note": "黒帯のコピーを左から右へ拭き取り始める",
+      "source": "src/scenes/Noise.tsx:91 CAPTION_OUT"
+    },
+    {
+      "frame": 860,
+      "type": "wipe-end",
+      "scene": "noise",
+      "note": "拭き取りが終わり、washi 一色になる",
+      "source": "src/scenes/Noise.tsx:91 CAPTION_OUT"
+    },
+    {
+      "frame": 869,
+      "type": "scene-end",
+      "scene": "noise",
+      "note": "Noise の最終フレーム（washi 一色の静止）。騒がしい側の絵はここまで、次のフレームから Silence",
+      "source": "src/timeline.ts:40 SCENE_DEFS silence"
+    },
+    {
+      "frame": 870,
+      "type": "silence-start",
+      "scene": "silence",
+      "note": "白・無音の 2 秒の始まり（Noise から絵は変わらない washi 一色）",
+      "source": "src/scenes/Silence.tsx:5 Silence"
+    },
+    {
+      "frame": 930,
+      "type": "fade-in-start",
+      "scene": "desktop",
+      "note": "desktop が 20f のfadeで入り始める（前のシーンと重なる）",
+      "source": "src/timeline.ts:41 SCENE_DEFS desktop"
+    },
+    {
+      "frame": 933,
+      "type": "editor-typing-start",
+      "scene": "desktop",
+      "note": "文書（提案書）がタイプされ始める（147f で 52 字、約 0.35 字/f。字が増えるのは 52 フレーム）",
+      "source": "src/scenes/DesktopScene.tsx:20 typed"
+    },
+    {
+      "frame": 950,
+      "type": "fade-in-end",
+      "scene": "desktop",
+      "note": "desktop のフェードが明ける",
+      "source": "src/timeline.ts:41 SCENE_DEFS desktop"
+    },
+    {
+      "frame": 950,
+      "type": "panel-in-start",
+      "scene": "desktop",
+      "note": "右上にパネル（待機 00:00）が静かに現れ始める（下から 10px、ease）",
+      "source": "src/scenes/DesktopScene.tsx:11 PANEL_IN"
+    },
+    {
+      "frame": 960,
+      "type": "camera-start",
+      "scene": "desktop",
+      "note": "カメラがパネルへゆっくり寄り始める（camEase）",
+      "source": "src/scenes/DesktopScene.tsx:12 PUSH"
+    },
+    {
+      "frame": 974,
+      "type": "panel-in-end",
+      "scene": "desktop",
+      "note": "パネルが出きる",
+      "source": "src/scenes/DesktopScene.tsx:11 PANEL_IN"
+    },
+    {
+      "frame": 974,
+      "type": "caption-in",
+      "scene": "desktop",
+      "note": "コピー「作業画面を、一切邪魔しない。」が浮かび始める（18f で読める濃さ）",
+      "source": "src/scenes/DesktopScene.tsx:14 CAPTION"
+    },
+    {
+      "frame": 992,
+      "type": "caption-full",
+      "scene": "desktop",
+      "note": "コピー「作業画面を、一切邪魔しない。」が出きる",
+      "source": "src/scenes/DesktopScene.tsx:14 CAPTION"
+    },
+    {
+      "frame": 1060,
+      "type": "camera-end",
+      "scene": "desktop",
+      "note": "カメラが寄りきって止まる（CAM_NEAR）",
+      "source": "src/scenes/DesktopScene.tsx:12 PUSH"
+    },
+    {
+      "frame": 1060,
+      "type": "caption-out-start",
+      "scene": "desktop",
+      "note": "コピー「作業画面を、一切邪魔しない。」が消え始める",
+      "source": "src/scenes/DesktopScene.tsx:14 CAPTION"
+    },
+    {
+      "frame": 1072,
+      "type": "caption-out-end",
+      "scene": "desktop",
+      "note": "コピー「作業画面を、一切邪魔しない。」が消えきる",
+      "source": "src/scenes/DesktopScene.tsx:14 CAPTION"
+    },
+    {
+      "frame": 1079,
+      "type": "editor-typing-end",
+      "scene": "desktop",
+      "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
+      "source": "src/scenes/DesktopScene.tsx:20 typed"
+    },
+    {
+      "frame": 1080,
+      "type": "cut",
+      "scene": "presence",
+      "note": "presence へハードカット",
+      "source": "src/timeline.ts:44 SCENE_DEFS presence"
+    },
+    {
+      "frame": 1084,
+      "type": "cursor-in",
+      "scene": "presence",
+      "note": "ポインタが現れてエディタからパネルへ動き出す",
+      "source": "src/scenes/Presence.tsx:152 pointerOpacity"
+    },
+    {
+      "frame": 1084,
+      "type": "rail-in",
+      "scene": "presence",
+      "note": "右下に「存在感の3段階」の表が出始める",
+      "source": "src/scenes/Presence.tsx:72 RAIL_IN"
+    },
+    {
+      "frame": 1104,
+      "type": "hover-in",
+      "scene": "presence",
+      "note": "ポインタがパネルの縁を越える（待機のパネルなので見た目はほぼ変わらない）",
+      "source": "src/scenes/Presence.tsx:46 HOVER"
+    },
+    {
+      "frame": 1112,
+      "type": "cursor-arrive",
+      "scene": "presence",
+      "note": "ポインタが再生ボタンに着く",
+      "source": "src/scenes/Presence.tsx:35 CURSOR_PATH"
+    },
+    {
+      "frame": 1120,
+      "type": "click",
+      "scene": "presence",
+      "note": "再生クリック。00:00 から数え始め、ボタン列と休憩チップが出る。段階表が「操作」に光る",
+      "source": "src/scenes/Presence.tsx:33 PLAY"
+    },
+    {
+      "frame": 1126,
+      "type": "caption-in",
+      "scene": "presence",
+      "note": "コピー「うるさくない。でも、忘れさせない。」が浮かび始める（18f で読める濃さ）",
+      "source": "src/scenes/Presence.tsx:74 CAPTION"
+    },
+    {
+      "frame": 1131,
+      "type": "hover-out",
+      "scene": "presence",
+      "note": "ポインタがパネルを離れる → 段階表「溶け込む」",
+      "source": "src/scenes/Presence.tsx:46 HOVER"
+    },
+    {
+      "frame": 1131,
+      "type": "melt-start",
+      "scene": "presence",
+      "note": "パネルが 100%→30% に溶け始める（0.45 秒 easeOut = 14f）",
+      "source": "src/scenes/DesktopShared.tsx:149 FADE"
+    },
+    {
+      "frame": 1144,
+      "type": "caption-full",
+      "scene": "presence",
+      "note": "コピー「うるさくない。でも、忘れさせない。」が出きる",
+      "source": "src/scenes/Presence.tsx:74 CAPTION"
+    },
+    {
+      "frame": 1145,
+      "type": "melt-end",
+      "scene": "presence",
+      "note": "30% に溶けきる。ここから早回しで数える",
+      "source": "src/scenes/DesktopShared.tsx:149 FADE"
+    },
+    {
+      "frame": 1147,
+      "type": "editor-typing-start",
+      "scene": "presence",
+      "note": "文書（提案書）がタイプされ始める（18f で 30 字、約 1.67 字/f。字が増えるのは 18 フレーム）",
+      "source": "src/scenes/Presence.tsx:155 typed"
+    },
+    {
+      "frame": 1164,
+      "type": "editor-typing-end",
+      "scene": "presence",
+      "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
+      "source": "src/scenes/Presence.tsx:155 typed"
+    },
+    {
+      "frame": 1179,
+      "type": "hover-in",
+      "scene": "presence",
+      "note": "もう一度手を乗せる → 100% に戻る（ホバー復帰）。段階表「操作」",
+      "source": "src/scenes/Presence.tsx:46 HOVER"
+    },
+    {
+      "frame": 1188,
+      "type": "cursor-arrive",
+      "scene": "presence",
+      "note": "ポインタが休憩チップ右の余白で止まる",
+      "source": "src/scenes/Presence.tsx:35 CURSOR_PATH"
+    },
+    {
+      "frame": 1193,
+      "type": "hover-full",
+      "scene": "presence",
+      "note": "100% に戻りきる（実時間で数える）",
+      "source": "src/scenes/DesktopShared.tsx:149 FADE"
+    },
+    {
+      "frame": 1228,
+      "type": "hover-out",
+      "scene": "presence",
+      "note": "手を離す → また 30% に溶ける。段階表「溶け込む」",
+      "source": "src/scenes/Presence.tsx:46 HOVER"
+    },
+    {
+      "frame": 1236,
+      "type": "caption-out-start",
+      "scene": "presence",
+      "note": "コピー「うるさくない。でも、忘れさせない。」が消え始める",
+      "source": "src/scenes/Presence.tsx:74 CAPTION"
+    },
+    {
+      "frame": 1240,
+      "type": "rail-out-start",
+      "scene": "presence",
+      "note": "段階表が消え始める",
+      "source": "src/scenes/Presence.tsx:73 RAIL_OUT"
+    },
+    {
+      "frame": 1241,
+      "type": "editor-typing-start",
+      "scene": "presence",
+      "note": "文書（提案書）がタイプされ始める（19f で 34 字、約 1.79 字/f。字が増えるのは 19 フレーム）",
+      "source": "src/scenes/Presence.tsx:155 typed"
+    },
+    {
+      "frame": 1242,
+      "type": "melt-end",
+      "scene": "presence",
+      "note": "30% に溶けきる",
+      "source": "src/scenes/DesktopShared.tsx:149 FADE"
+    },
+    {
+      "frame": 1248,
+      "type": "caption-out-end",
+      "scene": "presence",
+      "note": "コピー「うるさくない。でも、忘れさせない。」が消えきる",
+      "source": "src/scenes/Presence.tsx:74 CAPTION"
+    },
+    {
+      "frame": 1256,
+      "type": "rail-out-end",
+      "scene": "presence",
+      "note": "段階表が消えきる",
+      "source": "src/scenes/Presence.tsx:73 RAIL_OUT"
+    },
+    {
+      "frame": 1259,
+      "type": "editor-typing-end",
+      "scene": "presence",
+      "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
+      "source": "src/scenes/Presence.tsx:155 typed"
+    },
+    {
+      "frame": 1260,
+      "type": "cut",
+      "scene": "follow",
+      "note": "follow へハードカット",
+      "source": "src/timeline.ts:45 SCENE_DEFS follow"
+    },
+    {
+      "frame": 1260,
+      "type": "camera-start",
+      "scene": "follow",
+      "note": "カメラが少し引き始める",
+      "source": "src/scenes/Follow.tsx:36 PULL"
+    },
+    {
+      "frame": 1266,
+      "type": "caption-in",
+      "scene": "follow",
+      "note": "コピー「画面を切り替えても、ちゃんとそこにいる。」が浮かび始める（18f で読める濃さ）",
+      "source": "src/scenes/Follow.tsx:42 CAPTION"
+    },
+    {
+      "frame": 1272,
+      "type": "keycap-in",
+      "scene": "follow",
+      "note": "キーキャップ「⌘」「tab」が出る",
+      "source": "src/scenes/Follow.tsx:57 STEPS[].keyFrom"
+    },
+    {
+      "frame": 1276,
+      "type": "camera-end",
+      "scene": "follow",
+      "note": "引ききる（CAM_FOLLOW）",
+      "source": "src/scenes/Follow.tsx:36 PULL"
+    },
+    {
+      "frame": 1282,
+      "type": "key-down",
+      "scene": "follow",
+      "note": "⌘Tab のキーキャップが沈み始める（2f 前から）",
+      "source": "src/scenes/Follow.tsx:339 pressed"
+    },
+    {
+      "frame": 1284,
+      "type": "key-press",
+      "scene": "follow",
+      "note": "⌘Tab 押下。隠していたブラウザが前面に出る（一瞬で切り替わる）。ラベル「別のアプリを前に出しても」が出始める",
+      "source": "src/scenes/Follow.tsx:37 TO_BROWSER"
+    },
+    {
+      "frame": 1284,
+      "type": "ping",
+      "scene": "follow",
+      "note": "パネルのまわりにティールのリングが一度広がる（24f）",
+      "source": "src/scenes/Follow.tsx:74 PINGS"
+    },
+    {
+      "frame": 1284,
+      "type": "caption-full",
+      "scene": "follow",
+      "note": "コピー「画面を切り替えても、ちゃんとそこにいる。」が出きる",
+      "source": "src/scenes/Follow.tsx:42 CAPTION"
+    },
+    {
+      "frame": 1304,
+      "type": "keycap-out",
+      "scene": "follow",
+      "note": "⌘Tab のキーキャップが消えきる",
+      "source": "src/scenes/Follow.tsx:58 STEPS[].keyTo"
+    },
+    {
+      "frame": 1328,
+      "type": "keycap-in",
+      "scene": "follow",
+      "note": "キーキャップ「3本指スワイプ」が出る",
+      "source": "src/scenes/Follow.tsx:66 STEPS[].keyFrom"
+    },
+    {
+      "frame": 1336,
+      "type": "label-out",
+      "scene": "follow",
+      "note": "ラベル「別のアプリを前に出しても」が消えきる",
+      "source": "src/scenes/Follow.tsx:61 STEPS[].to"
+    },
+    {
+      "frame": 1336,
+      "type": "swipe-start",
+      "scene": "follow",
+      "note": "3本指スワイプ（行き）。キーキャップが沈み、画面が左へ流れ始める（パネルは留まる、モーションブラー）",
+      "source": "src/scenes/Follow.tsx:38 SWIPE_OUT"
+    },
+    {
+      "frame": 1341,
+      "type": "swipe-mid",
+      "scene": "follow",
+      "note": "行きのスワイプが半分を越える（最速の付近、進み 50%）",
+      "source": "src/scenes/Follow.tsx:38 SWIPE_OUT"
+    },
+    {
+      "frame": 1342,
+      "type": "label-in",
+      "scene": "follow",
+      "note": "ラベル「フルスクリーンの画面に移っても」が出始める",
+      "source": "src/scenes/Follow.tsx:69 STEPS[1].from"
+    },
+    {
+      "frame": 1349,
+      "type": "swipe-land",
+      "scene": "follow",
+      "note": "フルスクリーンのスライドの Space に吸い付く（進み 98.1%）",
+      "source": "src/scenes/Follow.tsx:38 SWIPE_OUT"
+    },
+    {
+      "frame": 1350,
+      "type": "ping",
+      "scene": "follow",
+      "note": "Space が着いた瞬間にパネルのリングが広がる",
+      "source": "src/scenes/Follow.tsx:74 PINGS"
+    },
+    {
+      "frame": 1358,
+      "type": "keycap-out",
+      "scene": "follow",
+      "note": "3本指スワイプのキーキャップが消えきる",
+      "source": "src/scenes/Follow.tsx:67 STEPS[].keyTo"
+    },
+    {
+      "frame": 1388,
+      "type": "swipe-start",
+      "scene": "follow",
+      "note": "3本指スワイプ（戻り）。画面が右へ流れ始める（キーキャップは出さない）",
+      "source": "src/scenes/Follow.tsx:39 SWIPE_BACK"
+    },
+    {
+      "frame": 1397,
+      "type": "label-out",
+      "scene": "follow",
+      "note": "ラベル「フルスクリーンの画面に移っても」が消えきる",
+      "source": "src/scenes/Follow.tsx:70 STEPS[].to"
+    },
+    {
+      "frame": 1397,
+      "type": "caption-out-start",
+      "scene": "follow",
+      "note": "コピー「画面を切り替えても、ちゃんとそこにいる。」が消え始める",
+      "source": "src/scenes/Follow.tsx:42 CAPTION"
+    },
+    {
+      "frame": 1400,
+      "type": "swipe-land",
+      "scene": "follow",
+      "note": "元の Space（ブラウザが前面のデスクトップ）に戻り着く",
+      "source": "src/scenes/Follow.tsx:39 SWIPE_BACK"
+    },
+    {
+      "frame": 1405,
+      "type": "app-switch",
+      "scene": "follow",
+      "note": "⌘Tab でエディタへ戻る（ブラウザが後ろに回る。注釈なし・一瞬）",
+      "source": "src/scenes/Follow.tsx:40 TO_EDITOR"
+    },
+    {
+      "frame": 1409,
+      "type": "caption-out-end",
+      "scene": "follow",
+      "note": "コピー「画面を切り替えても、ちゃんとそこにいる。」が消えきる",
+      "source": "src/scenes/Follow.tsx:42 CAPTION"
+    },
+    {
+      "frame": 1410,
+      "type": "cut",
+      "scene": "flowBreak",
+      "note": "flowBreak へハードカット",
+      "source": "src/timeline.ts:46 SCENE_DEFS flowBreak"
+    },
+    {
+      "frame": 1410,
+      "type": "camera-start",
+      "scene": "flowBreak",
+      "note": "書いている本文とパネルが収まる構図へ寄り始める",
+      "source": "src/scenes/FlowBreak.tsx:53 CAM_PUSH"
+    },
+    {
+      "frame": 1442,
+      "type": "editor-typing-start",
+      "scene": "flowBreak",
+      "note": "文書（提案書）がタイプされ始める（147f で 117 字、約 0.80 字/f。字が増えるのは 107 フレーム）",
+      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+    },
+    {
+      "frame": 1497,
+      "type": "kpi-cell",
+      "scene": "flowBreak",
+      "note": "期待効果の数字「月の対応時間 40時間」が出る",
+      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+    },
+    {
+      "frame": 1504,
+      "type": "caption-in",
+      "scene": "flowBreak",
+      "note": "コピー「25分で、切らない。」が浮かび始める（18f で読める濃さ）",
+      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_SATURATE"
+    },
+    {
+      "frame": 1507,
+      "type": "kpi-cell",
+      "scene": "flowBreak",
+      "note": "期待効果の数字「待ち時間 半分」が出る",
+      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+    },
+    {
+      "frame": 1510,
+      "type": "reach",
+      "scene": "flowBreak",
+      "note": "25:00 に到達。進捗バーが満ちて薄まる（止まらない。冒頭なら止められていたところ）",
+      "source": "src/scenes/FlowBreak.tsx:40 SATURATE"
+    },
+    {
+      "frame": 1521,
+      "type": "written",
+      "scene": "flowBreak",
+      "note": "提案書の肝が書き上がる（期待効果の数字の最後「自動で返せる 6割」が出そろう）",
+      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+    },
+    {
+      "frame": 1522,
+      "type": "caption-full",
+      "scene": "flowBreak",
+      "note": "コピー「25分で、切らない。」が出きる",
+      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_SATURATE"
+    },
+    {
+      "frame": 1582,
+      "type": "caption-out-start",
+      "scene": "flowBreak",
+      "note": "コピー「25分で、切らない。」が消え始める",
+      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_SATURATE"
+    },
+    {
+      "frame": 1588,
+      "type": "editor-typing-end",
+      "scene": "flowBreak",
+      "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
+      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+    },
+    {
+      "frame": 1590,
+      "type": "cursor-in",
+      "scene": "flowBreak",
+      "note": "手を止めてマウスへ。ポインタが現れてパネルへ向かう",
+      "source": "src/scenes/FlowBreak.tsx:205 pointerOpacity"
+    },
+    {
+      "frame": 1594,
+      "type": "caption-out-end",
+      "scene": "flowBreak",
+      "note": "コピー「25分で、切らない。」が消えきる",
+      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_SATURATE"
+    },
+    {
+      "frame": 1594,
+      "type": "caption-in",
+      "scene": "flowBreak",
+      "note": "コピー「区切りは、止めたところ。」が浮かび始める（18f で読める濃さ）",
+      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_STOP"
+    },
+    {
+      "frame": 1606,
+      "type": "hover-in",
+      "scene": "flowBreak",
+      "note": "手を乗せる → 30%→100%（14f）",
+      "source": "src/scenes/FlowBreak.tsx:73 HOVER_IN"
+    },
+    {
+      "frame": 1612,
+      "type": "caption-full",
+      "scene": "flowBreak",
+      "note": "コピー「区切りは、止めたところ。」が出きる",
+      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_STOP"
+    },
+    {
+      "frame": 1614,
+      "type": "cursor-arrive",
+      "scene": "flowBreak",
+      "note": "ポインタがパネル右の余白で止まる",
+      "source": "src/scenes/FlowBreak.tsx:63 CURSOR_PATH"
+    },
+    {
+      "frame": 1622,
+      "type": "cursor-move",
+      "scene": "flowBreak",
+      "note": "ポインタが休憩チップへ動き出す",
+      "source": "src/scenes/FlowBreak.tsx:63 CURSOR_PATH"
+    },
+    {
+      "frame": 1630,
+      "type": "camera-start",
+      "scene": "flowBreak",
+      "note": "押す少し前からカメラが全景へ引き始める",
+      "source": "src/scenes/FlowBreak.tsx:58 CAM_PULL"
+    },
+    {
+      "frame": 1634,
+      "type": "reach",
+      "scene": "flowBreak",
+      "note": "52:10 に到達し、ポインタが休憩チップに着く",
+      "source": "src/scenes/FlowBreak.tsx:85 WORKED_KEYS 52:10"
+    },
+    {
+      "frame": 1636,
+      "type": "chip-hover",
+      "scene": "flowBreak",
+      "note": "チップの塗りが 22%→40% に濃くなる（ホバー）",
+      "source": "src/scenes/FlowBreak.tsx:207 chipHover"
+    },
+    {
+      "frame": 1642,
+      "type": "press",
+      "scene": "flowBreak",
+      "note": "チップを押し込む（mouse down）",
+      "source": "src/scenes/FlowBreak.tsx:41 PRESS"
+    },
+    {
+      "frame": 1646,
+      "type": "break-start",
+      "scene": "flowBreak",
+      "note": "離した瞬間に作業終了 → 休憩開始。全画面の休憩が現れ始める",
+      "source": "src/scenes/FlowBreak.tsx:42 BREAK_START"
+    },
+    {
+      "frame": 1648,
+      "type": "caption-out-start",
+      "scene": "flowBreak",
+      "note": "コピー「区切りは、止めたところ。」が消え始める",
+      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_STOP"
+    },
+    {
+      "frame": 1660,
+      "type": "caption-out-end",
+      "scene": "flowBreak",
+      "note": "コピー「区切りは、止めたところ。」が消えきる",
+      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_STOP"
+    },
+    {
+      "frame": 1660,
+      "type": "caption-in",
+      "scene": "flowBreak",
+      "note": "コピー「休憩は、義務ではなく報酬。」が浮かび始める（18f で読める濃さ）",
+      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_REWARD"
+    },
+    {
+      "frame": 1664,
+      "type": "overlay-full",
+      "scene": "flowBreak",
+      "note": "休憩画面が濃くなりきる（0.6 秒）",
+      "source": "src/scenes/FlowBreak.tsx:49 OVERLAY_FADE"
+    },
+    {
+      "frame": 1672,
+      "type": "camera-end",
+      "scene": "flowBreak",
+      "note": "カメラが等倍の全景に引ききる",
+      "source": "src/scenes/FlowBreak.tsx:58 CAM_PULL"
+    },
+    {
+      "frame": 1676,
+      "type": "tick",
+      "scene": "flowBreak",
+      "note": "休憩の残りが 1 秒減る（1 秒経過）",
+      "source": "src/scenes/DesktopShared.tsx:37 breakRemaining"
+    },
+    {
+      "frame": 1678,
+      "type": "caption-full",
+      "scene": "flowBreak",
+      "note": "コピー「休憩は、義務ではなく報酬。」が出きる",
+      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_REWARD"
+    },
+    {
+      "frame": 1706,
+      "type": "tick",
+      "scene": "flowBreak",
+      "note": "休憩の残りが 1 秒減る（2 秒経過）",
+      "source": "src/scenes/DesktopShared.tsx:37 breakRemaining"
+    },
+    {
+      "frame": 1716,
+      "type": "caption-out-start",
+      "scene": "flowBreak",
+      "note": "コピー「休憩は、義務ではなく報酬。」が消え始める",
+      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_REWARD"
+    },
+    {
+      "frame": 1726,
+      "type": "washi-start",
+      "scene": "flowBreak",
+      "note": "休憩画面ごと washi へ抜け始める",
+      "source": "src/scenes/FlowBreak.tsx:48 WASHI_OUT"
+    },
+    {
+      "frame": 1728,
+      "type": "caption-out-end",
+      "scene": "flowBreak",
+      "note": "コピー「休憩は、義務ではなく報酬。」が消えきる",
+      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_REWARD"
+    },
+    {
+      "frame": 1740,
+      "type": "washi-end",
+      "scene": "flowBreak",
+      "note": "washi 一色（ここから Modes のフェードの下に隠れる）",
+      "source": "src/scenes/FlowBreak.tsx:48 WASHI_OUT"
+    },
+    {
+      "frame": 1740,
+      "type": "fade-in-start",
+      "scene": "modes",
+      "note": "modes が 15f のfadeで入り始める（前のシーンと重なる）",
+      "source": "src/timeline.ts:47 SCENE_DEFS modes"
+    },
+    {
+      "frame": 1754,
+      "type": "heading-in",
+      "scene": "modes",
+      "note": "見出し「区切りは、自分で決める。」が浮かび始める",
+      "source": "src/scenes/Modes.tsx:17 HEAD_IN"
+    },
+    {
+      "frame": 1755,
+      "type": "fade-in-end",
+      "scene": "modes",
+      "note": "modes のフェードが明ける",
+      "source": "src/timeline.ts:47 SCENE_DEFS modes"
+    },
+    {
+      "frame": 1760,
+      "type": "card-in",
+      "scene": "modes",
+      "note": "1 枚目のパネル「フロー（既定）」が大きく出始める",
+      "source": "src/scenes/Modes.tsx:18 MAIN_IN"
+    },
+    {
+      "frame": 1770,
+      "type": "tick",
+      "scene": "modes",
+      "note": "4枚の数字がそろって 1 秒進む（実時間）",
+      "source": "src/scenes/Modes.tsx:97 sec"
+    },
+    {
+      "frame": 1772,
+      "type": "heading-full",
+      "scene": "modes",
+      "note": "見出しが出きる",
+      "source": "src/scenes/Modes.tsx:22 RISE"
+    },
+    {
+      "frame": 1778,
+      "type": "card-settle",
+      "scene": "modes",
+      "note": "「フロー」が着地",
+      "source": "src/scenes/Modes.tsx:22 RISE"
+    },
+    {
+      "frame": 1780,
+      "type": "label-in",
+      "scene": "modes",
+      "note": "「区切りたい日は、ほかも選べる。」が出始める",
+      "source": "src/scenes/Modes.tsx:19 SUB_LABEL_IN"
+    },
+    {
+      "frame": 1788,
+      "type": "card-in",
+      "scene": "modes",
+      "note": "2 枚目のパネル「ポモドーロ」が右から出始める",
+      "source": "src/scenes/Modes.tsx:21 SUB_STAGGER"
+    },
+    {
+      "frame": 1794,
+      "type": "card-in",
+      "scene": "modes",
+      "note": "3 枚目のパネル「タイマー」が右から出始める",
+      "source": "src/scenes/Modes.tsx:21 SUB_STAGGER"
+    },
+    {
+      "frame": 1800,
+      "type": "card-in",
+      "scene": "modes",
+      "note": "4 枚目のパネル「時計」が右から出始める",
+      "source": "src/scenes/Modes.tsx:21 SUB_STAGGER"
+    },
+    {
+      "frame": 1800,
+      "type": "tick",
+      "scene": "modes",
+      "note": "4枚の数字がそろって 1 秒進む（実時間）",
+      "source": "src/scenes/Modes.tsx:97 sec"
+    },
+    {
+      "frame": 1806,
+      "type": "card-settle",
+      "scene": "modes",
+      "note": "「ポモドーロ」が着地",
+      "source": "src/scenes/Modes.tsx:22 RISE"
+    },
+    {
+      "frame": 1812,
+      "type": "card-settle",
+      "scene": "modes",
+      "note": "「タイマー」が着地",
+      "source": "src/scenes/Modes.tsx:22 RISE"
+    },
+    {
+      "frame": 1818,
+      "type": "card-settle",
+      "scene": "modes",
+      "note": "「時計」が着地",
+      "source": "src/scenes/Modes.tsx:22 RISE"
+    },
+    {
+      "frame": 1830,
+      "type": "tick",
+      "scene": "modes",
+      "note": "4枚の数字がそろって 1 秒進む（実時間）",
+      "source": "src/scenes/Modes.tsx:97 sec"
+    },
+    {
+      "frame": 1860,
+      "type": "tick",
+      "scene": "modes",
+      "note": "4枚の数字がそろって 1 秒進む（実時間）",
+      "source": "src/scenes/Modes.tsx:97 sec"
+    },
+    {
+      "frame": 1890,
+      "type": "fade-in-start",
+      "scene": "promises",
+      "note": "promises が 15f のfadeで入り始める（前のシーンと重なる）",
+      "source": "src/timeline.ts:48 SCENE_DEFS promises"
+    },
+    {
+      "frame": 1902,
+      "type": "word-in",
+      "scene": "promises",
+      "note": "「ストリーク」が出始める（14f）",
+      "source": "src/scenes/Promises.tsx:26 Item appear"
+    },
+    {
+      "frame": 1904,
+      "type": "word-in",
+      "scene": "promises",
+      "note": "「点数」が出始める（14f）",
+      "source": "src/scenes/Promises.tsx:26 Item appear"
+    },
+    {
+      "frame": 1905,
+      "type": "fade-in-end",
+      "scene": "promises",
+      "note": "promises のフェードが明ける",
+      "source": "src/timeline.ts:48 SCENE_DEFS promises"
+    },
+    {
+      "frame": 1906,
+      "type": "word-in",
+      "scene": "promises",
+      "note": "「履歴」が出始める（14f）",
+      "source": "src/scenes/Promises.tsx:26 Item appear"
+    },
+    {
+      "frame": 1908,
+      "type": "word-in",
+      "scene": "promises",
+      "note": "「アカウント」が出始める（14f）",
+      "source": "src/scenes/Promises.tsx:26 Item appear"
+    },
+    {
+      "frame": 1910,
+      "type": "word-in",
+      "scene": "promises",
+      "note": "「送信」が出始める（14f）",
+      "source": "src/scenes/Promises.tsx:26 Item appear"
+    },
+    {
+      "frame": 1926,
+      "type": "strike-start",
+      "scene": "promises",
+      "note": "「ストリーク」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
+    },
+    {
+      "frame": 1933,
+      "type": "strike-start",
+      "scene": "promises",
+      "note": "「点数」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
+    },
+    {
+      "frame": 1934,
+      "type": "strike-end",
+      "scene": "promises",
+      "note": "「ストリーク」の線が引ききる",
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
+    },
+    {
+      "frame": 1940,
+      "type": "strike-start",
+      "scene": "promises",
+      "note": "「履歴」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
+    },
+    {
+      "frame": 1941,
+      "type": "strike-end",
+      "scene": "promises",
+      "note": "「点数」の線が引ききる",
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
+    },
+    {
+      "frame": 1947,
+      "type": "strike-start",
+      "scene": "promises",
+      "note": "「アカウント」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
+    },
+    {
+      "frame": 1948,
+      "type": "strike-end",
+      "scene": "promises",
+      "note": "「履歴」の線が引ききる",
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
+    },
+    {
+      "frame": 1954,
+      "type": "strike-start",
+      "scene": "promises",
+      "note": "「送信」に線を引き始める（ティールの線・文字が薄くなる。半分に届くのは +1f）",
+      "source": "src/scenes/Promises.tsx:15 STRIKE_GAP"
+    },
+    {
+      "frame": 1955,
+      "type": "strike-end",
+      "scene": "promises",
+      "note": "「アカウント」の線が引ききる",
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
+    },
+    {
+      "frame": 1962,
+      "type": "strike-end",
+      "scene": "promises",
+      "note": "「送信」の線が引ききる",
+      "source": "src/scenes/Promises.tsx:16 STRIKE_LEN"
+    },
+    {
+      "frame": 1972,
+      "type": "word-vanish-start",
+      "scene": "promises",
+      "note": "「ストリーク」がぼけながら沈んで消え始める",
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
+    },
+    {
+      "frame": 1977,
+      "type": "word-vanish-start",
+      "scene": "promises",
+      "note": "「点数」がぼけながら沈んで消え始める",
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
+    },
+    {
+      "frame": 1982,
+      "type": "word-vanish-start",
+      "scene": "promises",
+      "note": "「履歴」がぼけながら沈んで消え始める",
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
+    },
+    {
+      "frame": 1984,
+      "type": "word-gone",
+      "scene": "promises",
+      "note": "「ストリーク」が消えきる",
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
+    },
+    {
+      "frame": 1987,
+      "type": "word-vanish-start",
+      "scene": "promises",
+      "note": "「アカウント」がぼけながら沈んで消え始める",
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
+    },
+    {
+      "frame": 1989,
+      "type": "word-gone",
+      "scene": "promises",
+      "note": "「点数」が消えきる",
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
+    },
+    {
+      "frame": 1992,
+      "type": "word-vanish-start",
+      "scene": "promises",
+      "note": "「送信」がぼけながら沈んで消え始める",
+      "source": "src/scenes/Promises.tsx:18 VANISH_GAP"
+    },
+    {
+      "frame": 1994,
+      "type": "word-gone",
+      "scene": "promises",
+      "note": "「履歴」が消えきる",
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
+    },
+    {
+      "frame": 1999,
+      "type": "word-gone",
+      "scene": "promises",
+      "note": "「アカウント」が消えきる",
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
+    },
+    {
+      "frame": 2002,
+      "type": "note-in",
+      "scene": "promises",
+      "note": "「今回の時間だけ。」が浮かび始める（SUB_AT で「記録を持たないから、送るものもない。」が続く）",
+      "source": "src/scenes/Promises.tsx:22 NOTE_AT"
+    },
+    {
+      "frame": 2004,
+      "type": "word-gone",
+      "scene": "promises",
+      "note": "「送信」が消えきる",
+      "source": "src/scenes/Promises.tsx:19 VANISH_LEN"
+    },
+    {
+      "frame": 2020,
+      "type": "note-full",
+      "scene": "promises",
+      "note": "「今回の時間だけ。」が出きる",
+      "source": "src/scenes/Promises.tsx:72 noteIn"
+    },
+    {
+      "frame": 2070,
+      "type": "fade-in-start",
+      "scene": "words",
+      "note": "words が 15f のfadeで入り始める（前のシーンと重なる）",
+      "source": "src/timeline.ts:49 SCENE_DEFS words"
+    },
+    {
+      "frame": 2085,
+      "type": "fade-in-end",
+      "scene": "words",
+      "note": "words のフェードが明ける",
+      "source": "src/timeline.ts:49 SCENE_DEFS words"
+    },
+    {
+      "frame": 2086,
+      "type": "line-in",
+      "scene": "words",
+      "note": "1 行目「集中を止めるものを、ひとつずつ外していきました。」が浮かび始める",
+      "source": "src/scenes/Words.tsx:9 LINE1"
+    },
+    {
+      "frame": 2106,
+      "type": "line-full",
+      "scene": "words",
+      "note": "1 行目が出きる",
+      "source": "src/scenes/Words.tsx:15 Line opacity"
+    },
+    {
+      "frame": 2130,
+      "type": "line-in",
+      "scene": "words",
+      "note": "2 行目「最後に残った静けさが、この道具の名前です。」が浮かび始める",
+      "source": "src/scenes/Words.tsx:10 LINE2"
+    },
+    {
+      "frame": 2140,
+      "type": "tint-start",
+      "scene": "words",
+      "note": "「静けさ」が墨からティールに染まり始める",
+      "source": "src/scenes/Words.tsx:26 tint"
+    },
+    {
+      "frame": 2150,
+      "type": "line-full",
+      "scene": "words",
+      "note": "2 行目が出きる",
+      "source": "src/scenes/Words.tsx:15 Line opacity"
+    },
+    {
+      "frame": 2156,
+      "type": "tint-end",
+      "scene": "words",
+      "note": "「静けさ」が染まりきる。ここから静止",
+      "source": "src/scenes/Words.tsx:26 tint"
+    },
+    {
+      "frame": 2220,
+      "type": "fade-in-start",
+      "scene": "install",
+      "note": "install が 15f のfadeで入り始める（前のシーンと重なる）",
+      "source": "src/timeline.ts:50 SCENE_DEFS install"
+    },
+    {
+      "frame": 2235,
+      "type": "fade-in-end",
+      "scene": "install",
+      "note": "install のフェードが明ける",
+      "source": "src/timeline.ts:50 SCENE_DEFS install"
+    },
+    {
+      "frame": 2236,
+      "type": "logo-in",
+      "scene": "install",
+      "note": "アイコンと「Quiet」のロゴが浮かび始める",
+      "source": "src/scenes/Install.tsx:9 LOGO_IN"
+    },
+    {
+      "frame": 2250,
+      "type": "url-in",
+      "scene": "install",
+      "note": "URL「quiet.imutaro.com」が浮かび始める",
+      "source": "src/scenes/Install.tsx:10 URL_IN"
+    },
+    {
+      "frame": 2256,
+      "type": "underline-start",
+      "scene": "install",
+      "note": "URL の下にティールの線が伸び始める（220px まで）",
+      "source": "src/scenes/Install.tsx:68 URL の下線"
+    },
+    {
+      "frame": 2260,
+      "type": "logo-full",
+      "scene": "install",
+      "note": "ロゴが出きる",
+      "source": "src/scenes/Install.tsx:30 rise(LOGO_IN)"
+    },
+    {
+      "frame": 2266,
+      "type": "sub-in",
+      "scene": "install",
+      "note": "「Mac 用・無料」と要件が浮かび始める",
+      "source": "src/scenes/Install.tsx:11 SUB_IN"
+    },
+    {
+      "frame": 2272,
+      "type": "url-full",
+      "scene": "install",
+      "note": "URL が出きる",
+      "source": "src/scenes/Install.tsx:58 rise(URL_IN)"
+    },
+    {
+      "frame": 2280,
+      "type": "underline-end",
+      "scene": "install",
+      "note": "下線が伸びきる",
+      "source": "src/scenes/Install.tsx:68 URL の下線"
+    },
+    {
+      "frame": 2284,
+      "type": "sub-full",
+      "scene": "install",
+      "note": "要件行が出きる。以降は全要素が静止",
+      "source": "src/scenes/Install.tsx:81 rise(SUB_IN)"
+    },
+    {
+      "frame": 2369,
+      "type": "final",
+      "scene": "install",
+      "note": "最終フレーム（サムネになる止め絵）",
+      "source": "src/timeline.ts:11 DURATION"
+    }
+  ]
+}

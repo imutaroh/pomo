@@ -1,0 +1,35 @@
+{
+  "name": "promo",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.532",
+    "@remotion/google-fonts": "4.0.532",
+    "@remotion/media": "4.0.532",
+    "@remotion/motion-blur": "^4.0.532",
+    "@remotion/transitions": "^4.0.532",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.532"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.532",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.39.5",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "audio": "python3 audio/zone.py && python3 audio/noise.py && python3 audio/quiet.py && python3 audio/mix.py",
+    "cues": "esbuild audio/cues.ts --bundle --platform=node --format=esm --jsx=automatic --outfile=audio/out/cues.mjs --log-level=warning && node audio/out/cues.mjs",
+    "render": "remotion render QuietPromo out/video.mp4 && ffmpeg -y -loglevel error -i out/video.mp4 -i public/score.mp3 -map 0:v -map 1:a -c:v copy -c:a aac -b:a 256k -shortest out/quiet-promo.mp4"
+  }
+}
