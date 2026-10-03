@@ -1,0 +1,15 @@
+// LP（docs/）を Cloudflare Workers Static Assets で quiet.imutaro.com に配信する設定。
+// Worker のスクリプトは置かない（静的ファイルへのリクエストは無料・無制限で、Workers の無料枠も消費しない）。
+// デプロイは Workers Builds（Cloudflare の GitHub 連携）が main への push で行う。
+// name はダッシュボードの Worker 名と一致させること（違うとビルドが失敗する）。
+// 旧 URL https://imutaroh.github.io/pomo/ は GitHub Pages が同じ docs/ を配り続ける（二重配信）。
+{
+  "name": "quiet-lp",
+  "compatibility_date": "2026-10-03",
+  "assets": {
+    "directory": "./docs"
+  },
+  "routes": [
+    { "pattern": "quiet.imutaro.com", "custom_domain": true }
+  ]
+}
