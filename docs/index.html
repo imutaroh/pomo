@@ -1,337 +1,1335 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Quiet — 集中を止めていたものを、ぜんぶ消しました。</title>
-<meta name="description" content="25分で鳴るタイマーも、積み上がる記録も消した macOS のフロータイマー。残るのは、いま何分やっているかだけ。ローカル完結・アカウント不要・無料。" />
-<meta property="og:title" content="Quiet — 集中を止めていたものを、ぜんぶ消しました。" />
-<meta property="og:description" content="25分で鳴るタイマーも、積み上がる記録も消した macOS のフロータイマー。残るのは、いま何分やっているかだけ。" />
-<meta property="og:type" content="website" />
-<!-- アプリのダイヤル（リング）と同じ形。旧 🍅 はポモドーロの記号だったので外した -->
-<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;circle cx='50' cy='50' r='34' fill='none' stroke='%230087A8' stroke-width='11'/&gt;&lt;/svg&gt;" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiet — ノイズを消したタイマー for Mac</title>
+<meta name="description" content="鳴るベルも、積み上がる記録も、「今日は何分できた？」もない。Quiet は Mac の画面に静かに浮かぶフロータイマーです。無料・オープンソース・ローカル完結。">
+<link rel="canonical" href="https://imutaroh.github.io/pomo/">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#fafbfc">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Quiet — ノイズを消したタイマー for Mac">
+<meta property="og:description" content="集中のノイズを、ひとつずつ消した。残ったのは、いまの時間だけ。Mac の画面に静かに浮かぶ、無料のフロータイマー。">
+<meta property="og:image" content="https://imutaroh.github.io/pomo/og.png">
+<meta property="og:url" content="https://imutaroh.github.io/pomo/">
+<meta property="og:site_name" content="Quiet">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700&family=IBM+Plex+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Playfair+Display:wght@700&family=Zen+Old+Mincho:wght@700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Quiet",
+  "description": "Mac の画面に静かに浮かぶフロータイマー。履歴なし・アカウントなし・テレメトリなし。",
+  "applicationCategory": "ProductivityApplication",
+  "operatingSystem": "macOS 14 以降（Apple Silicon）",
+  "url": "https://imutaroh.github.io/pomo/",
+  "downloadUrl": "https://github.com/imutaroh/pomo/releases/latest",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+  "author": { "@type": "Person", "name": "imutaro", "url": "https://imutaro.com" }
+}
+</script>
 <style>
-  :root{
-    /* フィールドノート（DesignTokens.swift 準拠） */
-    --sumi:#1A2330; --ink-60:rgba(26,35,48,.62); --ink-42:rgba(26,35,48,.42);
-    --teal:#0087A8; --teal-deep:#00708C; --teal-text:#005F77;
-    --washi:#FAFBFC; --usugumo:#F0F3F6; --canvas:#FAFBFC; --line:#E3E8ED;
-    --night:#141F2B; --night-soft:#1B2937;
-    --display:"Zen Old Mincho", "Hiragino Mincho ProN", serif;
-    --body:"IBM Plex Sans JP", -apple-system, "Hiragino Sans", sans-serif;
-    --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-    --maxw:1000px;
-  }
-  *{box-sizing:border-box; margin:0; padding:0}
-  html{scroll-behavior:smooth}
-  body{font-family:var(--body); color:var(--sumi); background:var(--canvas); line-height:1.8; -webkit-font-smoothing:antialiased}
-  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
-  a{color:inherit; text-decoration:none}
-  ::selection{background:rgba(0,135,168,.22)}
+:root {
+  color-scheme: light;
+  --color-bg: #fafbfc;
+  --color-ink: #1a2330;
+  --color-sub: #5b6572;
+  --color-accent: #0087a8;
+  --color-accent-bright: #00add8;
+  --color-line: #e3e8ed;
+  --color-code-bg: #f0f3f6;
+  /* アプリ本体の Tokens.kohakuText / kohakuDeep と同値。12〜14px のアクセント文字で AA を確保する */
+  --color-accent-text: #005f77;
+  --color-accent-deep: #00708c;
+  --color-surface: #ffffff;
 
-  /* ---- nav ---- */
-  .nav{display:flex; align-items:center; justify-content:space-between; padding:24px 0; border-bottom:1px solid var(--line)}
-  .brand{font-family:var(--display); font-weight:700; font-size:21px; letter-spacing:.02em}
-  .brand .mark{display:inline-block; margin-right:7px}
-  .nav a.ghost{font-size:14px; color:var(--ink-60); border-bottom:1px solid transparent; padding-bottom:2px}
-  .nav a.ghost:hover{border-color:var(--line)}
+  --font-serif-stack: "Playfair Display", "Zen Old Mincho", serif;
+  --font-body: "IBM Plex Sans JP", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  /* ---- hero ---- */
-  .hero{display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center; padding:56px 0 48px}
-  .hero h1{font-family:var(--display); font-weight:700; font-size:clamp(32px,5vw,54px); line-height:1.34; letter-spacing:.01em; text-wrap:balance}
-  .hero h1 .dim{color:var(--ink-42); display:block}
-  .nb{display:inline-block}
-  .hero p.lead{margin-top:22px; font-size:clamp(15px,1.9vw,17px); color:var(--ink-60); max-width:30em}
-  .actions{display:flex; align-items:center; gap:18px; margin-top:30px; flex-wrap:wrap}
-  .btn{font-family:var(--body); font-weight:700; font-size:15.5px; background:var(--sumi); color:var(--washi);
-    padding:15px 28px; border-radius:12px; display:inline-flex; align-items:center; gap:9px;
-    transition:transform .18s ease, box-shadow .18s ease; box-shadow:0 8px 20px rgba(26,35,48,.14)}
-  .btn:hover{transform:translateY(-2px); box-shadow:0 14px 26px rgba(26,35,48,.2)}
-  .btn .mark{font-size:17px}
-  .req{font-size:13px; color:var(--ink-42)}
+  --fs-caption: 12px;
+  --fs-meta: 13px;
+  --fs-ui: 14px;
+  --fs-body: 16px;
+  --fs-lead: 1.05rem;
+  --fs-h2: 2.2rem;
+  --fs-number: 3rem;
 
-  /* ---- signature: live floating timer（ページ唯一の視覚的主役） ---- */
-  .stage{position:relative; aspect-ratio:1/1; display:grid; place-items:center}
-  .stage::before{content:""; position:absolute; inset:8%; border-radius:50%;
-    background:radial-gradient(circle at 50% 45%, rgba(0,135,168,.10), transparent 62%)}
-  .panel{position:relative; width:min(74%,300px); aspect-ratio:1/1; border-radius:28px;
-    background:linear-gradient(180deg,#ffffff,var(--washi)); border:1px solid var(--line);
-    box-shadow:0 2px 6px rgba(26,35,48,.05), 0 34px 70px rgba(26,35,48,.12);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
-    opacity:.45; transform:scale(.97); transition:opacity .7s ease, transform .7s ease}
-  .stage:hover .panel, .stage:focus-within .panel{opacity:1; transform:scale(1)}
-  .panel .track{position:absolute; top:26px; left:50%; transform:translateX(-50%); width:46%; height:4px; border-radius:99px; background:var(--usugumo); overflow:hidden}
-  .panel .track i{display:block; height:100%; width:0%; background:var(--teal); transition:width 1s linear}
-  .panel .num{font-family:var(--mono); font-weight:700; font-size:clamp(38px,7.5vw,56px); font-variant-numeric:tabular-nums; letter-spacing:.01em}
-  .panel .state{font-size:13px; color:var(--ink-42)}
-  .panel .reward{margin-top:10px; font-size:12.5px; font-weight:700; color:var(--teal-text); background:rgba(0,135,168,.12); padding:5px 13px; border-radius:99px; font-variant-numeric:tabular-nums}
-  .stage .hint{position:absolute; bottom:2%; left:50%; transform:translateX(-50%); font-size:12px; color:var(--ink-42); white-space:nowrap; transition:opacity .4s ease}
-  .stage:hover .hint, .stage:focus-within .hint{opacity:0}
+  --radius: 4px;
+  --radius-card: 8px;
+  --radius-panel: 18px;
+  --space-section: 128px;
+  --gutter: 32px;
+  --shadow-float: 0 24px 48px -32px rgba(26, 35, 48, 0.28);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --ease-ink: cubic-bezier(.6, 0, .2, 1);
+}
+@media (max-width: 640px) {
+  :root { --space-section: 80px; --gutter: 16px; }
+}
 
-  /* ---- presence: the three states ---- */
-  .band{padding:84px 0}
-  .eyebrow{font-family:var(--body); font-weight:700; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--teal-text)}
-  h2{font-family:var(--display); font-weight:700; font-size:clamp(23px,3.2vw,32px); line-height:1.4; margin-top:10px; text-wrap:balance}
-  .band .sub{color:var(--ink-60); margin-top:10px; max-width:34em}
-  .states{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:40px}
-  .state-card{background:#fff; border:1px solid var(--line); border-radius:16px; padding:26px 24px 28px}
-  .state-card .k{font-weight:700; font-size:13px; color:var(--ink-42); letter-spacing:.04em}
-  .state-card h3{font-family:var(--display); font-weight:700; font-size:19px; margin-top:8px}
-  .state-card p{font-size:14px; color:var(--ink-60); margin-top:8px}
-  .state-card .meter{height:5px; border-radius:99px; background:var(--usugumo); margin-top:18px; overflow:hidden}
-  .state-card .meter i{display:block; height:100%; background:var(--teal)}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd, .mono { font-family: var(--font-mono); letter-spacing: 0; }
+h1, h2, h3, h4 {
+  font-family: var(--font-serif-stack);
+  font-weight: 700;
+  font-feature-settings: "palt";
+  font-variant-numeric: lining-nums;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  margin: 0;
+}
+p { margin: 0; }
+a { color: var(--color-accent-text); text-underline-offset: 3px; text-decoration-thickness: 1px; transition: color .15s ease; }
+a:hover { color: var(--color-accent); }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 2px; }
+.btn-primary:focus-visible { outline-color: var(--color-ink); }
+img { max-width: 100%; display: block; }
+button { font: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 16px; top: -48px; background: var(--color-surface); border: 1px solid var(--color-line); padding: 6px 12px; z-index: 50; font-size: var(--fs-ui); }
+.skip:focus { top: 12px; }
+.wrap { max-width: calc(1040px + var(--gutter) * 2); margin: 0 auto; padding: 0 var(--gutter); }
+.br-sp { display: none; }
+@media (max-width: 640px) { .br-sp { display: inline; } }
 
-  /* ---- features ---- */
-  .feat{display:grid; grid-template-columns:repeat(auto-fit,minmax(248px,1fr)); gap:16px; margin-top:40px}
-  .card{background:#fff; border:1px solid var(--line); border-radius:16px; padding:26px}
-  .card .ic{font-size:22px}
-  .card h3{font-family:var(--display); font-weight:700; font-size:17px; margin-top:12px}
-  .card p{font-size:14px; color:var(--ink-60); margin-top:7px}
+/* ---------- header ---------- */
+.site-head { border-bottom: 1px solid var(--color-line); }
+.site-head .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; color: var(--color-ink); text-decoration: none; font-family: var(--font-serif-stack); font-weight: 700; font-size: 0.95rem; letter-spacing: 0.02em; }
+.logo img { width: 30px; height: 30px; margin: -2px; }
+.logo small { font-family: var(--font-mono); font-weight: 400; font-size: var(--fs-caption); color: var(--color-sub); letter-spacing: 0.05em; }
+.head-nav { display: flex; align-items: center; gap: 24px; font-size: var(--fs-ui); }
+.head-nav a { color: var(--color-sub); text-decoration: none; }
+.head-nav a:hover { color: var(--color-accent); }
+.head-nav .nav-cta { color: var(--color-accent-text); border: 1px solid var(--color-line); border-radius: 999px; padding: 4px 14px; }
+.head-nav .nav-cta:hover { border-color: var(--color-accent); }
+@media (max-width: 760px) { .head-nav .nav-opt { display: none; } .logo small { display: none; } }
 
-  /* ---- break section (dark — mirrors the app dimming the screen) ---- */
-  .dark{background:var(--night); color:var(--washi); border-radius:28px; margin:40px 0; padding:72px 40px; position:relative; overflow:clip}
-  .dark::before{content:""; position:absolute; width:620px; height:620px; left:50%; top:50%; transform:translate(-50%,-50%);
-    background:radial-gradient(circle, rgba(0,135,168,.16), transparent 60%)}
-  .dark .inner{position:relative; text-align:center; max-width:38em; margin:0 auto}
-  .dark .eyebrow{color:#3FB7D4}
-  .dark h2{color:var(--washi)}
-  .dark p{color:rgba(250,251,252,.62); margin-top:14px}
-  .dark .chips{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:26px}
-  .dark .chip{font-size:13px; color:rgba(250,251,252,.85); background:rgba(250,251,252,.10); padding:8px 16px; border-radius:99px}
+/* ---------- eyebrow / section head ---------- */
+.eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: var(--fs-meta); letter-spacing: 0.05em;
+  color: var(--color-accent-text); font-weight: 400; margin: 0;
+}
+.eyebrow::before {
+  content: ""; flex: none; width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid var(--color-accent);
+  background: radial-gradient(circle, var(--color-accent) 0 2px, transparent 2.5px);
+}
+.eyebrow::after { content: ""; flex: 1; height: 1px; margin-left: 24px; background: var(--color-line); }
+@media (max-width: 640px) { .eyebrow::after { margin-left: 16px; } }
+.sec { padding-top: var(--space-section); }
+.sec-head { margin-bottom: 40px; }
+.sec-title { display: flex; align-items: baseline; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
+.sec-title .num { font-family: var(--font-serif-stack); font-size: var(--fs-number); line-height: 1; color: var(--color-accent); font-weight: 700; font-variant-numeric: lining-nums; }
+.sec-title h2 { font-size: var(--fs-h2); line-height: 1.3; flex: 1 1 14em; min-width: 0; }
+.sec-lead { margin-top: 20px; max-width: 40em; color: var(--color-sub); font-size: var(--fs-lead); }
+@media (max-width: 640px) {
+  .sec-title { gap: 10px; }
+  .sec-title .num { font-size: 2.2rem; }
+  .sec-title h2 { font-size: 1.7rem; flex-basis: 8em; }
+}
+.two { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+@media (max-width: 860px) { .two { grid-template-columns: minmax(0,1fr); gap: 32px; } }
 
-  /* ---- trust ---- */
-  .trust{display:grid; grid-template-columns:repeat(auto-fit,minmax(248px,1fr)); gap:16px; margin-top:40px}
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; padding: 10px 22px; border-radius: var(--radius);
+  font-family: var(--font-body); font-size: var(--fs-ui); font-weight: 500; letter-spacing: 0.04em;
+  text-decoration: none; cursor: pointer; border: 1px solid var(--color-line);
+  background: var(--color-surface); color: var(--color-ink);
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.btn:hover { background: var(--color-code-bg); color: var(--color-ink); }
+.btn-primary { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-bg); }
+.btn-primary:hover { background: #0f1620; color: var(--color-bg); border-color: #0f1620; }
+.btn .arrow { display: inline-block; transition: transform .2s ease; }
+.btn:hover .arrow { transform: translateX(4px); }
+.btn .meta { font-family: var(--font-mono); font-size: var(--fs-caption); letter-spacing: 0.05em; opacity: .8; font-weight: 400; }
+.btn .meta:empty { display: none; }
+.req-line { font-family: var(--font-mono); font-size: var(--fs-caption); letter-spacing: 0.05em; color: var(--color-sub); margin-top: 12px; }
+.pill { display: inline-block; font-family: var(--font-mono); font-size: var(--fs-caption); letter-spacing: 0.05em; border: 1px solid var(--color-line); border-radius: 999px; padding: 0 10px; color: var(--color-sub); line-height: 1.9; white-space: nowrap; }
+.pill.on { border-color: var(--color-accent); color: var(--color-accent-text); }
+kbd { font-size: var(--fs-caption); border: 1px solid var(--color-line); border-bottom-width: 2px; border-radius: var(--radius); padding: 1px 6px; background: var(--color-surface); color: var(--color-ink); white-space: nowrap; }
 
-  /* ---- install ---- */
-  .install{background:#fff; border:1px solid var(--line); border-radius:18px; padding:34px; margin-top:36px}
-  .install ol{margin:18px 0 0; padding-left:1.3em}
-  .install li{margin:10px 0; font-size:15px}
-  .install code{font-family:var(--mono); font-size:13px; background:var(--usugumo); padding:3px 8px; border-radius:7px; border:1px solid var(--line)}
-  .install .fine{font-size:13px; color:var(--ink-60); margin-top:16px; border-top:1px solid var(--line); padding-top:14px}
-  .install + .install{margin-top:16px}
-  .install h3{font-size:17px}
-  .install > p{margin-top:12px; font-size:15px}
-  .install .fine code{font-size:12px; word-break:break-all}
-  .install .link{color:var(--teal-text); border-bottom:1px solid var(--line)}
-  .cmd{display:flex; align-items:center; gap:10px; margin-top:14px; background:var(--usugumo); border:1px solid var(--line); border-radius:10px; padding:12px 12px 12px 16px}
-  .install .cmd code{flex:1; min-width:0; background:none; border:0; padding:0; font-size:14px; overflow-x:auto; white-space:nowrap}
-  .copy{font:700 13px var(--body); color:var(--washi); background:var(--sumi); border:0; border-radius:8px; padding:8px 14px; cursor:pointer; flex:none}
-  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+/* ---------- hero ---------- */
+.hero { padding-top: 64px; }
+.hero h1 {
+  margin-top: 28px;
+  /* 最長行（14字）が 1 行に収まる: (幅 - 余白) / 14.6。640px 以下は 2 行ずつに割るので 8.6 で割る */
+  font-size: clamp(28px, calc((100vw - var(--gutter) * 2) / 14.6), 72px);
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+.hero h1 .l { display: block; transition: color .8s ease; }
+.hero.is-quiet h1 .l1 { color: var(--color-sub); }
+@media (max-width: 640px) { .hero h1 { font-size: calc((100vw - var(--gutter) * 2) / 8.6); line-height: 1.2; } }
+.hero-row { display: flex; gap: 24px 48px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; margin-top: 28px; }
+.hero-lead { max-width: 30em; font-size: var(--fs-lead); color: var(--color-sub); }
+.hero-lead strong { color: var(--color-ink); font-weight: 500; }
+.cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-cta .req-line { text-align: right; }
+@media (max-width: 760px) { .hero-cta .req-line { text-align: left; } }
 
-  .closer{text-align:center; padding:80px 0 24px}
-  .closer h2{margin:0 auto}
-  .closer .actions{justify-content:center; margin-top:28px}
+/* ---------- stage (signature) ---------- */
+.stage-wrap { margin-top: 48px; }
+.stage-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  border: 1px solid var(--color-line); border-bottom: 0;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  padding: 8px 10px 8px 16px; background: var(--color-code-bg);
+}
+.stage-count { font-size: var(--fs-caption); color: var(--color-sub); display: flex; align-items: center; gap: 8px; letter-spacing: 0.04em; }
+.stage-count .n { font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--color-ink); }
+.stage-count .dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--color-sub); transition: background .4s ease, border-color .4s ease; }
+.hero.is-quiet .stage-count .dot { background: var(--color-accent); border-color: var(--color-accent); }
+.erase-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: var(--fs-ui); font-weight: 500; letter-spacing: 0.04em;
+  min-height: 36px; padding: 4px 14px; border-radius: var(--radius);
+  border: 1px solid var(--color-line); background: var(--color-surface); color: var(--color-ink); cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.erase-btn:hover { background: var(--color-bg); border-color: var(--color-ink); }
+.erase-btn svg { width: 14px; height: 14px; }
 
-  footer{padding:40px 0 70px; text-align:center; color:var(--ink-42); font-size:13px; border-top:1px solid var(--line); margin-top:40px}
-  footer .creed{margin-top:8px; letter-spacing:.02em}
-  footer a{border-bottom:1px solid var(--line); padding-bottom:1px}
+.stage {
+  position: relative; height: 520px;
+  border: 1px solid var(--color-line); border-radius: 0 0 var(--radius-card) var(--radius-card);
+  background: var(--color-surface);
+  overflow: clip;
+}
+.doc { position: absolute; inset: 44px 56px; pointer-events: none; }
+.doc i { display: block; height: 8px; border-radius: 4px; background: var(--color-code-bg); margin-bottom: 22px; }
+.doc i:nth-child(3n+2) { margin-left: 5%; }
+.doc i:nth-child(4n+3) { margin-left: 10%; background: #e6f1f5; }
 
-  :focus-visible{outline:2.5px solid var(--teal-deep); outline-offset:3px; border-radius:6px}
+/* the panel — PanelView に忠実: 196pt / 角丸18 / 白いガラス / 墨の mono 数字 / ティールの休憩ピル */
+.panel {
+  position: absolute; width: 196px; height: 196px; border-radius: var(--radius-panel);
+  display: flex; flex-direction: column; align-items: center;
+  background: rgba(250, 251, 252, .62);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, .85);
+  box-shadow: 0 0 0 1px rgba(26, 35, 48, .08), inset 0 1px 0 rgba(255, 255, 255, .9), var(--shadow-float);
+  color: var(--color-ink); letter-spacing: 0;
+  transition: opacity .45s ease-out, transform .6s var(--ease);
+  -webkit-user-select: none; user-select: none;
+}
+.p-bar { position: relative; width: 132px; height: 3px; border-radius: 3px; background: rgba(26, 35, 48, .10); margin-top: 14px; overflow: hidden; flex: none; transition: opacity .45s ease-out; }
+.p-bar b { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--color-accent); width: 0; transition: width .5s linear; }
+.p-bar.is-idle { opacity: .4; }
+.p-bar.is-sat { opacity: .35; }
+.p-mid { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; width: 100%; }
+.p-label { font-size: 12px; font-weight: 500; color: rgba(26, 35, 48, .5); height: 17px; line-height: 17px; transition: opacity .45s ease-out; white-space: nowrap; }
+.p-time { font-family: var(--font-mono); font-weight: 500; font-size: 52px; line-height: 1.05; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.p-detail { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--color-accent-deep); height: 15px; line-height: 15px; white-space: nowrap; }
+.p-detail:empty { display: none; }
+.p-pill {
+  display: inline-flex; align-items: center; gap: 4px; height: 23px; padding: 0 10px; margin-top: 2px;
+  border: 0; border-radius: 999px; background: rgba(0, 135, 168, .22); color: var(--color-accent-deep);
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0; line-height: 1;
+  transition: background .15s ease;
+}
+button.p-pill { cursor: pointer; }
+button.p-pill:hover { background: rgba(0, 135, 168, .4); }
+.p-pill svg { width: 11px; height: 11px; }
+.p-pill[hidden] { display: inline-flex; visibility: hidden; }
+.p-controls { display: flex; align-items: center; justify-content: center; gap: 14px; height: 40px; margin-bottom: 14px; flex: none; transition: opacity .45s ease-out; }
+.cbtn {
+  width: 32px; height: 32px; border-radius: 50%; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .55); border: .8px solid rgba(255, 255, 255, .5);
+  box-shadow: 0 0 0 .5px rgba(26, 35, 48, .08);
+  color: rgba(26, 35, 48, .75); transition: background .15s ease;
+}
+button.cbtn { cursor: pointer; }
+button.cbtn:hover { background: rgba(255, 255, 255, .9); }
+.cbtn svg { width: 12px; height: 12px; }
+.cbtn.pro { width: 40px; height: 40px; background: var(--color-ink); color: var(--color-bg); border-color: transparent; }
+.cbtn.pro svg { width: 15px; height: 15px; }
+/* 押せるのはホバーが落ち着いてから（armed）。opacity 0 でもヒットテストは生きるので pointer-events で止める */
+.panel .p-pill, .panel .cbtn { pointer-events: none; }
+.panel.is-armed .p-pill, .panel.is-armed .cbtn { pointer-events: auto; }
+.panel.hide-label .p-label { opacity: 0; }
+.panel.hide-controls .p-controls { opacity: 0; }
+.panel.hide-controls .p-controls .cbtn { visibility: hidden; transition: visibility 0s .45s; }
 
-  @media (max-width:760px){
-    .hero{grid-template-columns:1fr; gap:24px; padding-top:24px}
-    .stage{max-width:340px; margin:0 auto; width:100%}
-    .states{grid-template-columns:1fr}
-    .band{padding:60px 0}
-    .dark{padding:56px 24px}
-  }
-  @media (prefers-reduced-motion:reduce){
-    *{animation:none !important; transition:none !important}
-    .panel{opacity:1; transform:none}
-  }
+.stage .panel { left: calc(50% - 98px); top: calc(50% - 98px); z-index: 1; transform: scale(1.18); }
+/* ヒーローのパネルは単独の絵として見せるので、操作が隠れている間は行を畳んで数字を中央に置く（ホバーで開く） */
+.stage .panel .p-controls { overflow: hidden; transition: opacity .45s ease-out, height .3s var(--ease), margin .3s var(--ease); }
+.stage .panel.hide-controls .p-controls { height: 0; margin-bottom: 0; }
+.stage .panel.hide-controls .p-mid { padding-bottom: 17px; }
+.hero.is-quiet .stage .panel { transform: translateY(-34px) scale(1.18); }
+
+/* noise cards: 傾けない・影を付けない。線と文字だけ */
+.noise {
+  position: absolute; z-index: 2;
+  width: var(--w, 220px); text-align: left;
+  border: 1px solid #cfd6dd; border-radius: var(--radius-card);
+  background: var(--color-surface); color: var(--color-ink);
+  padding: 0; cursor: pointer; overflow: clip;
+  transition: border-color .15s ease, opacity .4s ease .1s, transform .4s var(--ease) .1s, visibility 0s linear .5s;
+}
+.noise:hover { border-color: var(--color-ink); }
+.noise:hover .n-tab .x { color: var(--color-ink); }
+.n-tab {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  border-bottom: 1px solid var(--color-line); background: var(--color-code-bg);
+  padding: 2px 10px; font-size: var(--fs-caption); letter-spacing: 0.04em; color: var(--color-sub); white-space: nowrap;
+}
+.n-tab .x { font-family: var(--font-mono); color: var(--color-sub); transition: color .15s ease; }
+.n-body { display: block; padding: 10px 12px 12px; line-height: 1.5; }
+.n-big { font-family: var(--font-mono); font-weight: 500; font-size: 26px; line-height: 1.2; letter-spacing: 0; }
+.n-q { font-weight: 700; font-size: 1.15rem; line-height: 1.4; }
+.n-txt { font-size: var(--fs-ui); font-weight: 500; }
+.n-small { display: block; font-size: var(--fs-caption); color: var(--color-sub); margin-top: 2px; }
+.n-row { display: flex; align-items: center; gap: 10px; }
+.n-row svg { flex: none; }
+.meter { display: block; height: 6px; border-radius: 3px; background: var(--color-code-bg); margin-top: 8px; position: relative; overflow: hidden; }
+.meter::after { content: ""; position: absolute; inset: 0 38% 0 0; background: var(--color-sub); border-radius: 3px; }
+.n-chart { display: block; margin-top: 6px; color: var(--color-sub); }
+/* 墨の取り消し線: 背景で引くので、折り返しても途切れない */
+.st {
+  background-image: linear-gradient(var(--color-ink), var(--color-ink));
+  background-repeat: no-repeat; background-position: 0 58%; background-size: 0% 2px;
+  transition: background-size .5s var(--ease-ink);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.noise.is-striking .st, .noise.is-gone .st { background-size: 100% 2px; }
+.noise.is-gone { opacity: 0; visibility: hidden; transform: translateY(6px); pointer-events: none; }
+
+/* positions — desktop (stage 1040 × 520, panel center) */
+.n1 { --w: 214px; left: 4%; top: 8%; }
+.n6 { --w: 176px; left: 30%; top: 5%; }
+.n2 { --w: 220px; right: 5%; top: 9%; }
+.n4 { --w: 236px; left: 3%; top: 50%; }
+.n3 { --w: 214px; right: 4%; top: 56%; }
+.n5 { --w: 252px; left: calc(50% - 126px); top: 77%; }
+
+.quiet-cap {
+  position: absolute; left: 0; right: 0; bottom: 44px; text-align: center; padding: 0 16px;
+  opacity: 0; transform: translateY(8px); transition: opacity .7s ease .3s, transform .7s var(--ease) .3s; pointer-events: none;
+}
+.quiet-cap p { font-family: var(--font-serif-stack); font-weight: 700; font-size: 1.45rem; line-height: 1.5; font-feature-settings: "palt"; word-break: keep-all; overflow-wrap: anywhere; }
+.quiet-cap p em { font-style: normal; color: var(--color-accent); }
+.hero.is-quiet .quiet-cap { opacity: 1; transform: none; }
+.stage-hint { font-size: var(--fs-caption); color: var(--color-sub); margin-top: 10px; min-height: 1.85em; }
+
+@media (max-width: 640px) {
+  .stage { height: 616px; }
+  .doc { inset: 20px 16px; }
+  .stage .panel { left: calc(50% - 98px); top: 236px; transform: none; }
+  .hero.is-quiet .stage .panel { transform: translateY(-40px); }
+  .n-big { font-size: 20px; }
+  .n-q { font-size: 15px; }
+  .n-body { padding: 8px 10px 10px; }
+  .n-tab { padding: 2px 8px; }
+  .n1, .n2, .n3, .n4, .n5, .n6 { --w: calc(50% - 18px); }
+  .n1 { left: 12px; top: 12px; }
+  .n2 { right: 12px; left: auto; top: 12px; }
+  .n6 { left: 12px; top: 114px; }
+  .n3 { right: 12px; left: auto; top: 130px; }
+  .n4 { left: 12px; top: 456px; }
+  .n5 { right: 12px; left: auto; top: 456px; }
+  .quiet-cap { bottom: 110px; }
+  .quiet-cap p { font-size: 1.25rem; }
+}
+
+/* ---------- 01 ledger ---------- */
+.ledger { list-style: none; margin: 0; padding: 0; }
+.ledger-head, .ledger li { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1.3fr); gap: 0 16px; }
+.ledger-head { padding: 0 12px 10px; font-size: var(--fs-caption); color: var(--color-sub); letter-spacing: 0.06em; border-bottom: 1px solid var(--color-ink); }
+.ledger-head span:last-child { grid-column: 3; color: var(--color-accent-text); }
+.ledger li { padding: 24px 12px; border-bottom: 1px solid var(--color-line); align-items: baseline; transition: background .15s ease; }
+.ledger li:hover { background: var(--color-code-bg); }
+.ledger .off { font-size: var(--fs-lead); color: var(--color-sub); line-height: 1.7; }
+.ledger .off span { background-image: linear-gradient(var(--color-sub), var(--color-sub)); background-repeat: no-repeat; background-position: 0 58%; background-size: 100% 1.5px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.ledger .to { font-family: var(--font-mono); color: var(--color-accent); font-size: var(--fs-ui); transition: transform .2s ease; display: inline-block; }
+.ledger li:hover .to { transform: translateX(4px); }
+.ledger h3 { font-size: 1.4rem; line-height: 1.45; }
+.ledger .on p { margin-top: 6px; color: var(--color-sub); font-size: var(--fs-ui); }
+.ledger-end { margin-top: 48px; font-family: var(--font-serif-stack); font-weight: 700; font-feature-settings: "palt"; font-size: clamp(26px, 3.4vw, 40px); line-height: 1.45; word-break: keep-all; overflow-wrap: anywhere; }
+.ledger-end .dim { color: var(--color-sub); }
+@media (max-width: 760px) {
+  .ledger-head { display: none; }
+  .ledger { border-top: 1px solid var(--color-ink); }
+  .ledger li { grid-template-columns: minmax(0,1fr); padding: 24px 4px; gap: 6px; }
+  .ledger .to { display: none; }
+  .ledger .off { font-size: var(--fs-ui); }
+  .ledger h3 { font-size: 1.25rem; }
+}
+
+/* ---------- 02 presence (touchable model) ---------- */
+.model { border: 1px solid var(--color-line); border-radius: var(--radius-card); overflow: clip; background: var(--color-surface); }
+.model-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 36px; padding: 0 14px; border-bottom: 1px solid var(--color-line); background: var(--color-code-bg); font-size: var(--fs-caption); color: var(--color-sub); letter-spacing: 0.04em; }
+.model-bar .dots { display: flex; gap: 6px; }
+.model-bar .dots i { width: 9px; height: 9px; border-radius: 50%; border: 1px solid #cfd6dd; }
+.model-stage:focus { outline: none; }
+.model-stage { position: relative; height: 380px; overflow: clip; touch-action: manipulation; }
+.code { list-style: none; margin: 0; padding: 20px 0; counter-reset: ln; position: absolute; inset: 0; }
+.code li { counter-increment: ln; display: flex; align-items: center; height: 26px; }
+.code li::before { content: counter(ln); width: 44px; flex: none; text-align: right; padding-right: 16px; font-family: var(--font-mono); font-size: 11px; color: #b5bec8; letter-spacing: 0; }
+.code li i { display: block; height: 8px; border-radius: 4px; background: var(--color-code-bg); margin-left: calc(var(--i, 0) * 24px); width: var(--w, 40%); }
+.code li i + i { margin-left: 10px; }
+.code li i.k { background: rgba(0, 135, 168, .14); }
+.model-stage .panel { top: 24px; right: 24px; box-shadow: 0 0 0 1px rgba(26, 35, 48, .08), inset 0 1px 0 rgba(255, 255, 255, .9); }
+.model-stage .panel.is-focus { opacity: .3; }
+.callout { position: absolute; top: 232px; right: 24px; width: 196px; text-align: center; font-size: var(--fs-caption); color: var(--color-sub); background: var(--color-surface); padding: 2px 0; pointer-events: none; letter-spacing: 0.04em; white-space: nowrap; }
+.callout b { font-weight: 500; color: var(--color-accent-text); }
+.model-hint { padding: 10px 14px; border-top: 1px solid var(--color-line); font-size: var(--fs-caption); color: var(--color-sub); }
+.legend { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 16px; margin: 0; padding: 0; }
+.legend li { padding: 14px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 0 10px; align-items: baseline; color: var(--color-sub); transition: color .15s ease; }
+.legend .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #cfd6dd; align-self: center; transition: background .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.legend .k { font-size: var(--fs-ui); font-weight: 500; }
+.legend .t { grid-column: 2; font-size: var(--fs-caption); line-height: 1.6; }
+.legend li.is-now { color: var(--color-ink); }
+.legend li.is-now .dot { background: var(--color-accent); border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 4px rgba(0, 135, 168, .35); }
+@media (max-width: 960px) { .callout { display: none; } }
+@media (max-width: 640px) {
+  .model-stage { height: 320px; }
+  .model-stage .panel { right: auto; left: calc(50% - 98px); top: 40px; }
+  .legend { grid-template-columns: minmax(0,1fr); }
+}
+
+.facts { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); }
+.facts li { padding: 18px 4px; border-bottom: 1px solid var(--color-line); display: grid; grid-template-columns: 6.5em minmax(0,1fr); gap: 4px 16px; }
+.facts .k { font-size: var(--fs-caption); letter-spacing: 0.04em; color: var(--color-accent-text); padding-top: 3px; }
+.facts .v strong { font-weight: 500; display: block; }
+.facts .v span { color: var(--color-sub); font-size: var(--fs-ui); display: block; margin-top: 2px; }
+@media (max-width: 520px) { .facts li { grid-template-columns: minmax(0,1fr); } }
+
+/* ---------- 03 flow ---------- */
+.calc { border: 1px solid var(--color-line); border-radius: var(--radius-card); overflow: clip; background: var(--color-surface); }
+.calc-tab { font-family: var(--font-mono); font-size: var(--fs-caption); letter-spacing: 0.05em; color: var(--color-sub); background: var(--color-code-bg); padding: 8px 16px; border-bottom: 1px solid var(--color-line); display: flex; align-items: center; gap: 8px; }
+.calc-tab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); }
+.calc-body { padding: 24px; }
+.calc fieldset { border: 0; margin: 0; padding: 0; }
+.calc legend { font-size: var(--fs-ui); color: var(--color-sub); margin-bottom: 8px; padding: 0; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip span {
+  display: inline-flex; align-items: center; min-height: 36px; padding: 4px 16px; border: 1px solid var(--color-line); border-radius: 999px;
+  font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--color-sub); transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+.chip input:hover + span { background: var(--color-code-bg); }
+.chip input:checked + span { border-color: var(--color-ink); color: var(--color-ink); }
+.chip input:focus-visible + span { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.ctable { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.ctable th { font-family: var(--font-body); font-weight: 400; font-size: var(--fs-caption); color: var(--color-sub); text-align: left; padding: 0 0 8px; border-bottom: 1px solid var(--color-ink); letter-spacing: 0.04em; }
+.ctable th:last-child, .ctable td:last-child { text-align: right; }
+.ctable td { padding: 12px 0; border-bottom: 1px solid var(--color-line); font-size: 1.1rem; }
+.ctable td.op { color: var(--color-sub); font-size: var(--fs-meta); }
+.ctable td.res { color: var(--color-accent-text); }
+.ctable tr.ex td { font-size: 1.9rem; line-height: 1.2; padding: 16px 0; }
+.ctable tr.ex td.op { font-size: var(--fs-meta); }
+.ctable tr.ex td.res { color: var(--color-ink); }
+.calc-note { font-size: var(--fs-caption); color: var(--color-sub); margin-top: 14px; }
+
+.modes { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); }
+.modes li { padding: 20px 4px; border-bottom: 1px solid var(--color-line); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 20px; align-items: center; }
+.modes h3 { font-family: var(--font-body); font-size: var(--fs-lead); font-weight: 500; letter-spacing: 0.02em; display: flex; align-items: baseline; gap: 10px; }
+.modes p { color: var(--color-sub); font-size: var(--fs-ui); margin-top: 4px; }
+.readout { text-align: right; font-family: var(--font-mono); letter-spacing: 0; }
+.readout .big { display: block; font-size: 1.6rem; font-weight: 500; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.readout .sm { display: block; font-size: var(--fs-caption); color: var(--color-sub); margin-top: 4px; }
+.readout .sm.ac { color: var(--color-accent-text); }
+@media (max-width: 520px) { .readout .big { font-size: 1.3rem; } }
+
+/* ---------- 04 break ---------- */
+.schem { border: 1px solid var(--color-line); border-radius: var(--radius-card); background: var(--color-surface); padding: 28px 24px 24px; }
+.displays { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; align-items: end; }
+.disp { border: 1px solid var(--color-ink); border-radius: var(--radius); aspect-ratio: 16 / 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 8px; position: relative; }
+.disp::after { content: ""; position: absolute; left: 50%; bottom: -13px; width: 22%; height: 12px; transform: translateX(-50%); border: 1px solid var(--color-ink); border-top: 0; border-radius: 0 0 2px 2px; }
+.disp .h { font-size: var(--fs-caption); color: var(--color-sub); }
+.disp .t { font-family: var(--font-mono); font-weight: 500; font-size: clamp(28px, 4.4vw, 52px); line-height: 1.05; font-variant-numeric: tabular-nums; }
+.disp .w { font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--color-accent-text); }
+.disp .ps { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+.disp .ps span { font-size: 11px; border: 1px solid var(--color-line); border-radius: 999px; padding: 0 10px; color: var(--color-ink); line-height: 1.9; }
+.disp.sm .t { font-size: clamp(20px, 2.6vw, 30px); }
+.disp.sm .ps, .disp.sm .w { display: none; }
+.schem-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--color-line); }
+.schem-foot p { font-size: var(--fs-caption); color: var(--color-sub); max-width: 26em; }
+
+/* break overlay（見本）: 実物どおり墨 92% の幕。押したときだけ現れる */
+.brk-ov {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  background: rgba(26, 35, 48, .92); color: var(--color-bg);
+  text-align: center; padding: 24px;
+  opacity: 0; transition: opacity .45s ease-out;
+}
+.brk-ov[hidden] { display: none; }
+.brk-ov.is-on { opacity: 1; }
+.brk-ov::before { content: ""; position: absolute; left: 50%; top: 50%; width: min(760px, 120vw); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(0, 135, 168, .16), transparent 62%); pointer-events: none; }
+.brk-ov > * { position: relative; }
+.o-title { font-size: 22px; font-weight: 500; color: rgba(250, 251, 252, .6); letter-spacing: 0.04em; }
+.o-time { font-family: var(--font-mono); font-weight: 500; font-size: clamp(64px, 14vw, 120px); line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.o-worked { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--color-accent-bright); }
+.o-bar { width: min(360px, 60vw); height: 4px; border-radius: 4px; background: rgba(250, 251, 252, .12); overflow: hidden; }
+.o-bar b { display: block; height: 100%; background: var(--color-accent-bright); width: 0; transition: width .5s linear; }
+.o-note { font-size: 14px; color: rgba(250, 251, 252, .55); }
+.o-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.pill-btn {
+  border: 0; border-radius: 999px; padding: 10px 22px; min-height: 44px; cursor: pointer;
+  background: rgba(250, 251, 252, .12); color: rgba(250, 251, 252, .92);
+  font-size: 14px; font-weight: 700; letter-spacing: .02em;
+  transition: background .15s ease, opacity .4s ease-out;
+}
+.pill-btn:hover { background: rgba(250, 251, 252, .24); }
+.pill-btn:disabled { opacity: .35; cursor: default; }
+.pill-btn:focus-visible { outline-color: var(--color-accent-bright); }
+.o-foot { position: absolute; bottom: 24px; left: 0; right: 0; font-size: var(--fs-caption); color: rgba(250, 251, 252, .5); }
+
+/* ---------- 05 nothing ---------- */
+.keep-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-ink); }
+.keep-list li { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 16px; align-items: baseline; padding: 16px 4px; border-bottom: 1px solid var(--color-line); }
+.keep-list .item { font-size: 1.05rem; }
+.keep-list .v { font-size: var(--fs-caption); letter-spacing: .04em; color: var(--color-sub); }
+.keep-list li.keep { border-bottom: 1px solid var(--color-ink); }
+.keep-list li.keep .item { font-weight: 700; }
+.keep-list li.keep .v { color: var(--color-accent-text); font-weight: 500; }
+.prose p + p { margin-top: 16px; }
+.prose .s { color: var(--color-sub); font-size: var(--fs-ui); }
+.prose .quote { font-family: var(--font-serif-stack); font-weight: 700; font-size: 1.6rem; line-height: 1.5; font-feature-settings: "palt"; margin-bottom: 20px; word-break: keep-all; overflow-wrap: anywhere; }
+
+/* ---------- 06 install ---------- */
+.req { display: flex; flex-wrap: wrap; gap: 8px; margin: -12px 0 28px; }
+.install-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .install-grid { grid-template-columns: minmax(0,1fr); } }
+.card { border: 1px solid var(--color-line); border-radius: var(--radius-card); overflow: clip; background: var(--color-surface); }
+.card-tab { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--color-code-bg); border-bottom: 1px solid var(--color-line); font-family: var(--font-mono); font-size: var(--fs-caption); letter-spacing: 0.05em; color: var(--color-sub); }
+.card-tab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); }
+.card-body { padding: 24px; }
+.card-body h3 { font-family: var(--font-body); font-size: var(--fs-lead); font-weight: 700; letter-spacing: 0.02em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.card-body > p { color: var(--color-sub); font-size: var(--fs-ui); margin-top: 6px; }
+.cmd { margin-top: 16px; display: flex; align-items: stretch; border: 1px solid var(--color-line); border-radius: var(--radius); background: var(--color-code-bg); }
+.cmd pre { flex: 1; min-width: 0; margin: 0; padding: 12px 14px; font-size: var(--fs-meta); line-height: 1.6; white-space: pre; overflow-x: auto; color: var(--color-ink); }
+.cmd pre .pr { color: var(--color-sub); -webkit-user-select: none; user-select: none; }
+.copy { flex: none; border: 0; border-left: 1px solid var(--color-line); background: var(--color-surface); padding: 0 16px; cursor: pointer; font-size: var(--fs-ui); font-weight: 500; color: var(--color-ink); border-radius: 0 var(--radius) var(--radius) 0; min-width: 88px; transition: background .15s ease; }
+.copy:hover { background: var(--color-bg); }
+/* コピーはコマンドの下に置き、コマンドが1行に収まる幅を確保する */
+.cmd { flex-direction: column; }
+.copy { border-left: 0; border-top: 1px solid var(--color-line); min-height: 44px; border-radius: 0 0 var(--radius) var(--radius); }
+@media (max-width: 640px) { .cmd pre { white-space: pre-wrap; } }
+.copy-status { font-size: var(--fs-caption); color: var(--color-accent-text); min-height: 1.6em; margin-top: 6px; }
+.sub-h { margin-top: 20px; font-size: var(--fs-caption); color: var(--color-sub); letter-spacing: 0.06em; }
+.checks { list-style: none; padding: 0; margin: 6px 0 0; font-size: var(--fs-ui); }
+.checks li { position: relative; padding: 9px 0 9px 22px; border-top: 1px solid var(--color-line); }
+.checks li::before { content: ""; position: absolute; left: 2px; top: 17px; width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--color-accent); }
+.checks.warn li::before { border-color: var(--color-sub); border-radius: 1px; }
+.checks li span { color: var(--color-sub); }
+details.more { margin-top: 16px; border-top: 1px solid var(--color-line); }
+details.more summary { cursor: pointer; padding: 12px 0 4px; font-size: var(--fs-ui); color: var(--color-accent-text); list-style: none; }
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::before { content: "+ "; font-family: var(--font-mono); }
+details.more[open] summary::before { content: "− "; }
+details.more pre { margin: 8px 0 0; padding: 12px 14px; background: var(--color-code-bg); border-radius: var(--radius); font-size: var(--fs-meta); line-height: 1.8; white-space: pre; overflow-x: auto; }
+details.more p { font-size: var(--fs-ui); color: var(--color-sub); margin-top: 8px; }
+.steps { margin: 16px 0 0; padding: 0; list-style: none; counter-reset: s; font-size: var(--fs-ui); }
+.steps li { counter-increment: s; position: relative; padding: 10px 0 10px 34px; border-top: 1px solid var(--color-line); }
+.steps li::before { content: counter(s, decimal-leading-zero); position: absolute; left: 0; top: 11px; font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--color-accent-text); letter-spacing: 0.05em; }
+.steps li span { display: block; color: var(--color-sub); margin-top: 2px; }
+.install-solo { max-width: 760px; }
+.note { margin-top: 24px; border-left: 2px solid var(--color-line); padding: 4px 0 4px 16px; font-size: var(--fs-ui); color: var(--color-sub); max-width: 52em; }
+.note + .note { margin-top: 12px; }
+.note strong { color: var(--color-ink); font-weight: 500; }
+.notmac { padding: 32px 24px; }
+.notmac h3 { font-family: var(--font-serif-stack); font-size: 1.5rem; }
+.notmac p { color: var(--color-sub); margin-top: 8px; }
+.notmac .btn { margin-top: 20px; }
+
+/* ---------- 07 / 08 ---------- */
+.faq { border-top: 1px solid var(--color-line); }
+.faq details { border-bottom: 1px solid var(--color-line); }
+.faq summary { cursor: pointer; list-style: none; padding: 22px 40px 22px 4px; position: relative; font-weight: 500; transition: background .15s ease, color .15s ease; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 12px; top: 20px; font-family: var(--font-mono); color: var(--color-sub); font-size: var(--fs-lead); }
+.faq details[open] summary::after { content: "−"; }
+.faq summary:hover { background: var(--color-code-bg); color: var(--color-accent-text); }
+.faq .a { padding: 0 4px 24px; color: var(--color-sub); font-size: var(--fs-ui); max-width: 48em; }
+.faq .a p + p, .faq .a pre { margin-top: 10px; }
+.faq .a pre { padding: 10px 14px; background: var(--color-code-bg); border-radius: var(--radius); font-size: var(--fs-meta); white-space: pre; overflow-x: auto; color: var(--color-ink); }
+.faq .a code { font-size: 0.92em; background: var(--color-code-bg); padding: 1px 5px; border-radius: 3px; color: var(--color-ink); word-break: break-all; }
+.legacy { border: 1px solid var(--color-line); border-radius: var(--radius-card); padding: 24px; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px 32px; }
+.legacy p { font-size: var(--fs-ui); color: var(--color-sub); }
+.legacy p strong { color: var(--color-ink); font-weight: 500; display: block; margin-bottom: 4px; }
+@media (max-width: 760px) { .legacy { grid-template-columns: minmax(0,1fr); } }
+
+/* ---------- closing / footer ---------- */
+.closing { padding: var(--space-section) var(--gutter) 0; text-align: center; }
+.closing p.big { font-family: var(--font-serif-stack); font-weight: 700; font-size: clamp(26px, 4.4vw, 48px); line-height: 1.4; font-feature-settings: "palt"; word-break: keep-all; overflow-wrap: anywhere; }
+.closing p.big span { color: var(--color-sub); display: block; }
+.closing .btn { margin-top: 32px; }
+.site-foot { margin-top: var(--space-section); border-top: 1px solid var(--color-line); padding: 32px 0 48px; }
+.site-foot .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.site-foot nav { display: flex; gap: 20px; flex-wrap: wrap; font-size: var(--fs-ui); }
+.site-foot nav a { color: var(--color-sub); text-decoration: none; }
+.site-foot nav a:hover { color: var(--color-accent); }
+.site-foot small { font-family: var(--font-mono); font-size: var(--fs-caption); letter-spacing: 0.05em; color: var(--color-sub); }
+
+/* ---------- entrance (first load only, finite) ---------- */
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.enter { animation: rise .7s var(--ease) both; }
+.enter.d1 { animation-delay: .06s; } .enter.d2 { animation-delay: .16s; } .enter.d3 { animation-delay: .26s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
+<a class="skip" href="#main">本文へ</a>
 
-  <nav class="nav">
-    <div class="brand">Quiet</div>
-    <a class="ghost" href="https://github.com/imutaroh/pomo">GitHub ↗</a>
-  </nav>
+<header class="site-head">
+  <div class="wrap">
+    <a class="logo" href="./" aria-label="Quiet トップ">
+      <img src="icon.png" alt="" width="30" height="30">
+      Quiet <small>for macOS</small>
+    </a>
+    <nav class="head-nav" aria-label="ページ内">
+      <a class="nav-opt" href="#erased">消したもの</a>
+      <a class="nav-opt" href="#presence">パネル</a>
+      <a class="nav-opt" href="#flow">フロー</a>
+      <a class="nav-opt" href="#break">休憩</a>
+      <a class="nav-opt" href="#faq">FAQ</a>
+      <a class="nav-cta" href="#install">入れる</a>
+    </nav>
+  </div>
+</header>
 
-  <!-- HERO: live presence demo (signature) -->
-  <header class="hero">
-    <div>
-      <h1><span class="nb">集中を止めていたものを、</span><span class="nb">ぜんぶ消しました。</span><span class="dim"><span class="nb">残ったのは、</span><span class="nb">いまの時間だけ。</span></span></h1>
-      <p class="lead">25分で鳴るタイマーも、積み上がっていく記録も、集中にとってはノイズでした。全Space・フルスクリーンに追従して、手を止めた瞬間だけ戻ってくる macOS のフロータイマー。</p>
-      <div class="actions">
-        <a class="btn" href="#install">無料で入れる</a>
-        <span class="req">macOS 14+ ・ Apple Silicon ・ ローカル完結 ・ アカウント不要</span>
+<main id="main">
+  <!-- ========== hero ========== -->
+  <section class="hero wrap" id="hero" aria-labelledby="hero-title">
+    <p class="eyebrow enter">( quiet / a flow timer for mac )</p>
+    <h1 id="hero-title" class="enter d1"><span class="l l1">集中のノイズを、<br class="br-sp">消した。</span><span class="l l2">残ったのは、<br class="br-sp">いまの時間だけ。</span></h1>
+    <div class="hero-row enter d2">
+      <p class="hero-lead">Mac の画面の端に、静かに浮かぶ小さなタイマー。数えるのは、<strong>いま、どれだけ続けているか</strong>だけです。</p>
+      <div class="hero-cta">
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#install">Mac に入れる <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn" href="#erased">何を消したか</a>
+        </div>
+        <p class="req-line">無料 · MIT · macOS 14+ · Apple Silicon</p>
       </div>
     </div>
 
-    <div class="stage" tabindex="0" aria-label="フローティングタイマーのデモ。ホバーすると存在感が戻ります。">
-      <div class="panel">
-        <div class="track"><i id="demoTrack"></i></div>
-        <div class="num" id="demoTime">00:00</div>
-        <div class="state">集中</div>
-        <div class="reward">☕️ 休憩 +<span id="demoBreak">0:00</span></div>
+    <div class="stage-wrap enter d3">
+      <div class="stage-bar">
+        <span class="stage-count"><span class="dot" aria-hidden="true"></span><span id="noise-count">画面のノイズ <span class="n">6</span></span></span>
+        <button class="erase-btn" id="erase-all" type="button">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 8h12"/></svg>
+          <span>ノイズを消す</span>
+        </button>
       </div>
-      <div class="hint">マウスを乗せると、戻ってくる →</div>
-    </div>
-  </header>
+      <div class="stage" id="stage">
+        <div class="doc" aria-hidden="true"><i style="width:52%"></i><i style="width:78%"></i><i style="width:64%"></i><i style="width:84%"></i><i style="width:40%"></i><i style="width:70%"></i><i style="width:58%"></i><i style="width:88%"></i><i style="width:46%"></i><i style="width:72%"></i><i style="width:60%"></i><i style="width:80%"></i><i style="width:36%"></i><i style="width:66%"></i></div>
 
-  <!-- THREE STATES: a real product mechanic, so it earns a sequence -->
-  <section class="band">
-    <div class="eyebrow">存在感の3段階</div>
-    <h2>うるさくない。でも、忘れさせない。</h2>
-    <p class="sub">タイマーは見張りではなく、そっと隣にいる秘書。状況に合わせて、自分から存在感を変える。</p>
-    <div class="states">
-      <div class="state-card">
-        <div class="k">手を乗せたとき</div>
-        <h3>操作</h3>
-        <p>フル表示。数字・操作・貯まった休憩が、すべて顔を出す。</p>
-        <div class="meter"><i style="width:100%"></i></div>
+        <div class="panel hide-label hide-controls" id="hero-panel" role="img" aria-label="Quiet のパネル。今回の経過時間と、貯まった休憩の長さだけを表示している">
+          <div class="p-bar" aria-hidden="true"><b></b></div>
+          <div class="p-mid" aria-hidden="true">
+            <div class="p-label">集中</div>
+            <div class="p-time">21:05</div>
+            <div class="p-pill"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 4h9v4.5A3.5 3.5 0 017.5 12h-2A3.5 3.5 0 012 8.5zM11 5h1.2A1.8 1.8 0 0114 6.8v.4A1.8 1.8 0 0112.2 9H11V8h1.2a.8.8 0 00.8-.8v-.4a.8.8 0 00-.8-.8H11zM1 13.2h11v1H1z"/></svg><span class="brk">休憩 +04:13</span></div>
+          </div>
+          <div class="p-controls" aria-hidden="true">
+            <span class="cbtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8a5 5 0 1 0 1.5-3.5M3 2v3h3"/></svg></span>
+            <span class="cbtn pro"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="3.5" y="2.5" width="3" height="11" rx="1"/><rect x="9.5" y="2.5" width="3" height="11" rx="1"/></svg></span>
+            <span class="cbtn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 4h9v4.5A3.5 3.5 0 017.5 12h-2A3.5 3.5 0 012 8.5zM11 5h1.2A1.8 1.8 0 0114 6.8v.4A1.8 1.8 0 0112.2 9H11V8h1.2a.8.8 0 00.8-.8v-.4a.8.8 0 00-.8-.8H11z"/></svg></span>
+          </div>
+        </div>
+
+        <button class="noise n1" type="button" data-noise aria-label="ノイズを消す：25分で鳴るベル">
+          <span class="n-tab" aria-hidden="true">ベル <span class="x">×</span></span>
+          <span class="n-body"><span class="n-row"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4l2-2zM10 20a2 2 0 0 0 4 0"/><path d="M2 8c.5-2 1.5-3.5 3-4.5M22 8c-.5-2-1.5-3.5-3-4.5"/></svg><span class="n-big st">25:00</span></span><span class="n-small">で、ベルが鳴ります</span></span>
+        </button>
+        <button class="noise n6" type="button" data-noise aria-label="ノイズを消す：セッション数">
+          <span class="n-tab" aria-hidden="true">セッション <span class="x">×</span></span>
+          <span class="n-body"><span class="n-big st">#4</span><span class="n-small">今日 4 セッション目</span></span>
+        </button>
+        <button class="noise n2" type="button" data-noise aria-label="ノイズを消す：集中スコア">
+          <span class="n-tab" aria-hidden="true">スコア <span class="x">×</span></span>
+          <span class="n-body"><span class="n-txt">集中スコア</span><br><span class="n-big st">62 / 100</span><span class="meter"></span></span>
+        </button>
+        <button class="noise n4" type="button" data-noise aria-label="ノイズを消す：週間グラフ">
+          <span class="n-tab" aria-hidden="true">グラフ <span class="x">×</span></span>
+          <span class="n-body"><span class="n-txt st">今週の集中時間</span>
+            <svg class="n-chart" width="100%" height="48" viewBox="0 0 200 48" preserveAspectRatio="none" aria-hidden="true">
+              <g fill="none" stroke="currentColor" stroke-width="1"><rect x="6" y="20" width="18" height="27"/><rect x="34" y="10" width="18" height="37"/><rect x="62" y="18" width="18" height="29"/><rect x="90" y="3" width="18" height="44"/><rect x="118" y="28" width="18" height="19"/><rect x="146" y="8" width="18" height="39"/></g>
+              <rect x="174" y="38" width="18" height="9" fill="currentColor"/>
+              <path d="M0 47.5h200" stroke="currentColor"/>
+            </svg>
+          </span>
+        </button>
+        <button class="noise n3" type="button" data-noise aria-label="ノイズを消す：ストリーク">
+          <span class="n-tab" aria-hidden="true">ストリーク <span class="x">×</span></span>
+          <span class="n-body"><span class="n-big st">12日連続</span><span class="n-small">今日も途切れさせないで</span></span>
+        </button>
+        <button class="noise n5" type="button" data-noise aria-label="ノイズを消す：今日は何分できた？という問いかけ">
+          <span class="n-tab" aria-hidden="true">リマインダー <span class="x">×</span></span>
+          <span class="n-body"><span class="n-q st">今日は何分できた？</span><span class="n-small">まだ目標に届いていません</span></span>
+        </button>
+
+        <div class="quiet-cap" id="quiet-cap" aria-hidden="true">
+          <p>ぜんぶ消したら、<em>静けさ</em>が残った。<br class="br-sp">だから、Quiet。</p>
+        </div>
       </div>
-      <div class="state-card">
-        <div class="k">何もしないとき</div>
-        <h3>待機</h3>
-        <p>数字と進捗バーだけ。静かに、邪魔をせず、そこに在る。</p>
-        <div class="meter"><i style="width:64%"></i></div>
+      <p class="stage-hint" id="stage-hint" aria-live="polite">カードを押すと、ひとつずつ消せます。</p>
+    </div>
+  </section>
+
+  <!-- ========== 01 erased ========== -->
+  <section class="sec wrap" id="erased" aria-labelledby="erased-title">
+    <div class="sec-head">
+      <p class="eyebrow">( 01 / erased )</p>
+      <div class="sec-title"><span class="num" aria-hidden="true">01.</span><h2 id="erased-title">消したもの、残したもの</h2></div>
+      <p class="sec-lead">集中を助けるはずのタイマーに、いつのまにか集中を邪魔するものが増えていました。Quiet は、足すのではなく消すことで作っています。</p>
+    </div>
+    <div class="ledger-head" aria-hidden="true"><span>消したもの</span><span>残したもの</span></div>
+    <ol class="ledger">
+      <li>
+        <p class="off"><span class="sr-only">消したもの：</span><span>25分で鳴るベル</span></p>
+        <span class="to" aria-hidden="true">→</span>
+        <div class="on"><h3>区切りは、自分で決める。</h3><p>フローモードは経過時間を数えるだけ。乗っているあいだは邪魔をせず、止めたところで休憩の長さを出します。</p></div>
+      </li>
+      <li>
+        <p class="off"><span class="sr-only">消したもの：</span><span>日別・週間の集計、セッション数、ストリーク</span></p>
+        <span class="to" aria-hidden="true">→</span>
+        <div class="on"><h3>今回の時間だけ。</h3><p>履歴を持ちません。アプリを閉じれば、今回の時間も消えます。昨日の自分と比べられることはありません。</p></div>
+      </li>
+      <li>
+        <p class="off"><span class="sr-only">消したもの：</span><span>「今日は何分できた？」</span></p>
+        <span class="to" aria-hidden="true">→</span>
+        <div class="on"><h3>看守ではなく、秘書。</h3><p>強制せず、提案する。罪悪感を煽りません。上限のリマインドは止めずに知らせるだけ。休憩にも、延ばす・小さくする・飛ばすの逃げ道があります。</p></div>
+      </li>
+      <li>
+        <p class="off"><span class="sr-only">消したもの：</span><span>画面を占領する窓、フォーカスを奪う入力欄</span></p>
+        <span class="to" aria-hidden="true">→</span>
+        <div class="on"><h3>端に浮かぶ、小さなパネル。</h3><p>すべての Space、ほかのアプリのフルスクリーンの上にも浮かびます。入力欄を置かないので、キーボードはいまの作業のまま。</p></div>
+      </li>
+      <li>
+        <p class="off"><span class="sr-only">消したもの：</span><span>アカウント、テレメトリ</span></p>
+        <span class="to" aria-hidden="true">→</span>
+        <div class="on"><h3>この Mac の中だけ。</h3><p>通信するのはアップデートの確認とダウンロードだけ。作業時間も利用データも、どこにも送りません。</p></div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ========== 02 presence ========== -->
+  <section class="sec wrap" id="presence" aria-labelledby="presence-title">
+    <div class="sec-head">
+      <p class="eyebrow">( 02 / presence )</p>
+      <div class="sec-title"><span class="num" aria-hidden="true">02.</span><h2 id="presence-title">浮かんで、透けて、邪魔をしない。</h2></div>
+      <p class="sec-lead">パネルは、あなたとの距離で姿を変えます。触れたいときだけ現れて、計測中は背景に馴染む。下の模型は実物と同じ大きさです。</p>
+    </div>
+    <div class="two">
+      <div>
+        <div class="model">
+          <div class="model-bar" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span>フルスクリーンのエディタ</span></div>
+          <div class="model-stage" id="m-stage" tabindex="-1">
+            <ol class="code" aria-hidden="true">
+              <li><i class="k" style="--w:6%"></i><i style="--w:22%"></i></li>
+              <li><i style="--i:1;--w:34%"></i></li>
+              <li><i style="--i:1;--w:18%"></i><i class="k" style="--w:8%"></i></li>
+              <li><i style="--i:2;--w:40%"></i></li>
+              <li><i style="--i:2;--w:26%"></i></li>
+              <li><i style="--i:1;--w:4%"></i></li>
+              <li></li>
+              <li><i class="k" style="--w:6%"></i><i style="--w:30%"></i></li>
+              <li><i style="--i:1;--w:46%"></i></li>
+              <li><i style="--i:1;--w:20%"></i><i class="k" style="--w:6%"></i></li>
+              <li><i style="--i:2;--w:36%"></i></li>
+              <li><i style="--i:1;--w:4%"></i></li>
+              <li><i style="--w:3%"></i></li>
+            </ol>
+            <p class="callout" id="callout" aria-hidden="true"><span><b>集中</b> · 不透明度 30%（既定・変更可）</span></p>
+            <div class="panel is-focus hide-label hide-controls" id="m-panel" role="group" aria-label="Quiet のパネル（触れる模型）">
+              <div class="p-bar" id="m-bar"><b id="m-fill"></b></div>
+              <div class="p-mid">
+                <div class="p-label" id="m-label">集中</div>
+                <div class="p-time" id="m-time">18:20</div>
+                <div class="p-detail" id="m-detail"></div>
+                <button type="button" class="p-pill" id="m-pill" aria-label="作業を終えて休憩へ">
+                  <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 4h9v4.5A3.5 3.5 0 017.5 12h-2A3.5 3.5 0 012 8.5zM11 5h1.2A1.8 1.8 0 0114 6.8v.4A1.8 1.8 0 0112.2 9H11V8h1.2a.8.8 0 00.8-.8v-.4a.8.8 0 00-.8-.8H11zM1 13.2h11v1H1z"/></svg>
+                  <span id="m-pill-t">休憩 +03:40</span>
+                </button>
+              </div>
+              <div class="p-controls" id="m-controls"></div>
+            </div>
+          </div>
+          <p class="model-hint" id="m-hint">パネルにカーソルを乗せてみてください。少し待つとボタンが押せます。休憩のピルを押すと、休憩画面に入ります。</p>
+        </div>
+        <ul class="legend" aria-label="存在感の3段階">
+          <li id="lg-op"><span class="dot" aria-hidden="true"></span><span class="k">操作</span><span class="t">乗せると、操作がすべて現れる</span></li>
+          <li id="lg-st"><span class="dot" aria-hidden="true"></span><span class="k">待機</span><span class="t">何もしなければ、数字と進捗バーだけ</span></li>
+          <li id="lg-fo" class="is-now"><span class="dot" aria-hidden="true"></span><span class="k">集中</span><span class="t">計測中は透けて、背景に馴染む</span></li>
+        </ul>
+        <p class="sr-only" id="lg-live" aria-live="polite"></p>
       </div>
-      <div class="state-card">
-        <div class="k">集中しているとき</div>
-        <h3>溶け込む</h3>
-        <p>透けて背景に馴染む。気づいたら消えている速さで。戻したいときはマウスを乗せるだけ。</p>
-        <div class="meter"><i style="width:28%"></i></div>
+      <ul class="facts">
+        <li><span class="k">操作</span><div class="v"><strong>マウスを乗せると、操作がすべて出る</strong><span>開始・一時停止・リセット・休憩へ。ボタンはホバーが少し続いてから押せるので、通りすがりのクリックで止まりません。</span></div></li>
+        <li><span class="k">待機</span><div class="v"><strong>何もしないと、数字と進捗バーだけ</strong><span>読むべきものしか置きません。</span></div></li>
+        <li><span class="k">集中</span><div class="v"><strong>計測中は、パネルが透けて背景に馴染む</strong><span>不透明度は設定で変えられます。マウスを乗せれば、すぐ戻ります。</span></div></li>
+        <li><span class="k">どこでも</span><div class="v"><strong>全 Space、フルスクリーンの上にも</strong><span>キーボードのフォーカスは奪いません。入力欄を置かない設計です。</span></div></li>
+        <li><span class="k">キー</span><div class="v"><strong><kbd>⌃⌥P</kbd> 開始 / 一時停止<br><kbd>⌃⌥T</kbd> パネルの表示 / 非表示</strong><span>メニューバーに常駐し、Dock にも出ます。設定・願い・仕組みのページは、別の母艦ウィンドウにまとめてあります。</span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========== 03 flow ========== -->
+  <section class="sec wrap" id="flow" aria-labelledby="flow-title">
+    <div class="sec-head">
+      <p class="eyebrow">( 03 / flow )</p>
+      <div class="sec-title"><span class="num" aria-hidden="true">03.</span><h2 id="flow-title">区切りは、止めたところ。</h2></div>
+      <p class="sec-lead">25分で切られると、乗ってきたところで手が止まる。フローモードは経過を数えるだけで、止めたときに、やった分に見合う休憩を出します。</p>
+    </div>
+    <div class="two">
+      <div class="calc">
+        <div class="calc-tab">作業 → 休憩</div>
+        <div class="calc-body">
+          <fieldset>
+            <legend>休憩の割合（既定は 1/5。設定で 1/3〜1/6）</legend>
+            <div class="chips">
+              <label class="chip"><input type="radio" name="ratio" value="3"><span>1/3</span></label>
+              <label class="chip"><input type="radio" name="ratio" value="4"><span>1/4</span></label>
+              <label class="chip"><input type="radio" name="ratio" value="5" checked><span>1/5</span></label>
+              <label class="chip"><input type="radio" name="ratio" value="6"><span>1/6</span></label>
+            </div>
+          </fieldset>
+          <table class="ctable" aria-label="作業時間と休憩の長さ">
+            <thead><tr><th scope="col">作業</th><th scope="col"><span class="sr-only">割合</span></th><th scope="col">休憩</th></tr></thead>
+            <tbody id="ctable" aria-live="polite">
+              <tr><td>25:00</td><td class="op">÷ 5</td><td class="res">05:00</td></tr>
+              <tr class="ex"><td>45:00</td><td class="op">÷ 5</td><td class="res">09:00</td></tr>
+              <tr><td>90:00</td><td class="op">÷ 5</td><td class="res">18:00</td></tr>
+            </tbody>
+          </table>
+          <p class="calc-note">任意で上限のリマインドも付けられます。止めずに、知らせるだけ。</p>
+        </div>
+      </div>
+      <ul class="modes" aria-label="4つのモード">
+        <li><div><h3>フロー <span class="pill on">既定</span></h3><p>経過時間をカウントアップ。止めたところで休憩を自動で算出します。</p></div><div class="readout" aria-hidden="true"><span class="big">47:12</span><span class="sm ac">休憩 +09:26</span></div></li>
+        <li><div><h3>ポモドーロ</h3><p>決まった区切りが合う日に。残り時間と、今回の経過を並べて表示。</p></div><div class="readout" aria-hidden="true"><span class="big">12:30</span><span class="sm ac">今回の経過 12:30</span></div></li>
+        <li><div><h3>タイマー</h3><p>任意の分数でカウントダウン。</p></div><div class="readout" aria-hidden="true"><span class="big">15:00</span><span class="sm">残り</span></div></li>
+        <li><div><h3>時計</h3><p>現在時刻だけ。何も計らない日も、パネルはそこに。</p></div><div class="readout" aria-hidden="true"><span class="big">14:32:08</span><span class="sm">現在時刻</span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========== 04 break ========== -->
+  <section class="sec wrap" id="break" aria-labelledby="break-title">
+    <div class="sec-head">
+      <p class="eyebrow">( 04 / break )</p>
+      <div class="sec-title"><span class="num" aria-hidden="true">04.</span><h2 id="break-title">休むときは、画面ごと休む。</h2></div>
+      <p class="sec-lead">休憩は、通知を閉じて終わりにしない。つながっているすべてのディスプレイが「ひと休み」に切り替わります。それでも、閉じ込めはしません。</p>
+    </div>
+    <div class="two">
+      <figure style="margin:0">
+        <div class="schem">
+          <div class="displays" aria-hidden="true">
+            <div class="disp"><span class="h">ひと休み</span><span class="t">09:00</span><span class="w">今回の集中 45:00</span><span class="ps"><span>+5分</span><span>小さく</span><span>スキップ</span></span></div>
+            <div class="disp sm"><span class="h">ひと休み</span><span class="t">09:00</span></div>
+          </div>
+          <div class="schem-foot">
+            <p>全ディスプレイを、墨色の半透明の幕が覆います。</p>
+            <button class="btn btn-primary" type="button" id="try-break">休憩画面を見てみる <span class="arrow" aria-hidden="true">→</span></button>
+          </div>
+        </div>
+        <figcaption class="sr-only">休憩画面の見取り図。メインとサブのディスプレイの両方に「ひと休み」と残り時間が出る。</figcaption>
+      </figure>
+      <ul class="facts">
+        <li><span class="k">全画面</span><div class="v"><strong>全ディスプレイを覆う、全画面の休憩画面</strong><span>今回の集中時間を添えて表示します。</span></div></li>
+        <li><span class="k">逃げ道</span><div class="v"><strong>+5分 / 小さく / スキップ</strong><span>延ばすことも、小さくしてそのまま続けることも、飛ばすこともできます。</span></div></li>
+        <li><span class="k">入力</span><div class="v"><strong>クリックは遮る。キーボードは奪わない</strong><span>打ちかけの文字が、よそへ飛ぶことはありません。</span></div></li>
+        <li><span class="k">会議中</span><div class="v"><strong>マイクを使っているあいだは、全画面にしない</strong><span>会議や通話の最中は、全画面化を見送ります。</span></div></li>
+        <li><span class="k">合図</span><div class="v"><strong>終わったら、音とシステム通知で知らせる</strong><span>パネルを見ていなくても、区切りはわかります。</span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========== 05 nothing ========== -->
+  <section class="sec wrap" id="nothing" aria-labelledby="nothing-title">
+    <div class="sec-head">
+      <p class="eyebrow">( 05 / nothing )</p>
+      <div class="sec-title"><span class="num" aria-hidden="true">05.</span><h2 id="nothing-title">数えない。比べない。残さない。</h2></div>
+    </div>
+    <div class="two">
+      <ul class="keep-list" aria-label="Quiet が持たないもの">
+        <li><span class="item">日別・週間の集計</span><span class="v">持たない</span></li>
+        <li><span class="item">セッション数</span><span class="v">持たない</span></li>
+        <li><span class="item">メモ・検索</span><span class="v">持たない</span></li>
+        <li><span class="item">ストリーク</span><span class="v">持たない</span></li>
+        <li><span class="item">アカウント</span><span class="v">持たない</span></li>
+        <li><span class="item">テレメトリ</span><span class="v">持たない</span></li>
+        <li class="keep"><span class="item">設定</span><span class="v">これだけ保存する</span></li>
+      </ul>
+      <div class="prose">
+        <p class="quote">記録を持たないから、送るものもない。</p>
+        <p>Quiet は、あなたの Mac の中だけで動きます。外と通信するのは、新しい版があるかの確認とダウンロードだけ（GitHub 上の更新情報を取りにいきます）。作業時間や利用データは、どこにも送りません。</p>
+        <p>新しい版が見つかると、アプリがお知らせします。入れるかどうかは、あなたが決めてから。</p>
+        <p class="s">無料で、ソースはすべて <a href="https://github.com/imutaroh/pomo">GitHub</a> で公開しています（MIT ライセンス）。</p>
       </div>
     </div>
   </section>
 
-  <!-- FEATURES -->
-  <section class="band" style="padding-top:0">
-    <div class="eyebrow">できること</div>
-    <h2>強制する看守ではなく、提案する秘書。</h2>
-    <div class="feat">
-      <div class="card"><div class="ic">🪟</div><h3>どこへでも追従</h3><p>別アプリをフルスクリーンにしても、Spaceを切り替えても、常に最前面。「消えて忘れる」が起きない。</p></div>
-      <div class="card"><div class="ic">🌊</div><h3>4つのモード</h3><p>フロー、ポモドーロ、任意タイマー、現在時刻だけの時計。いま必要な時間だけを表示。</p></div>
-      <div class="card"><div class="ic">◉</div><h3>今回だけ</h3><p>見えるのは、いま取り組んでいる作業の時間だけ。履歴・集計・メモ・ストリークはありません。</p></div>
-      <div class="card"><div class="ic">🔒</div><h3>ローカル完結</h3><p>アカウントなし・クラウドなし・テレメトリなし。作業時間や利用データは、どこにも送らない。</p></div>
+  <!-- ========== 06 install ========== -->
+  <section class="sec wrap" id="install" aria-labelledby="install-title">
+    <div class="sec-head">
+      <p class="eyebrow">( 06 / install )</p>
+      <div class="sec-title"><span class="num" aria-hidden="true">06.</span><h2 id="install-title">静けさを、Mac に。</h2></div>
     </div>
-  </section>
+    <div class="req" aria-label="動作環境">
+      <span class="pill on">macOS 14 以降</span><span class="pill on">Apple Silicon（M1 以降）</span><span class="pill">Intel Mac は非対応</span><span class="pill">無料 · MIT</span>
+    </div>
 
-  <!-- BREAK MODE: dark section mirrors the app going dark for breaks -->
-  <section class="dark">
-    <div class="inner">
-      <div class="eyebrow">休憩モード</div>
-      <h2>休憩は、画面ごと、そっと。</h2>
-      <p>時間がきたら、画面全体がゆっくり暗転して呼吸する。会議や通話中は割り込まない。逃げ道（+5分／小さく／スキップ）は、いつでも開いている。</p>
-      <div class="chips">
-        <span class="chip">全ディスプレイ</span>
-        <span class="chip">会議中は自動で見送る</span>
-        <span class="chip">罪悪感なし</span>
+    <div id="install-cards" class="install-solo">
+      <div class="card">
+        <div class="card-tab">terminal</div>
+        <div class="card-body">
+          <h3>ターミナルで1行</h3>
+          <p>ターミナル（アプリケーション → ユーティリティ）を開いて、下の1行を貼って Return を押すだけ。最新版を取ってきて、確かめて、入れて、起動します。sudo は使いません。</p>
+          <div class="cmd">
+<pre id="cmd"><span class="pr" aria-hidden="true">$ </span><code>curl -fsSL https://imutaroh.github.io/<wbr>pomo/install.sh | bash</code></pre>
+            <button class="copy" id="copy" type="button">コピー</button>
+          </div>
+          <p class="copy-status" id="copy-status" aria-live="polite"></p>
+
+          <p class="sub-h">確かめること</p>
+          <ul class="checks">
+            <li>GitHub から最新リリースの .dmg を取得</li>
+            <li>サイズと SHA-256（GitHub から取得できた場合）、識別子・CPU・OS・コード署名の整合</li>
+            <li>/Applications（すでに入っていればその場所）に入れて起動 <span>— 起動中なら一度終了します。計測中の時間はリセットされます</span></li>
+          </ul>
+          <p class="sub-h">知っておいてほしいこと</p>
+          <ul class="checks warn">
+            <li>確かめているのは、破損や途中切れまで。<span>配布元が本物であることまでは保証しません。</span></li>
+            <li>curl で取ったファイルには隔離の印（quarantine）が付かないので、Gatekeeper の「開けません」の確認は出ません。<span>裏を返せば、Gatekeeper が検査しない経路です。</span></li>
+            <li>macOS 26.4 以降は、ブラウザからコピーしたコマンドを貼ると警告が出ることがあります。</li>
+          </ul>
+          <details class="more">
+            <summary>先にスクリプトを読みたい</summary>
+<pre><code>curl -fsSL https://imutaroh.github.io/pomo/install.sh -o quiet-install.sh
+less quiet-install.sh
+bash quiet-install.sh</code></pre>
+            <p>本体は <a href="https://github.com/imutaroh/pomo/blob/main/docs/install.sh">GitHub で読めます</a>。</p>
+          </details>
+        </div>
       </div>
     </div>
+
+    <p class="note"><strong>Quiet は Apple の公証を受けていません。</strong>公証には年 99 ドルの開発者登録が要ります。無料で配り続けるための選択で、そのぶん中身はすべて <a href="https://github.com/imutaroh/pomo">GitHub</a> で読めるようにしています。会社の管理下（MDM）にある Mac では開けないことがあります。</p>
+    <p class="note">入れたあとのアプリ名が違って見えたら、<a href="#legacy">次の節</a>をご覧ください。</p>
   </section>
 
-  <!-- TRUST: 未公証配布を透明性で補う -->
-  <section class="band">
-    <div class="eyebrow">安心して使えるために</div>
-    <h2>中身は、すべて見えるところに。</h2>
-    <div class="trust">
-      <div class="card"><div class="ic">🔍</div><h3>オープンソース</h3><p>ソースコードは GitHub で全公開。何をしているアプリか、誰でも確かめられる。</p></div>
-      <div class="card"><div class="ic">📡</div><h3>送らない・残さない</h3><p>通信はアップデートの確認とダウンロードだけ（GitHub 上の更新情報を取得）。作業時間や利用データはどこにも送らず、設定以外は保存しません。アプリを閉じれば今回の時間も消えます。</p></div>
-      <div class="card"><div class="ic">🗑️</div><h3>やめるのも簡単</h3><p>アプリを捨てれば終わり。アカウント削除も解約も要らない。</p></div>
+  <!-- ========== 07 legacy ========== -->
+  <section class="sec wrap" id="legacy" aria-labelledby="legacy-title">
+    <div class="sec-head">
+      <p class="eyebrow">( 07 / formerly pomo )</p>
+      <div class="sec-title"><span class="num" aria-hidden="true">07.</span><h2 id="legacy-title">Pomo をお使いの方へ</h2></div>
     </div>
-  </section>
-
-  <!-- INSTALL -->
-  <section class="band" id="install" style="padding-top:8px">
-    <div class="eyebrow">入れ方</div>
-    <h2>入れ方は、二つ。</h2>
-    <div class="install">
-      <h3>A. ターミナルで1行</h3>
-      <div class="cmd">
-        <code id="installCmd">curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash</code>
-        <button type="button" class="copy" data-copy="installCmd" hidden>コピー</button>
-      </div>
-      <span class="sr" aria-live="polite" id="copyStatus"></span>
-      <p>ターミナルに貼って Enter。最新版をアプリケーションフォルダに入れて起動します。sudo は使いません。すでに入っていれば、その場所で更新します（起動中なら一度終了します。計測中の時間はリセットされます）。</p>
-      <p>ブラウザを通らないので、Gatekeeper の「開けません」の確認は出ません。裏を返せば、Gatekeeper が検査しない経路です。中身は <a class="link" href="https://github.com/imutaroh/pomo/blob/main/docs/install.sh">スクリプトを読む ↗</a> で確かめられます。</p>
-      <p class="fine">ブラウザからコピーしたコマンドを貼ると、macOS が警告を出すことがあります。先に中身を読んでから実行する場合は <code>curl -fsSL https://imutaroh.github.io/pomo/install.sh -o quiet-install.sh</code> で保存し、読んだあと <code>bash quiet-install.sh</code> で実行してください。</p>
-    </div>
-    <div class="install">
-      <h3>B. ダウンロードして入れる</h3>
-      <ol>
-        <li><a class="link" href="https://github.com/imutaroh/pomo/releases/latest">最新版のページ ↗</a> から <strong>.dmg</strong> をダウンロードして開き、中のアプリを「アプリケーション」へドラッグ</li>
-        <li>ダブルクリックで起動。初回だけ、開けないという警告が出ます。<strong>ゴミ箱には入れずに閉じる</strong>（macOS 15 以降は［完了］）</li>
-        <li>macOS 15 以降：<strong>システム設定 → プライバシーとセキュリティ</strong> を開き、下へスクロールして<strong>「このまま開く」→「開く」</strong><br>macOS 14：アプリを右クリック →<strong>「開く」→「開く」</strong></li>
-        <li>起動すると、メニューバーと Dock にアイコンが表示されます。次からは普通に開けます</li>
-      </ol>
-      <p>それでも開けないときは、A の1行を実行してください。入っているアプリを見つけて、その場所で入れ直します。</p>
-      <p class="fine">確認が出るのは、Apple の公証（notarize）を受けていないためです。無料で配り続けるための選択で、ソースはすべて GitHub で読めます。動作環境は macOS 14 以降・Apple Silicon（M1 以降）。Intel Mac では動きません。会社支給などの管理対象（MDM）Mac では起動できない場合があります。</p>
-    </div>
-    <div class="install">
-      <h3>Pomo をお使いの方へ</h3>
-      <p>入れ直しは不要です。Quiet 名義の版が出ると、アプリがアップデートをお知らせします。インストールすると中身が Quiet になります。アプリケーションフォルダ上の名前は Pomo.app のまま残りますが、動作は同じです（アップデートの仕様です）。</p>
-      <p>A の1行を実行しても、アプリケーションフォルダ（/Applications か ~/Applications）に置いていれば、その場所のまま更新します（2つにはなりません）。Quiet 名義の版が出るまでは、新しく入れた場合も旧名の Pomo として入ります。</p>
+    <div class="legacy">
+      <p><strong>入れ直しは要りません。</strong>Quiet は Pomo の新しい名前です。Pomo を使っていれば、Quiet 名義の版が出たときにアップデートのお知らせが届き、入れると中身が Quiet になります。アプリケーションフォルダ上の名前は Pomo.app のまま残ります。</p>
+      <p><strong>Pomo という名前で入ったら。</strong>Quiet 名義の版が出るまでは、新しく入れても旧名の Pomo として入ります。中身は同じアプリです。Quiet 名義の版が出たら、アップデートのお知らせから Quiet に切り替わります。</p>
     </div>
   </section>
 
-  <section class="closer">
-    <div class="eyebrow">そろそろ、始めよう</div>
-    <h2>余計なものが、ひとつもないタイマー。</h2>
-    <div class="actions">
-      <a class="btn" href="#install">無料で入れる</a>
-      <span class="req">macOS 14+ ・ Apple Silicon</span>
+  <!-- ========== 08 faq ========== -->
+  <section class="sec wrap" id="faq" aria-labelledby="faq-title">
+    <div class="sec-head">
+      <p class="eyebrow">( 08 / faq )</p>
+      <div class="sec-title"><span class="num" aria-hidden="true">08.</span><h2 id="faq-title">よくある質問</h2></div>
+    </div>
+    <div class="faq">
+      <details><summary>記録が残らないのは、不便ではありませんか？</summary><div class="a"><p>記録やグラフを見ること自体が、集中の妨げになることがあります。Quiet が見せるのは「今回どれだけやったか」だけです。日別・週間の集計、セッション数、メモ、検索、ストリークはありません。保存するのは設定だけで、アプリを閉じれば今回の時間も消えます。</p></div></details>
+      <details><summary>通知や音は出ますか？</summary><div class="a"><p>出ます。終わったときに、音とシステム通知で知らせます。休憩は全画面の休憩画面になります（マイク使用中は全画面化を見送ります）。</p></div></details>
+      <details><summary>どんな通信をしますか？</summary><div class="a"><p>アップデートの確認とダウンロードだけです（GitHub 上の更新情報を取得します）。作業時間や利用データはどこにも送りません。アカウントもテレメトリもありません。</p></div></details>
+      <details><summary>アップデートは勝手に入りますか？</summary><div class="a"><p>いいえ。アプリが新しい版を確認してお知らせし、あなたが承認するとインストールされます。</p></div></details>
+      <details><summary>1行インストールをもう一度実行すると、どうなりますか？</summary><div class="a"><p>すでに入っていれば、その場所で最新版に入れ替えます。起動中なら一度終了するので、計測中の時間はリセットされます。</p></div></details>
+      <details><summary>Intel の Mac で使えますか？</summary><div class="a"><p>使えません。Apple Silicon（M1 以降）、macOS 14 以降の専用です。</p></div></details>
+      <details><summary>「開けません」と出ます。会社の Mac でも使えますか？</summary><div class="a"><p>Quiet は Apple の公証を受けていないため、ブラウザでダウンロードしたものは初回に確認が出ます。<a href="#install">ターミナルの1行</a>で入れ直せば、その確認は出ません（すでに入っている場所のまま入れ直します）。会社の管理下（MDM）にある Mac では、設定によって開けないことがあります。</p></div></details>
+      <details><summary>Pomo と Quiet は違うアプリですか？</summary><div class="a"><p>同じアプリです。Quiet は Pomo の新しい名前です。いまの最新版はまだ旧名 Pomo 名義なので、今入れると Pomo として入ります。詳しくは <a href="#legacy">Pomo をお使いの方へ</a>。</p></div></details>
+      <details><summary>アンインストールするには？</summary><div class="a"><p>アプリを終了して、ゴミ箱へ入れます。設定も消すなら、ターミナルで次を実行します。</p><pre><code>defaults delete com.imutaakihiro.pomo</code></pre><p>ログイン時の起動をオンにしていた場合は、<code>~/Library/LaunchAgents/com.imutaakihiro.pomo.plist</code> も削除してください。</p></div></details>
     </div>
   </section>
 
-</div>
+  <section class="closing" aria-label="結び">
+    <p class="big"><span>ノイズを消した。</span>残ったのは、<br class="br-sp">いまの時間だけ。</p>
+    <a class="btn btn-primary" href="#install">Quiet を入れる <span class="arrow" aria-hidden="true">→</span></a>
+    <p class="req-line">無料 · MIT · macOS 14+ · Apple Silicon</p>
+  </section>
+</main>
 
-<footer>
-  <div>Quiet — macOS のフロータイマー</div>
-  <div class="creed">ローカル完結 ・ アカウント不要 ・ テレメトリなし ・ 罪悪感なし</div>
-  <div style="margin-top:10px"><a href="https://github.com/imutaroh/pomo">GitHub</a> ・ <a href="https://github.com/imutaroh/pomo/releases/latest">Releases</a></div>
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="logo" href="./"><img src="icon.png" alt="" width="30" height="30">Quiet</a>
+    <nav aria-label="外部リンク">
+      <a href="https://github.com/imutaroh/pomo">GitHub</a>
+      <a href="https://github.com/imutaroh/pomo/releases/latest">リリース</a>
+      <a href="https://imutaro.com">作者 imutaro</a>
+    </nav>
+    <small>MIT License · free &amp; open source</small>
+  </div>
 </footer>
 
+<!-- 休憩画面の見本（押したときだけ現れる） -->
+<div class="brk-ov" id="brk" role="dialog" aria-modal="true" aria-labelledby="brk-title" hidden>
+  <p class="o-title" id="brk-title">ひと休み</p>
+  <p class="o-time" id="o-time">09:00</p>
+  <p class="o-worked" id="o-worked">今回の集中 45:00</p>
+  <div class="o-bar" aria-hidden="true"><b id="o-fill"></b></div>
+  <p class="o-note">画面から目を離して、少し伸びをしよう</p>
+  <div class="o-btns">
+    <button type="button" class="pill-btn" data-o="extend">+5分</button>
+    <button type="button" class="pill-btn" data-o="collapse">小さく</button>
+    <button type="button" class="pill-btn" data-o="skip">スキップ</button>
+  </div>
+  <p class="o-foot">これは見本です · Esc で閉じる</p>
+</div>
+
 <script>
-  // ヒーローの「生きたタイマー」: フローを再現してカウントアップ＋休憩が貯まる
-  (function(){
-    var t = document.getElementById('demoTime'), b = document.getElementById('demoBreak'),
-        tr = document.getElementById('demoTrack');
-    if(!t || !b) return;
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-      t.textContent = '24:13'; b.textContent = '4:50';
-      if (tr) tr.style.width = '54%';
-      return; // 静止表示
-    }
-    var s = 0;
-    function pad(n){ return (n<10?'0':'')+n; }
-    setInterval(function(){
-      s = (s + 1) % (60*60);
-      t.textContent = pad(Math.floor(s/60)) + ':' + pad(s%60);
-      var br = Math.max(60, Math.floor(s/5)); // 1:5 の貯まる休憩
-      b.textContent = Math.floor(br/60) + ':' + pad(br%60);
-      if (tr) tr.style.width = ((s % 1500) / 1500 * 100) + '%'; // 25分周期
-    }, 1000);
+(function () {
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function $(id) { return document.getElementById(id); }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function fmt(s) { s = Math.max(0, Math.round(s)); return pad(Math.floor(s / 60)) + ":" + pad(s % 60); }
+
+  /* ================= hero panel: ticks only while hovered ================= */
+  (function () {
+    var el = $("hero-panel"), sec = 21 * 60 + 5, timer = null;
+    var t = el.querySelector(".p-time"), b = el.querySelector(".brk"), bar = el.querySelector(".p-bar b");
+    function render() { t.textContent = fmt(sec); b.textContent = "休憩 +" + fmt(Math.floor(sec / 5)); bar.style.width = Math.min(100, sec / 1500 * 100) + "%"; }
+    el.addEventListener("pointerenter", function (e) {
+      if (e.pointerType === "touch") return;
+      el.classList.remove("hide-label", "hide-controls");
+      if (!timer) timer = setInterval(function () { sec++; render(); }, 1000);
+    });
+    el.addEventListener("pointerleave", function () {
+      el.classList.add("hide-label", "hide-controls");
+      clearInterval(timer); timer = null;
+    });
+    render();
   })();
 
-  // 導入コマンドのコピー
-  (function(){
-    var status = document.getElementById('copyStatus');
-    Array.prototype.forEach.call(document.querySelectorAll('.copy'), function(btn){
-      btn.hidden = false; // JS が無い環境ではボタンを出さない（コマンドは手で選択できる）
-      btn.addEventListener('click', function(){
-        var code = document.getElementById(btn.getAttribute('data-copy')), text = code.textContent;
-        function done(ok){
-          if (!ok){ // コピーできないときは選択状態にして、⌘C を案内する
-            var sel = window.getSelection && window.getSelection();
-            if (sel){ sel.selectAllChildren(code); }
-          }
-          btn.textContent = ok ? 'コピーしました' : '選択しました。⌘C でコピー';
-          if (status){ status.textContent = ''; setTimeout(function(){ status.textContent = btn.textContent; }, 50); }
-          setTimeout(function(){ btn.textContent = 'コピー'; }, 2500);
-        }
-        if (navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });
-        } else { done(false); }
+  /* ================= signature: erase the noise ================= */
+  var hero = $("hero");
+  var noises = Array.prototype.slice.call(document.querySelectorAll("[data-noise]"));
+  var countEl = $("noise-count");
+  var eraseBtn = $("erase-all");
+  var eraseLabel = eraseBtn.querySelector("span");
+  var hint = $("stage-hint");
+  var cap = $("quiet-cap");
+  var busy = false, autoTimer = null, touched = false;
+
+  function left() { return noises.filter(function (n) { return !n.classList.contains("is-gone"); }).length; }
+  function update() {
+    var l = left();
+    if (l === 0) {
+      countEl.innerHTML = "画面のノイズ <span class=\"n\">0</span>";
+      hero.classList.add("is-quiet");
+      cap.removeAttribute("aria-hidden");
+      eraseLabel.textContent = "ノイズを戻す";
+      hint.textContent = "ノイズを戻して、自分の手で消すこともできます。パネルに乗せると、操作が現れて時間が進みます。";
+    } else {
+      countEl.innerHTML = "画面のノイズ <span class=\"n\">" + l + "</span>";
+    }
+  }
+  function erase(n, done) {
+    if (n.classList.contains("is-gone") || n.classList.contains("is-striking")) { if (done) done(); return; }
+    n.classList.add("is-striking");
+    setTimeout(function () {
+      n.classList.add("is-gone");
+      n.classList.remove("is-striking");
+      n.setAttribute("aria-hidden", "true");
+      n.tabIndex = -1;
+      update();
+      if (done) done();
+    }, reduce ? 0 : 520);
+  }
+  function pending() { return noises.filter(function (n) { return !n.classList.contains("is-gone") && !n.classList.contains("is-striking"); }); }
+  function eraseAll() {
+    var list = pending();
+    if (reduce) { list.forEach(function (n) { erase(n); }); return; }
+    busy = true;
+    var i = 0;
+    (function step() {
+      if (i >= list.length) { busy = false; return; }
+      erase(list[i++]);
+      autoTimer = setTimeout(step, 300);
+    })();
+  }
+  function cancelAuto() { touched = true; clearTimeout(autoTimer); busy = false; }
+  noises.forEach(function (n) {
+    n.addEventListener("click", function () {
+      cancelAuto();
+      var wasFocused = document.activeElement === n;
+      erase(n, function () {
+        if (wasFocused) { var next = pending()[0]; (next || eraseBtn).focus(); }
       });
     });
-  })();
+  });
+  function restore() {
+    hero.classList.remove("is-quiet");
+    cap.setAttribute("aria-hidden", "true");
+    noises.forEach(function (n) { n.classList.remove("is-gone", "is-striking"); n.removeAttribute("aria-hidden"); n.tabIndex = 0; });
+    eraseLabel.textContent = "ノイズを消す";
+    hint.textContent = "カードを押すと、ひとつずつ消せます。";
+    update();
+  }
+  eraseBtn.addEventListener("click", function () {
+    cancelAuto();
+    if (hero.classList.contains("is-quiet")) { restore(); return; }
+    eraseAll();
+  });
+  /* 初回ロードの入場として一度だけ、ノイズを消して見せる（触れたら止める） */
+  autoTimer = setTimeout(function () { if (!touched && !busy && left() === noises.length) eraseAll(); }, reduce ? 0 : 1400);
+
+  /* ================= 02: touchable model + break overlay ================= */
+  var ICON = {
+    reset: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.5M3 2v3h3"/></svg>',
+    pause: '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3.5" y="2.5" width="3" height="11" rx="1"/><rect x="9.5" y="2.5" width="3" height="11" rx="1"/></svg>',
+    play: '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.5 2.6v10.8a.6.6 0 00.9.5l8.4-5.4a.6.6 0 000-1L5.4 2.1a.6.6 0 00-.9.5z"/></svg>',
+    cup: '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 4h9v4.5A3.5 3.5 0 017.5 12h-2A3.5 3.5 0 012 8.5zM11 5h1.2A1.8 1.8 0 0114 6.8v.4A1.8 1.8 0 0112.2 9H11V8h1.2a.8.8 0 00.8-.8v-.4a.8.8 0 00-.8-.8H11zM1 13.2h11v1H1z"/></svg>',
+    plus5: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12.5 6.5A5 5 0 103 9"/><path d="M13 2.8v3.8H9.2" stroke-linejoin="round"/><path d="M8 6v4M6 8h4"/></svg>',
+    skip: '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3.2v9.6a.5.5 0 00.8.4L10 8.4a.5.5 0 000-.8L3.8 2.8a.5.5 0 00-.8.4z"/><rect x="11" y="3" width="2" height="10" rx=".8"/></svg>'
+  };
+  var stage = $("m-stage"), panel = $("m-panel"), ov = $("brk");
+  var st = { phase: "work", paused: false, elapsed: 1100, ratio: 5, brkTotal: 0, brkRemain: 0, lastWork: 0, hovered: false, armed: false, overlay: false };
+  var armTimer = 0, tickTimer = 0, touchCap = 0, inStage = false, touchActive = false, opener = null, skipTimer = 0, ovHideTimer = 0;
+  function banked() { return Math.max(60, Math.floor(st.elapsed / st.ratio)); }
+
+  function controlsFor() {
+    function b(act, icon, label, pro) { return '<button type="button" class="cbtn' + (pro ? " pro" : "") + '" data-act="' + act + '" aria-label="' + label + '">' + ICON[icon] + "</button>"; }
+    if (st.phase === "idle") return b("start", "play", "作業を開始", true);
+    if (st.phase === "work") return b("reset", "reset", "リセット") + b("pause", st.paused ? "play" : "pause", st.paused ? "再開" : "一時停止", true) + b("finish", "cup", "作業を終えて休憩へ");
+    return b("extend", "plus5", "休憩を5分延長") + b("pause", st.paused ? "play" : "pause", st.paused ? "再開" : "一時停止", true) + b("skip", "skip", "休憩をスキップ");
+  }
+  var lastKey = "";
+  function render() {
+    var running = st.phase !== "idle" && !st.paused;
+    var presence = st.hovered ? "op" : (running ? "fo" : "st");
+    panel.classList.toggle("is-focus", presence === "fo");
+    panel.classList.toggle("is-armed", st.armed);
+    panel.classList.toggle("hide-label", !(st.hovered || st.phase === "idle" || st.paused));
+    panel.classList.toggle("hide-controls", !(st.hovered || st.phase === "idle"));
+
+    var label = "いつでもどうぞ", time = "00:00", detail = "", prog = 0;
+    if (st.phase === "work") { label = st.paused ? "一時停止" : "集中"; time = fmt(st.elapsed); prog = Math.min(1, st.elapsed / 1500); }
+    if (st.phase === "break") { label = st.paused ? "一時停止" : "休憩"; time = fmt(st.brkRemain); detail = "今回の集中 " + fmt(st.lastWork); prog = st.brkTotal ? 1 - st.brkRemain / st.brkTotal : 0; }
+    $("m-label").textContent = label;
+    $("m-time").textContent = time;
+    $("m-detail").textContent = detail;
+    $("m-fill").style.width = (prog * 100).toFixed(1) + "%";
+    $("m-bar").classList.toggle("is-idle", st.phase === "idle");
+    $("m-bar").classList.toggle("is-sat", st.phase === "work" && prog >= 1);
+    var pill = $("m-pill"), showPill = st.phase === "work";
+    pill.hidden = !showPill; pill.tabIndex = showPill ? 0 : -1;
+    $("m-pill-t").textContent = "休憩 +" + fmt(banked());
+    var key = st.phase + st.paused;
+    if (key !== lastKey) { $("m-controls").innerHTML = controlsFor(); lastKey = key; }
+
+    var co = { op: "<b>操作</b> · ボタンは少し待ってから押せる", st: "<b>待機</b> · 数字と進捗バーだけ", fo: "<b>集中</b> · 不透明度 30%（既定・変更可）" };
+    $("callout").firstElementChild.innerHTML = co[presence];
+    var map = { op: "lg-op", st: "lg-st", fo: "lg-fo" };
+    Object.keys(map).forEach(function (k) { $(map[k]).classList.toggle("is-now", k === presence); });
+    var txt = { op: "操作: 操作がすべて現れています", st: "待機: 数字と進捗バーだけ", fo: "集中: パネルが透けて背景に馴染んでいます" };
+    if ($("lg-live").textContent !== txt[presence] && !st.overlay) $("lg-live").textContent = txt[presence];
+
+    $("o-time").textContent = fmt(st.brkRemain);
+    $("o-worked").textContent = "今回の集中 " + fmt(st.lastWork);
+    $("o-fill").style.width = (st.brkTotal ? (1 - st.brkRemain / st.brkTotal) * 100 : 0).toFixed(1) + "%";
+  }
+
+  /* 時を刻むのは、模型にポインタがあるあいだ・タップ直後・休憩画面を開いているあいだだけ */
+  function tick() {
+    if (st.paused) return;
+    if (st.phase === "work") st.elapsed += 1;
+    else if (st.phase === "break") {
+      st.brkRemain -= 1;
+      if (st.brkRemain <= 0) { st.phase = "idle"; st.elapsed = 0; if (st.overlay) closeOverlay(); }
+    }
+    render();
+  }
+  function updateTick() {
+    var on = inStage || touchActive || st.overlay;
+    if (on && !tickTimer) tickTimer = setInterval(tick, 1000);
+    if (!on && tickTimer) { clearInterval(tickTimer); tickTimer = 0; }
+  }
+  function setHover(on, immediate) {
+    if (st.hovered === on && !immediate) return;
+    st.hovered = on;
+    clearTimeout(armTimer);
+    if (on) { if (immediate) st.armed = true; else armTimer = setTimeout(function () { st.armed = true; render(); }, 350); }
+    else st.armed = false;
+    render();
+  }
+  panel.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch") setHover(true); });
+  panel.addEventListener("pointerleave", function (e) { if (e.pointerType !== "touch") setHover(false); });
+  panel.addEventListener("focusin", function () { setHover(true, true); });
+  panel.addEventListener("focusout", function (e) { if (!panel.contains(e.relatedTarget)) setHover(false); });
+  stage.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch") { inStage = true; updateTick(); } });
+  stage.addEventListener("pointerleave", function (e) { if (e.pointerType !== "touch") { inStage = false; updateTick(); } });
+  document.addEventListener("pointerdown", function (e) {
+    if (e.pointerType !== "touch" || st.overlay) return;
+    var inPanel = panel.contains(e.target);
+    if (inPanel && !st.hovered) setHover(true);
+    if (!inPanel && st.hovered) setHover(false);
+    touchActive = stage.contains(e.target);
+    clearTimeout(touchCap);
+    if (touchActive) touchCap = setTimeout(function () { touchActive = false; setHover(false); updateTick(); }, 30000);
+    updateTick();
+  });
+  if (window.matchMedia("(hover: none)").matches) {
+    $("m-hint").textContent = "パネルをタップしてみてください。少し待つとボタンが押せます。休憩のピルを押すと、休憩画面に入ります。";
+  }
+
+  function openOverlay(from) {
+    opener = from || document.activeElement;
+    st.overlay = true;
+    clearTimeout(ovHideTimer);
+    ov.hidden = false;
+    var skip = ov.querySelector('[data-o="skip"]');
+    skip.disabled = true; /* 実物どおり、スキップは3秒たってから */
+    clearTimeout(skipTimer);
+    skipTimer = setTimeout(function () { skip.disabled = false; }, reduce ? 0 : 3000);
+    requestAnimationFrame(function () { ov.classList.add("is-on"); });
+    render(); updateTick();
+    ov.querySelector('[data-o="extend"]').focus();
+  }
+  function closeOverlay() {
+    st.overlay = false;
+    ov.classList.remove("is-on");
+    ovHideTimer = setTimeout(function () { ov.hidden = true; }, reduce ? 0 : 450);
+    updateTick();
+    var to = opener && document.contains(opener) ? opener : $("try-break");
+    try { to.focus({ preventScroll: true }); } catch (e) { to.focus(); }
+  }
+  function act(a) {
+    if (a === "start") { st.phase = "work"; st.paused = false; st.elapsed = 0; }
+    else if (a === "pause") st.paused = !st.paused;
+    else if (a === "reset") { st.phase = "idle"; st.paused = false; st.elapsed = 0; }
+    else if (a === "finish") {
+      st.lastWork = st.elapsed; st.brkTotal = st.brkRemain = banked();
+      st.phase = "break"; st.paused = false; st.elapsed = 0;
+      setHover(false);
+      render();
+      openOverlay(stage);
+      return;
+    }
+    else if (a === "extend") { st.brkRemain += 300; st.brkTotal += 300; }
+    else if (a === "skip") { st.phase = "idle"; st.paused = false; st.elapsed = 0; }
+    render();
+  }
+  panel.addEventListener("click", function (e) {
+    if (!st.armed) return;
+    var b = e.target.closest("[data-act]");
+    if (b) act(b.getAttribute("data-act"));
+    else if (e.target.closest("#m-pill")) act("finish");
+  });
+  ov.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-o]"); if (!b || b.disabled) return;
+    var a = b.getAttribute("data-o");
+    if (a === "extend") { st.brkRemain += 300; st.brkTotal += 300; render(); }
+    else if (a === "collapse") { closeOverlay(); render(); }
+    else if (a === "skip") { st.phase = "idle"; st.paused = false; st.elapsed = 0; closeOverlay(); render(); }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (!st.overlay) return;
+    if (e.key === "Escape") { e.preventDefault(); closeOverlay(); render(); return; }
+    if (e.key === "Tab") { /* 見本の中でフォーカスを回す */
+      var f = Array.prototype.filter.call(ov.querySelectorAll("button"), function (x) { return !x.disabled; });
+      var i = f.indexOf(document.activeElement);
+      e.preventDefault();
+      f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+    }
+  });
+  $("try-break").addEventListener("click", function () {
+    st.lastWork = 45 * 60; st.brkTotal = st.brkRemain = 9 * 60;
+    st.phase = "break"; st.paused = false; st.elapsed = 0;
+    openOverlay($("try-break"));
+  });
+  render();
+
+  /* ================= 03: ratio table ================= */
+  var rows = [25, 45, 90];
+  function calc() {
+    var r = +(document.querySelector("input[name=ratio]:checked") || { value: 5 }).value;
+    var tb = $("ctable");
+    tb.innerHTML = rows.map(function (m) {
+      return '<tr' + (m === 45 ? ' class="ex"' : "") + '><td>' + m + ':00</td><td class="op">÷ ' + r + '</td><td class="res">' + fmt(m * 60 / r) + "</td></tr>";
+    }).join("");
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("input[name=ratio]"), function (i) { i.addEventListener("change", calc); });
+
+  /* ================= copy ================= */
+  var CMD = "curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash";
+  var copyBtn = $("copy"), copyStatus = $("copy-status");
+  function selectCmd() {
+    var el = $("cmd").querySelector("code"), r = document.createRange();
+    r.selectNodeContents(el);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+  function fail() { selectCmd(); copyStatus.textContent = "コピーできませんでした。コマンドを選択したので、⌘C でコピーしてください。"; }
+  copyBtn.addEventListener("click", function () {
+    try {
+      if (!navigator.clipboard || !window.isSecureContext) { fail(); return; }
+      navigator.clipboard.writeText(CMD).then(function () {
+        copyBtn.textContent = "コピー済み";
+        copyStatus.textContent = "コピーしました。ターミナルに貼って Return を押してください。";
+        setTimeout(function () { copyBtn.textContent = "コピー"; }, 2000);
+      }, fail);
+    } catch (e) { fail(); }
+  });
+
+  /* ================= not a Mac ================= */
+  var ua = navigator.userAgent || "";
+  var isMac = /Macintosh/.test(ua) && !(navigator.maxTouchPoints > 1);
+  if (!isMac) {
+    var box = $("install-cards");
+    box.className = "card";
+    box.innerHTML =
+      '<div class="card-tab">not a mac</div>' +
+      '<div class="notmac"><h3>Quiet は Mac 用のアプリです</h3>' +
+      '<p>Mac でこのページを開いてください。リンクを自分に送っておくと、あとで迷いません。</p>' +
+      '<button class="btn btn-primary" type="button" id="share">このページのリンクを共有</button>' +
+      '<p class="copy-status" id="share-status" aria-live="polite"></p></div>';
+    var url = "https://imutaroh.github.io/pomo/";
+    $("share").addEventListener("click", function () {
+      var s = $("share-status");
+      if (navigator.share) {
+        navigator.share({ title: "Quiet — ノイズを消したタイマー for Mac", url: url }).catch(function () {});
+      } else if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(function () { s.textContent = "リンクをコピーしました。"; }, function () { s.textContent = url; });
+      } else { s.textContent = url; }
+    });
+    return;
+  }
+})();
 </script>
 </body>
 </html>
