@@ -12,13 +12,14 @@
 #   1. GitHub の最新リリースの更新情報（appcast.xml。アプリの自動更新と同じもの）から .dmg を特定
 #   2. ダウンロードし、サイズと SHA-256 を照合（破損・途中切れの検出。配布元の真正性までは保証しない）
 #   3. 中のアプリの識別子・対応 CPU・対応 OS・コード署名を確認
+#      （ad-hoc 署名なので、確かめられるのは同梱物の整合まで。改ざんの検知にはならない）
 #   4. /Applications に置いて起動（すでに入っていれば、その場所で更新。2つにはしない）
 # しないこと
 #   sudo / Gatekeeper の設定変更 / quarantine 属性の操作 / 利用データの送信 / 途中での質問
 # 知っておいてほしいこと
 #   curl で取得したファイルには macOS の quarantine 属性が付かないため、この経路では
 #   Gatekeeper の「開けません」の確認が出ません。だからこそ、このスクリプトを公開しています。
-# 環境変数
+# 環境変数（パイプの右側の bash に付ける。例: curl -fsSL …/install.sh | QUIET_DRY_RUN=1 bash）
 #   QUIET_DRY_RUN=1  何を入れるかを表示するだけで、アプリには何も書き込まない
 #   QUIET_FORCE=1    同じ版でも入れ直す
 #   QUIET_NO_OPEN=1  入れたあと起動しない
@@ -30,9 +31,8 @@ if [ -z "${BASH_VERSION:-}" ]; then
   echo "bash で実行してください: curl -fsSL https://imutaroh.github.io/pomo/install.sh | bash" >&2
   exit 1
 fi
-set -euo pipefail
-
 REPO="imutaroh/pomo"
+INSTALL_CMD="curl -fsSL https://imutaroh.github.io/pomo/install.sh"
 BUNDLE_ID="com.imutaakihiro.pomo"
 APPCAST_URL="https://github.com/${REPO}/releases/latest/download/appcast.xml"
 DL_PREFIX="https://github.com/${REPO}/releases/download/"
@@ -41,8 +41,8 @@ MANUAL_URL="https://imutaroh.github.io/pomo/#install"
 PROTO="=https"
 APPS_DIRS=("/Applications" "$HOME/Applications")
 
-TMP="" MNT="" STAGE="" BACKUP="" DEST="" EXISTING="" SRC_APP=""
-OS_VER="" HOST_ARCH=""
+TMP="" MNT="" STAGEDIR="" STAGE="" BACKUP="" DEST="" EXISTING="" SRC_APP=""
+OS_VER="" HOST_ARCH="" OLD_EXE="" NEW_EXE=""
 DMG_URL="" DMG_LEN="" DMG_NAME="" DMG="" TAG="" NEW_VER="" NEW_BUILD="" EXPECTED_SHA=""
 
 say()  { printf '%s\n' "$*"; }
@@ -50,11 +50,27 @@ step() { printf '\n==> %s\n' "$*"; }
 warn() { printf '注意: %s\n' "$*" >&2; }
 die()  { printf '\nエラー: %s\n' "$*" >&2; exit 1; }
 need() { command -v "$1" >/dev/null 2>&1 || die "必要なコマンドが見つかりません: $1"; }
-fetch() { curl -fsSL --proto "$PROTO" --proto-redir "$PROTO" --tlsv1.2 --retry 3 --connect-timeout 15 "$@"; }
+fetch() { curl -fsSL --proto "$PROTO" --proto-redir "$PROTO" --tlsv1.2 --path-as-is --retry 3 --connect-timeout 15 "$@"; }
 plist_get() { local v; if v=$(/usr/libexec/PlistBuddy -c "Print :$2" "$1" 2>/dev/null); then printf '%s' "$v"; fi; }
 bundle_id_of() { plist_get "$1/Contents/Info.plist" CFBundleIdentifier; }
 xml_get() { xmllint --xpath "string($2)" "$1" 2>/dev/null || true; }
 is_quarantined() { xattr -p com.apple.quarantine "$1" >/dev/null 2>&1; }
+# quarantine が付いていて、まだ「このまま開く」で許可されていない（flags に 0x40 が無い）
+needs_approval() {
+  local q f
+  q=$(xattr -p com.apple.quarantine "$1" 2>/dev/null) || return 1
+  f=${q%%;*}
+  case "$f" in ''|*[!0-9a-fA-F]*) return 0 ;; esac
+  [ $(( 0x$f & 0x40 )) -eq 0 ]
+}
+# 範囲指定 [A-Z] はロケールによって全角文字なども含むため、文字を列挙して ASCII に限る
+SAFE_CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-'
+is_safe_name() {
+  case "$1" in ''|.|..) return 1 ;; esac
+  case "$1" in *[!"$SAFE_CHARS"]*) return 1 ;; esac
+  return 0
+}
+real_dir() { (cd "$1" 2>/dev/null && pwd -P); }
 
 # "14.4" のような版を、メジャーとマイナーの2段で比べる。$1 が $2 より古ければ真
 version_lt() {
@@ -75,7 +91,7 @@ cleanup() {
       rm -rf "$BACKUP"
     fi
   fi
-  if [ -n "$STAGE" ] && [ -d "$STAGE" ]; then rm -rf "$STAGE"; fi
+  if [ -n "$STAGEDIR" ] && [ -d "$STAGEDIR" ]; then rm -rf "$STAGEDIR"; fi
   if [ -n "$MNT" ]; then
     if ! hdiutil detach "$MNT" -quiet 2>/dev/null && ! hdiutil detach "$MNT" -force -quiet 2>/dev/null; then
       TMP=""   # マウントが残っている間は一時ディレクトリを消さない
@@ -95,6 +111,8 @@ check_env() {
   for c in curl xmllint plutil shasum hdiutil ditto codesign file xattr pgrep ps stat open; do need "$c"; done
   # Rosetta 経由のシェルでも、本体の CPU を見る
   if [ "$(sysctl -n hw.optional.arm64 2>/dev/null || echo 0)" = "1" ]; then HOST_ARCH=arm64; else HOST_ARCH=x86_64; fi
+  # ダウンロードする前に止める（中身の CPU は mount_and_inspect でも確かめる）
+  if [ "$HOST_ARCH" = "x86_64" ]; then die "この Mac（Intel）では動きません。Quiet は Apple Silicon（M1 以降）専用です。"; fi
 }
 
 apply_test_overrides() {
@@ -115,13 +133,18 @@ resolve_release() {
   DMG_LEN=$(xml_get "$xml" "$item/*[local-name()=\"enclosure\"]/@length")
   NEW_VER=$(xml_get "$xml" "$item/*[local-name()=\"shortVersionString\"]")
   NEW_BUILD=$(xml_get "$xml" "$item/*[local-name()=\"version\"]")
+  local rest
   case "$DMG_URL" in
-    "$DL_PREFIX"*/*.dmg) TAG=${DMG_URL#"$DL_PREFIX"}; TAG=${TAG%%/*} ;;
-    file://*.dmg) [ "${QUIET_TEST:-0}" = "1" ] || die "想定外のダウンロード先です: $DMG_URL"; TAG="" ;;
+    "$DL_PREFIX"*/*.dmg)
+      # <タグ>/<ファイル名> のちょうど2段だけを受け付ける
+      rest=${DMG_URL#"$DL_PREFIX"}; TAG=${rest%%/*}; DMG_NAME=${rest#*/}
+      is_safe_name "$TAG" || die "想定外のダウンロード先です: $DMG_URL" ;;
+    file://*.dmg)
+      [ "${QUIET_TEST:-0}" = "1" ] || die "想定外のダウンロード先です: $DMG_URL"
+      TAG=""; DMG_NAME=${DMG_URL##*/} ;;
     *) die "想定外のダウンロード先です: ${DMG_URL:-（空）}" ;;
   esac
-  DMG_NAME=${DMG_URL##*/}
-  case "$DMG_NAME$TAG" in *[!A-Za-z0-9._-]*) die "想定外のファイル名です: $DMG_NAME" ;; esac
+  is_safe_name "$DMG_NAME" || die "想定外のファイル名です: $DMG_NAME"
   case "$NEW_BUILD" in ''|*[!0-9]*) die "更新情報の版番号を読めませんでした。" ;; esac
   case "$DMG_LEN" in *[!0-9]*) DMG_LEN="" ;; esac
   say "最新版: v${NEW_VER:-?}"
@@ -131,9 +154,16 @@ find_existing() {
   local d p others=""
   for d in "${APPS_DIRS[@]}"; do
     if [ ! -d "$d" ]; then continue; fi
+    # 前回の実行が電源断などで途中終了すると、作業用の隠しフォルダが残る
+    for p in "$d"/.quiet-install.*; do
+      if [ -d "$p" ]; then warn "前回の途中で残った作業用フォルダがあります（中に旧版が入っている場合があります）: $p"; fi
+    done
     for p in "$d"/*.app; do
       if [ ! -d "$p" ]; then continue; fi
       if [ "$(bundle_id_of "$p")" != "$BUNDLE_ID" ]; then continue; fi
+      if [ -L "$p" ]; then
+        die "$p はシンボリックリンクです。リンク先 $(real_dir "$p") のアプリを手動で更新してください。"
+      fi
       if [ -z "$EXISTING" ]; then EXISTING="$p"; else others="${others}  ${p}"$'\n'; fi
     done
   done
@@ -145,8 +175,9 @@ find_existing() {
 
 already_latest() {
   if [ -z "$EXISTING" ] || [ "${QUIET_FORCE:-0}" = "1" ]; then return 1; fi
-  if is_quarantined "$EXISTING"; then
-    say "入っているアプリに macOS の「ダウンロードした印」が付いているため、入れ直します。"
+  # ブラウザ経由で入れて、まだ一度も開けていないアプリは入れ直す（「このまま開く」で許可済みなら不要）
+  if needs_approval "$EXISTING"; then
+    say "入っているアプリは、まだ macOS に開くことを許可されていないため、入れ直します。"
     return 1
   fi
   local cur; cur=$(plist_get "$EXISTING/Contents/Info.plist" CFBundleVersion)
@@ -171,7 +202,7 @@ resolve_digest() {
   case "$EXPECTED_SHA" in ''|*[!0-9a-f]*) EXPECTED_SHA="" ;; esac
   if [ ${#EXPECTED_SHA} -ne 64 ]; then
     EXPECTED_SHA=""
-    warn "GitHub から SHA-256 を取得できませんでした（回数制限など）。サイズの照合だけで続けます。"
+    warn "GitHub から SHA-256 を取得できませんでした。サイズの照合だけで続けます。"
   fi
 }
 
@@ -179,7 +210,7 @@ download_and_verify() {
   step "ダウンロードしています"
   DMG="$TMP/$DMG_NAME"
   fetch -o "$DMG" "$DMG_URL" || die "ダウンロードに失敗しました: $DMG_URL"
-  local size; size=$(stat -f %z "$DMG")
+  local size; size=$(wc -c < "$DMG" | tr -d ' ')
   if [ -n "$DMG_LEN" ] && [ "$size" != "$DMG_LEN" ]; then
     die "ファイルサイズが一致しません（期待 $DMG_LEN / 実際 ${size}）。もう一度お試しください。"
   fi
@@ -194,10 +225,10 @@ download_and_verify() {
 
 mount_and_inspect() {
   step "中身を確認しています"
-  MNT="$TMP/mnt"; mkdir -p "$MNT"
-  if ! hdiutil attach "$DMG" -nobrowse -readonly -noautoopen -mountpoint "$MNT" -quiet; then
-    MNT=""; die "ディスクイメージを開けませんでした。"
-  fi
+  # MNT はマウントに成功してから立てる（途中で中断されたとき、cleanup がマウント済みと誤解しないように）
+  local mp="$TMP/mnt"; mkdir -p "$mp"
+  hdiutil attach "$DMG" -nobrowse -readonly -noautoopen -mountpoint "$mp" -quiet || die "ディスクイメージを開けませんでした。"
+  MNT="$mp"
   local p n=0
   for p in "$MNT"/*.app; do
     if [ -d "$p" ]; then SRC_APP="$p"; n=$((n + 1)); fi
@@ -220,27 +251,36 @@ mount_and_inspect() {
   codesign --verify --deep --strict "$SRC_APP" 2>/dev/null || die "アプリのコード署名を検証できませんでした。"
 }
 
+# 新しく入れるときの置き先フォルダ。何も作らずに判定だけする（DRY_RUN と共通）
+pick_dest_dir() {
+  local d
+  for d in "${APPS_DIRS[@]}"; do
+    if [ -d "$d" ]; then
+      if [ -w "$d" ]; then printf '%s' "$d"; return 0; fi
+    elif [ -w "$(dirname "$d")" ]; then
+      printf '%s' "$d"; return 0
+    fi
+  done
+  return 1
+}
+
 choose_dest() {
   if [ -n "$EXISTING" ]; then DEST="$EXISTING"; return 0; fi   # Sparkle と同じく既存パスのまま更新
   local d
-  for d in "${APPS_DIRS[@]}"; do
-    if mkdir -p "$d" 2>/dev/null && [ -w "$d" ]; then
-      DEST="$d/$(basename "$SRC_APP")"
-      # 同じ名前の別アプリ（識別子が違う）は上書きしない
-      if [ -e "$DEST" ] && [ "$(bundle_id_of "$DEST")" != "$BUNDLE_ID" ]; then
-        die "同じ名前の別のアプリがあります: $DEST
+  d=$(pick_dest_dir) || die "アプリを置けるフォルダがありません（sudo は使いません）。手動の手順: $MANUAL_URL"
+  mkdir -p "$d"
+  DEST="$d/$(basename "$SRC_APP")"
+  # 同じ名前の別アプリ（識別子が違う）は上書きしない
+  if [ -e "$DEST" ] && [ "$(bundle_id_of "$DEST")" != "$BUNDLE_ID" ]; then
+    die "同じ名前の別のアプリがあります: $DEST
 移動するか名前を変えてから、もう一度実行してください。"
-      fi
-      if [ "$d" != "${APPS_DIRS[0]}" ]; then warn "${APPS_DIRS[0]} に書き込めないため $d に入れます。"; fi
-      return 0
-    fi
-  done
-  die "アプリを置けるフォルダがありません（sudo は使いません）。手動の手順: $MANUAL_URL"
+  fi
+  if [ "$d" != "${APPS_DIRS[0]}" ]; then warn "${APPS_DIRS[0]} に書き込めないため $d に入れます。"; fi
 }
 
-# 自分のユーザーで動いている、このアプリのプロセス ID を列挙する。
-# パスではなく実行ファイル名で探し、親バンドルの識別子で絞る（App Translocation 中の版も拾う）
-running_pids() {
+# 自分のユーザーで動いている、このアプリのプロセスを「pid<TAB>バンドルのパス」で列挙する。
+# パスではなく実行ファイル名で探し、親バンドルの識別子で絞る
+running_apps() {
   local name pid path app
   for name in "$@"; do
     if [ -z "$name" ]; then continue; fi
@@ -251,22 +291,44 @@ running_pids() {
       # テストモードでは、実機で動いている本物のアプリに触れない
       if [ "${QUIET_TEST:-0}" = "1" ] && [ "${app#"$QUIET_APPS_DIR"/}" = "$app" ]; then continue; fi
       if [ "$(bundle_id_of "$app")" = "$BUNDLE_ID" ]; then
-        printf '%s\n' "$pid"
+        printf '%s\t%s\n' "$pid" "$app"
       fi
     done
   done | sort -u
 }
 
+# 置き換える場所のアプリ（と、そこから App Translocation で動いている版）の pid だけを返す。
+# 別の場所に置いた同じアプリは更新しないので終了させず、知らせるだけにする
+target_pids() {
+  local dest_real pid app
+  dest_real="$(real_dir "$(dirname "$DEST")")/$(basename "$DEST")"
+  while IFS=$'\t' read -r pid app; do
+    if [ -z "$pid" ]; then continue; fi
+    case "$app" in
+      */AppTranslocation/*) printf '%s\n' "$pid" ;;
+      *)
+        if [ "$(real_dir "$(dirname "$app")")/$(basename "$app")" = "$dest_real" ]; then
+          printf '%s\n' "$pid"
+        elif [ "${1:-}" = "--report" ]; then
+          warn "別の場所の同じアプリが起動中です（こちらは更新しません）: $app"
+        fi ;;
+    esac
+  done <<EOF
+$(running_apps "$OLD_EXE" "$NEW_EXE")
+EOF
+}
+
 quit_running() {
-  local old_exe="" new_exe pids n=0
-  if [ -n "$EXISTING" ]; then old_exe=$(plist_get "$EXISTING/Contents/Info.plist" CFBundleExecutable); fi
-  new_exe=$(plist_get "$SRC_APP/Contents/Info.plist" CFBundleExecutable)
-  pids=$(running_pids "$old_exe" "$new_exe")
+  local pids n=0
+  OLD_EXE=""
+  if [ -n "$EXISTING" ]; then OLD_EXE=$(plist_get "$EXISTING/Contents/Info.plist" CFBundleExecutable); fi
+  NEW_EXE=$(plist_get "$SRC_APP/Contents/Info.plist" CFBundleExecutable)
+  pids=$(target_pids --report)
   if [ -z "$pids" ]; then return 0; fi
   say "起動中のアプリを終了します（計測中の時間はリセットされます。設定は残ります）"
   # shellcheck disable=SC2086 # pids は数字の並び
   kill -TERM $pids 2>/dev/null || true
-  while [ -n "$(running_pids "$old_exe" "$new_exe")" ]; do
+  while [ -n "$(target_pids)" ]; do
     n=$((n + 1))
     if [ "$n" -ge 20 ]; then
       # shellcheck disable=SC2086
@@ -281,16 +343,21 @@ install_app() {
   local dir; dir=$(dirname "$DEST")
   step "インストールしています → $DEST"
   if [ ! -w "$dir" ] || { [ -e "$DEST" ] && [ ! -w "$DEST" ]; }; then
-    die "$dir に書き込む権限がありません（管理者が入れた場合など。sudo は使いません）。
-手動の手順: $MANUAL_URL"
+    die "$dir に書き込む権限がありません（管理者が入れたアプリなど。sudo は使いません）。
+管理者のユーザーでこの1行を実行するか、管理者に更新を頼んでください。
+アプリのアップデートのお知らせからなら、管理者のパスワードを入れて更新できます。"
   fi
-  STAGE="$dir/.quiet-install-$$.app"
+  # 作業場所は置き先と同じフォルダに、予測できない名前で新しく作る（同じボリューム内の mv で入れ替えるため）
+  STAGEDIR=$(mktemp -d "$dir/.quiet-install.XXXXXX")
+  STAGE="$STAGEDIR/$(basename "$SRC_APP")"
   ditto "$SRC_APP" "$STAGE"
   codesign --verify --deep --strict "$STAGE" 2>/dev/null || die "コピー後の署名検証に失敗しました。"
   quit_running
-  if [ -e "$DEST" ]; then BACKUP="$dir/.quiet-old-$$.app"; mv "$DEST" "$BACKUP"; fi
-  mv "$STAGE" "$DEST"; STAGE=""
-  if [ -n "$BACKUP" ]; then rm -rf "$BACKUP"; BACKUP=""; fi
+  if [ -e "$DEST" ]; then BACKUP="$STAGEDIR/old.app"; mv "$DEST" "$BACKUP"; fi
+  mv "$STAGE" "$DEST"; STAGE=""; BACKUP=""
+  # 旧版の削除に失敗しても、入れ替え自体は済んでいるので止めない
+  rm -rf "$STAGEDIR" 2>/dev/null || warn "古い版を消せませんでした。不要ならゴミ箱へ: $STAGEDIR"
+  STAGEDIR=""
 }
 
 finish() {
@@ -308,9 +375,9 @@ finish() {
     say "Finder 上の名前は ${base}.app のままですが、中身は ${name} です（自動更新と同じ扱いです）。"
   fi
   if [ -n "$name" ] && [ "$name" != "Quiet" ]; then
-    say "この版はまだ旧名の ${name} で配布されています。新しい版が出ると、アプリの自動更新で Quiet に切り替わります。"
+    say "この版はまだ旧名の ${name} で配布されています。Quiet 名義の版が出るとアプリがアップデートをお知らせし、入れると Quiet に切り替わります。"
   fi
-  say "メニューバーと Dock にアイコンが出ます。今後の更新はアプリが自動で行います。"
+  say "メニューバーと Dock にアイコンが出ます。新しい版が出ると、アプリがアップデートをお知らせします。"
   say ""
   say "アンインストール: アプリを終了し、$DEST をゴミ箱へ。設定も消す場合は"
   say "  defaults delete $BUNDLE_ID"
@@ -318,6 +385,11 @@ finish() {
 }
 
 main() {
+  # トップレベルには関数定義と代入しか置かない（途中で切れたスクリプトが何かを実行しないように）
+  set -euo pipefail
+  # 利用者の PATH にある GNU coreutils などで stat や file の意味が変わらないよう、OS 標準だけを使う
+  PATH=/usr/bin:/bin:/usr/sbin:/sbin
+  export PATH
   trap cleanup EXIT
   trap 'exit 130' INT TERM
   check_env
@@ -328,14 +400,17 @@ main() {
   find_existing
   if already_latest; then
     say "すでに最新版です（v${NEW_VER}）: $EXISTING"
-    say "入れ直す場合は QUIET_FORCE=1 を付けて実行してください。"
+    say "入れ直す場合: ${INSTALL_CMD} | QUIET_FORCE=1 bash"
     return 0
   fi
   if [ "${QUIET_DRY_RUN:-0}" = "1" ]; then
+    local d
     if [ -n "$EXISTING" ]; then
       say "（確認のみ）v$NEW_VER で $EXISTING を更新します。アプリには何も書き込まずに終了します。"
+    elif d=$(pick_dest_dir); then
+      say "（確認のみ）v$NEW_VER を $d に新しく入れます。アプリには何も書き込まずに終了します。"
     else
-      say "（確認のみ）v$NEW_VER を ${APPS_DIRS[0]} に新しく入れます。アプリには何も書き込まずに終了します。"
+      say "（確認のみ）アプリを置けるフォルダがありません（sudo は使いません）。手動の手順: $MANUAL_URL"
     fi
     return 0
   fi
