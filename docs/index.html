@@ -30,7 +30,6 @@
   "applicationCategory": "ProductivityApplication",
   "operatingSystem": "macOS 14 以降（Apple Silicon）",
   "url": "https://quiet.imutaro.com/",
-  "downloadUrl": "https://github.com/imutaroh/pomo/releases/latest",
   "license": "https://opensource.org/licenses/MIT",
   "isAccessibleForFree": true,
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
@@ -653,6 +652,16 @@ details.more p { font-size: var(--fs-ui); color: var(--color-sub); margin-top: 8
 .closing p.big { font-family: var(--font-serif-stack); font-weight: 700; font-size: clamp(26px, 4.4vw, 48px); line-height: 1.4; font-feature-settings: "palt"; word-break: keep-all; overflow-wrap: anywhere; }
 .closing p.big span { color: var(--color-sub); display: block; }
 .closing .btn { margin-top: 32px; }
+/* 近日公開の印（押せない）。ボタンと同じ位置・大きさで、面は塗らず罫線と点だけで示す */
+.soon {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 24px; border: 1px solid var(--color-line); border-radius: 999px;
+  font-size: var(--fs-ui); font-weight: 500; letter-spacing: 0.04em; color: var(--color-ink);
+  background: transparent;
+}
+.soon-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 4px rgba(0, 135, 168, .35); }
+.closing .soon { margin-top: 32px; }
+.head-nav .nav-cta.is-soon { cursor: default; border-color: var(--color-line); }
 .site-foot { margin-top: var(--space-section); border-top: 1px solid var(--color-line); padding: 32px 0 48px; }
 .site-foot .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
 .site-foot nav { display: flex; gap: 20px; flex-wrap: wrap; font-size: var(--fs-ui); }
@@ -686,7 +695,7 @@ details.more p { font-size: var(--fs-ui); color: var(--color-sub); margin-top: 8
       <a class="nav-opt" href="#flow">フロー</a>
       <a class="nav-opt" href="#break">休憩</a>
       <a class="nav-opt" href="#faq">FAQ</a>
-      <a class="nav-cta" href="#install">入れる</a>
+      <span class="nav-cta is-soon">近日公開</span>
     </nav>
   </div>
 </header>
@@ -697,7 +706,7 @@ details.more p { font-size: var(--fs-ui); color: var(--color-sub); margin-top: 8
     <h1 id="hero-title" class="enter">集中の<br class="br-m">ノイズを、<br class="br-m">消した。</h1>
     <p class="hero-sub enter d1">残ったのは、いまの時間だけ。</p>
     <div class="hero-cta enter d2">
-      <a class="btn btn-primary" href="#install">Mac に入れる <span class="arrow" aria-hidden="true">→</span></a>
+      <p class="soon"><span class="soon-dot" aria-hidden="true"></span>近日公開</p>
       <p class="req-line"><span>Mac のフロータイマー</span><span>無料 · macOS 14+ · Apple Silicon</span></p>
     </div>
 
@@ -983,89 +992,25 @@ details.more p { font-size: var(--fs-ui); color: var(--color-sub); margin-top: 8
     </div>
   </section>
 
-  <!-- ========== 06 install ========== -->
-  <section class="sec wrap" id="install" aria-labelledby="install-title">
-    <div class="sec-head">
-      <p class="eyebrow">( 06 / install )</p>
-      <div class="sec-title"><span class="num" aria-hidden="true">06.</span><h2 id="install-title">静けさを、Mac に。</h2></div>
-    </div>
-    <div class="req" aria-label="動作環境">
-      <span class="pill on">macOS 14 以降</span><span class="pill on">Apple Silicon（M1 以降）</span><span class="pill">Intel Mac は非対応</span><span class="pill">無料 · MIT</span>
-    </div>
-
-    <div id="install-cards" class="install-solo">
-      <div class="card">
-        <div class="card-tab">terminal</div>
-        <div class="card-body">
-          <h3>ターミナルで1行</h3>
-          <p>ターミナル（アプリケーション → ユーティリティ）を開いて、下の1行を貼って Return を押すだけ。最新版を取ってきて、確かめて、入れて、起動します。sudo は使いません。</p>
-          <div class="cmd">
-<pre id="cmd"><span class="pr" aria-hidden="true">$ </span><code>curl -fsSL https://quiet.imutaro.com/<wbr>install.sh | bash</code></pre>
-            <button class="copy" id="copy" type="button">コピー</button>
-          </div>
-          <p class="copy-status" id="copy-status" aria-live="polite"></p>
-
-          <p class="sub-h">確かめること</p>
-          <ul class="checks">
-            <li>GitHub から最新リリースの .dmg を取得</li>
-            <li>サイズと SHA-256（GitHub から取得できた場合）、識別子・CPU・OS・コード署名の整合</li>
-            <li>/Applications（すでに入っていればその場所）に入れて起動 <span>— 起動中なら一度終了します。計測中の時間はリセットされます</span></li>
-          </ul>
-          <p class="sub-h">知っておいてほしいこと</p>
-          <ul class="checks warn">
-            <li>確かめているのは、破損や途中切れまで。<span>配布元が本物であることまでは保証しません。</span></li>
-            <li>curl で取ったファイルには隔離の印（quarantine）が付かないので、Gatekeeper の「開けません」の確認は出ません。<span>裏を返せば、Gatekeeper が検査しない経路です。</span></li>
-            <li>macOS 26.4 以降は、ブラウザからコピーしたコマンドを貼ると警告が出ることがあります。</li>
-          </ul>
-          <details class="more">
-            <summary>先にスクリプトを読みたい</summary>
-<pre><code>curl -fsSL https://quiet.imutaro.com/install.sh -o quiet-install.sh
-less quiet-install.sh
-bash quiet-install.sh</code></pre>
-            <p>本体は <a href="https://github.com/imutaroh/pomo/blob/main/docs/install.sh">GitHub で読めます</a>。</p>
-          </details>
-        </div>
-      </div>
-    </div>
-
-    <p class="note"><strong>Quiet は Apple の公証を受けていません。</strong>公証には年 99 ドルの開発者登録が要ります。無料で配り続けるための選択で、そのぶん中身はすべて <a href="https://github.com/imutaroh/pomo">GitHub</a> で読めるようにしています。会社の管理下（MDM）にある Mac では開けないことがあります。</p>
-    <p class="note">入れたあとのアプリ名が違って見えたら、<a href="#legacy">次の節</a>をご覧ください。</p>
-  </section>
-
-  <!-- ========== 07 legacy ========== -->
-  <section class="sec wrap" id="legacy" aria-labelledby="legacy-title">
-    <div class="sec-head">
-      <p class="eyebrow">( 07 / formerly pomo )</p>
-      <div class="sec-title"><span class="num" aria-hidden="true">07.</span><h2 id="legacy-title">Pomo をお使いの方へ</h2></div>
-    </div>
-    <div class="legacy">
-      <p><strong>入れ直しは要りません。</strong>Quiet は Pomo の新しい名前です。Pomo を使っていれば、Quiet 名義の版が出たときにアップデートのお知らせが届き、入れると中身が Quiet になります。アプリケーションフォルダ上の名前は Pomo.app のまま残ります。</p>
-      <p><strong>Pomo という名前で入ったら。</strong>Quiet 名義の版が出るまでは、新しく入れても旧名の Pomo として入ります。中身は同じアプリです。Quiet 名義の版が出たら、アップデートのお知らせから Quiet に切り替わります。</p>
-    </div>
-  </section>
-
-  <!-- ========== 08 faq ========== -->
+  <!-- ========== 06 faq ========== -->
   <section class="sec wrap" id="faq" aria-labelledby="faq-title">
     <div class="sec-head">
-      <p class="eyebrow">( 08 / faq )</p>
-      <div class="sec-title"><span class="num" aria-hidden="true">08.</span><h2 id="faq-title">よくある質問</h2></div>
+      <p class="eyebrow">( 06 / faq )</p>
+      <div class="sec-title"><span class="num" aria-hidden="true">06.</span><h2 id="faq-title">よくある質問</h2></div>
     </div>
     <div class="faq">
+      <details><summary>いつ使えるようになりますか？</summary><div class="a"><p>いま、公開に向けて準備しています。使えるようになったら、このページでお知らせします。無料で配る予定です。</p></div></details>
       <details><summary>記録が残らないのは、不便ではありませんか？</summary><div class="a"><p>記録やグラフを見ること自体が、集中の妨げになることがあります。Quiet が見せるのは「今回どれだけやったか」だけです。日別・週間の集計、セッション数、メモ、検索、ストリークはありません。保存するのは設定だけで、アプリを閉じれば今回の時間も消えます。</p></div></details>
       <details><summary>通知や音は出ますか？</summary><div class="a"><p>出ます。終わったときに、音とシステム通知で知らせます。休憩は全画面の休憩画面になります（マイク使用中は全画面化を見送ります）。</p></div></details>
       <details><summary>どんな通信をしますか？</summary><div class="a"><p>アップデートの確認とダウンロードだけです（GitHub 上の更新情報を取得します）。作業時間や利用データはどこにも送りません。アカウントもテレメトリもありません。</p></div></details>
       <details><summary>アップデートは勝手に入りますか？</summary><div class="a"><p>いいえ。アプリが新しい版を確認してお知らせし、あなたが承認するとインストールされます。</p></div></details>
-      <details><summary>1行インストールをもう一度実行すると、どうなりますか？</summary><div class="a"><p>すでに入っていれば、その場所で最新版に入れ替えます。起動中なら一度終了するので、計測中の時間はリセットされます。</p></div></details>
       <details><summary>Intel の Mac で使えますか？</summary><div class="a"><p>使えません。Apple Silicon（M1 以降）、macOS 14 以降の専用です。</p></div></details>
-      <details><summary>「開けません」と出ます。会社の Mac でも使えますか？</summary><div class="a"><p>Quiet は Apple の公証を受けていないため、ブラウザでダウンロードしたものは初回に確認が出ます。<a href="#install">ターミナルの1行</a>で入れ直せば、その確認は出ません（すでに入っている場所のまま入れ直します）。会社の管理下（MDM）にある Mac では、設定によって開けないことがあります。</p></div></details>
-      <details><summary>Pomo と Quiet は違うアプリですか？</summary><div class="a"><p>同じアプリです。Quiet は Pomo の新しい名前です。いまの最新版はまだ旧名 Pomo 名義なので、今入れると Pomo として入ります。詳しくは <a href="#legacy">Pomo をお使いの方へ</a>。</p></div></details>
-      <details><summary>アンインストールするには？</summary><div class="a"><p>アプリを終了して、ゴミ箱へ入れます。設定も消すなら、ターミナルで次を実行します。</p><pre><code>defaults delete com.imutaakihiro.pomo</code></pre><p>ログイン時の起動をオンにしていた場合は、<code>~/Library/LaunchAgents/com.imutaakihiro.pomo.plist</code> も削除してください。</p></div></details>
     </div>
   </section>
 
   <section class="closing" aria-label="結び">
     <p class="big"><span>ノイズを消した。</span>残ったのは、<br class="br-sp">いまの時間だけ。</p>
-    <a class="btn btn-primary" href="#install">Quiet を入れる <span class="arrow" aria-hidden="true">→</span></a>
+    <p class="soon"><span class="soon-dot" aria-hidden="true"></span>近日公開</p>
     <p class="req-line">無料 · MIT · macOS 14+ · Apple Silicon</p>
   </section>
 </main>
@@ -1075,7 +1020,6 @@ bash quiet-install.sh</code></pre>
     <a class="logo" href="./"><img src="icon.png" alt="" width="30" height="30">Quiet</a>
     <nav aria-label="外部リンク">
       <a href="https://github.com/imutaroh/pomo">GitHub</a>
-      <a href="https://github.com/imutaroh/pomo/releases/latest">リリース</a>
       <a href="https://imutaro.com">作者 imutaro</a>
     </nav>
     <small>MIT License · free &amp; open source</small>
@@ -1372,49 +1316,6 @@ bash quiet-install.sh</code></pre>
   }
   Array.prototype.forEach.call(document.querySelectorAll("input[name=ratio]"), function (i) { i.addEventListener("change", calc); });
 
-  /* ================= copy ================= */
-  var CMD = "curl -fsSL https://quiet.imutaro.com/install.sh | bash";
-  var copyBtn = $("copy"), copyStatus = $("copy-status");
-  function selectCmd() {
-    var el = $("cmd").querySelector("code"), r = document.createRange();
-    r.selectNodeContents(el);
-    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
-  }
-  function fail() { selectCmd(); copyStatus.textContent = "コピーできませんでした。コマンドを選択したので、⌘C でコピーしてください。"; }
-  copyBtn.addEventListener("click", function () {
-    try {
-      if (!navigator.clipboard || !window.isSecureContext) { fail(); return; }
-      navigator.clipboard.writeText(CMD).then(function () {
-        copyBtn.textContent = "コピー済み";
-        copyStatus.textContent = "コピーしました。ターミナルに貼って Return を押してください。";
-        setTimeout(function () { copyBtn.textContent = "コピー"; }, 2000);
-      }, fail);
-    } catch (e) { fail(); }
-  });
-
-  /* ================= not a Mac ================= */
-  var ua = navigator.userAgent || "";
-  var isMac = /Macintosh/.test(ua) && !(navigator.maxTouchPoints > 1);
-  if (!isMac) {
-    var box = $("install-cards");
-    box.className = "card";
-    box.innerHTML =
-      '<div class="card-tab">not a mac</div>' +
-      '<div class="notmac"><h3>Quiet は Mac 用のアプリです</h3>' +
-      '<p>Mac でこのページを開いてください。リンクを自分に送っておくと、あとで迷いません。</p>' +
-      '<button class="btn btn-primary" type="button" id="share">このページのリンクを共有</button>' +
-      '<p class="copy-status" id="share-status" aria-live="polite"></p></div>';
-    var url = "https://quiet.imutaro.com/";
-    $("share").addEventListener("click", function () {
-      var s = $("share-status");
-      if (navigator.share) {
-        navigator.share({ title: "Quiet — ノイズを消したタイマー for Mac", url: url }).catch(function () {});
-      } else if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(url).then(function () { s.textContent = "リンクをコピーしました。"; }, function () { s.textContent = url; });
-      } else { s.textContent = url; }
-    });
-    return;
-  }
 })();
 </script>
 </body>
