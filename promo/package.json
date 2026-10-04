@@ -30,6 +30,10 @@
     "lint": "eslint src && tsc",
     "audio": "python3 audio/zone.py && python3 audio/noise.py && python3 audio/quiet.py && python3 audio/mix.py",
     "cues": "esbuild audio/cues.ts --bundle --platform=node --format=esm --jsx=automatic --outfile=audio/out/cues.mjs --log-level=warning && node audio/out/cues.mjs",
-    "render": "remotion render QuietPromo out/video.mp4 && ffmpeg -y -loglevel error -i out/video.mp4 -i public/score.mp3 -map 0:v -map 1:a -c:v copy -c:a aac -b:a 256k -shortest out/quiet-promo.mp4"
+    "render": "remotion render QuietPromo out/video.mp4 && ffmpeg -y -loglevel error -i out/video.mp4 -i public/score.mp3 -map 0:v -map 1:a -c:v copy -c:a aac -b:a 256k -shortest out/quiet-promo.mp4",
+    "x:segments": "esbuild src/x/dumpSegments.ts --bundle --platform=node --format=esm --outfile=audio/out/x-segments.mjs --log-level=warning && node audio/out/x-segments.mjs",
+    "x:edges": "npm run x:segments && remotion render QuietPromo audio/out/x-edges.mp4 --scale=0.125 --crf=12 && python3 src/x/edges.py",
+    "audio:x": "npm run x:segments && python3 audio/x.py",
+    "render:x": "remotion render QuietPromoX out/video-x.mp4 && ffmpeg -y -loglevel error -i out/video-x.mp4 -i public/score-x.mp3 -map 0:v -map 1:a -c:v copy -c:a aac -b:a 256k -shortest out/quiet-promo-x.mp4"
   }
 }
