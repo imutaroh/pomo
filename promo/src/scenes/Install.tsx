@@ -1,5 +1,10 @@
+import { useContext } from "react";
 import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { Caption, CaptionBand } from "../components/Caption";
 import { clamp, color, ease, font } from "../theme";
+
+// 作っている途中であることと、いま無料で試せることの両方を一文で（いむたろの判断で「先行公開中」）
+const LEAD = "開発中・無料で先行公開中";
 
 // 74–79秒: 名前 → URL → 要件。入りのフェード（f0–15）の間は何も出さない。
 // f64 以降は全要素が止まり（86f ≈ 2.9 秒）、最終フレームがサムネになる
@@ -17,6 +22,8 @@ const rise = (frame: number, from: number, len: number) => {
 
 export const Install: React.FC = () => {
   const frame = useCurrentFrame();
+  // X 版（正方形）では映像が縮むので、この一文だけは字幕と同じく下の帯へ大きく出し、映像の中には描かない
+  const inBand = useContext(CaptionBand) !== null;
 
   return (
     <AbsoluteFill
@@ -81,8 +88,10 @@ export const Install: React.FC = () => {
           ...rise(frame, SUB_IN, 18),
         }}
       >
+        {inBand ? <Caption text={LEAD} from={SUB_IN} /> : null}
         <div
           style={{
+            display: inBand ? "none" : undefined,
             fontFamily: font.sans,
             fontWeight: 700,
             fontSize: 56,
@@ -90,7 +99,7 @@ export const Install: React.FC = () => {
             color: color.tealText,
           }}
         >
-          Mac 用・無料
+          {LEAD}
         </div>
         <div
           style={{
