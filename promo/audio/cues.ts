@@ -695,22 +695,25 @@ const typingSpans = (scene: SceneId, typedAt: (f: number) => number, last: numbe
 {
   const F = "scenes/Install.tsx";
   fadeInCues("install");
-  const URL_TEXT = str(F, "URL_TEXT");
+  // キューの種類名（url-in / underline-* / sub-*）は quiet.py が参照するので据え置き、中身を新しい画面に対応させる:
+  // url = 「近日公開」、underline = その下のティールの線、sub = 「開発の様子は X で @imutaroh」
+  const SOON = str(F, "SOON");
+  const HANDLE = str(F, "HANDLE");
   const LOGO_IN = num(F, "LOGO_IN");
-  const URL_IN = num(F, "URL_IN");
-  const SUB_IN = num(F, "SUB_IN");
+  const SOON_IN = num(F, "SOON_IN");
+  const FOLLOW_IN = num(F, "FOLLOW_IN");
   const logo = grab(F, /\.\.\.rise\(frame, LOGO_IN, (\d+)\)/, "rise(LOGO_IN)");
-  const url = grab(F, /\.\.\.rise\(frame, URL_IN, (\d+)\)/, "rise(URL_IN)");
-  const sub = grab(F, /\.\.\.rise\(frame, SUB_IN, (\d+)\)/, "rise(SUB_IN)");
-  const line = grab(F, /interpolate\(frame, \[URL_IN \+ (\d+), URL_IN \+ (\d+)\], \[0, (\d+)\]/, "URL の下線");
+  const soon = grab(F, /\.\.\.rise\(frame, SOON_IN, (\d+)\)/, "rise(SOON_IN)");
+  const follow = grab(F, /\.\.\.rise\(frame, FOLLOW_IN, (\d+)\)/, "rise(FOLLOW_IN)");
+  const line = grab(F, /interpolate\(frame, \[SOON_IN \+ (\d+), SOON_IN \+ (\d+)\]/, "近日公開の下線");
   add("install", LOGO_IN.v, "logo-in", "アイコンと「Quiet」のロゴが浮かび始める", LOGO_IN.ref);
   add("install", LOGO_IN.v + logo.nums[0], "logo-full", "ロゴが出きる", logo.ref);
-  add("install", URL_IN.v, "url-in", `URL「${URL_TEXT.v}」が浮かび始める`, URL_IN.ref);
-  add("install", URL_IN.v + url.nums[0], "url-full", "URL が出きる", url.ref);
-  add("install", URL_IN.v + line.nums[0], "underline-start", `URL の下にティールの線が伸び始める（${line.nums[2]}px まで）`, line.ref);
-  add("install", URL_IN.v + line.nums[1], "underline-end", "下線が伸びきる", line.ref);
-  add("install", SUB_IN.v, "sub-in", "「Mac 用・無料」と要件が浮かび始める", SUB_IN.ref);
-  add("install", SUB_IN.v + sub.nums[0], "sub-full", "要件行が出きる。以降は全要素が静止", sub.ref);
+  add("install", SOON_IN.v, "url-in", `「${SOON.v}」が浮かび始める`, SOON_IN.ref);
+  add("install", SOON_IN.v + soon.nums[0], "url-full", `「${SOON.v}」が出きる`, soon.ref);
+  add("install", SOON_IN.v + line.nums[0], "underline-start", "その下にティールの線が伸び始める", line.ref);
+  add("install", SOON_IN.v + line.nums[1], "underline-end", "下線が伸びきる", line.ref);
+  add("install", FOLLOW_IN.v, "sub-in", `「開発の様子は X で ${HANDLE.v}」が浮かび始める`, FOLLOW_IN.ref);
+  add("install", FOLLOW_IN.v + follow.nums[0], "sub-full", "案内が出きる。以降は全要素が静止", follow.ref);
   add("install", sceneLength("install") - 1, "final", "最終フレーム（サムネになる止め絵）", grab("timeline.ts", /export const DURATION/, "DURATION").ref);
 }
 

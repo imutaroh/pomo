@@ -3740,56 +3740,56 @@
       "type": "logo-in",
       "scene": "install",
       "note": "アイコンと「Quiet」のロゴが浮かび始める",
-      "source": "src/scenes/Install.tsx:9 LOGO_IN"
+      "source": "src/scenes/Install.tsx:16 LOGO_IN"
     },
     {
       "frame": 2250,
       "type": "url-in",
       "scene": "install",
-      "note": "URL「quiet.imutaro.com」が浮かび始める",
-      "source": "src/scenes/Install.tsx:10 URL_IN"
+      "note": "「近日公開」が浮かび始める",
+      "source": "src/scenes/Install.tsx:17 SOON_IN"
     },
     {
       "frame": 2256,
       "type": "underline-start",
       "scene": "install",
-      "note": "URL の下にティールの線が伸び始める（220px まで）",
-      "source": "src/scenes/Install.tsx:68 URL の下線"
+      "note": "その下にティールの線が伸び始める",
+      "source": "src/scenes/Install.tsx:79 近日公開の下線"
     },
     {
       "frame": 2260,
       "type": "logo-full",
       "scene": "install",
       "note": "ロゴが出きる",
-      "source": "src/scenes/Install.tsx:30 rise(LOGO_IN)"
+      "source": "src/scenes/Install.tsx:39 rise(LOGO_IN)"
     },
     {
       "frame": 2266,
       "type": "sub-in",
       "scene": "install",
-      "note": "「Mac 用・無料」と要件が浮かび始める",
-      "source": "src/scenes/Install.tsx:11 SUB_IN"
+      "note": "「開発の様子は X で @imutaroh」が浮かび始める",
+      "source": "src/scenes/Install.tsx:18 FOLLOW_IN"
     },
     {
       "frame": 2272,
       "type": "url-full",
       "scene": "install",
-      "note": "URL が出きる",
-      "source": "src/scenes/Install.tsx:58 rise(URL_IN)"
+      "note": "「近日公開」が出きる",
+      "source": "src/scenes/Install.tsx:65 rise(SOON_IN)"
     },
     {
       "frame": 2280,
       "type": "underline-end",
       "scene": "install",
       "note": "下線が伸びきる",
-      "source": "src/scenes/Install.tsx:68 URL の下線"
+      "source": "src/scenes/Install.tsx:79 近日公開の下線"
     },
     {
       "frame": 2284,
       "type": "sub-full",
       "scene": "install",
-      "note": "要件行が出きる。以降は全要素が静止",
-      "source": "src/scenes/Install.tsx:81 rise(SUB_IN)"
+      "note": "案内が出きる。以降は全要素が静止",
+      "source": "src/scenes/Install.tsx:90 rise(FOLLOW_IN)"
     },
     {
       "frame": 2369,
