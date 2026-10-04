@@ -145,6 +145,7 @@ button { font: inherit; }
 .sec-title { display: flex; align-items: baseline; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
 .sec-title .num { font-family: var(--font-serif-stack); font-size: var(--fs-number); line-height: 1; color: var(--color-accent); font-weight: 700; font-variant-numeric: lining-nums; }
 .sec-title h2 { font-size: var(--fs-h2); line-height: 1.3; flex: 1 1 14em; min-width: 0; }
+.sec-lead strong { color: var(--color-ink); font-weight: 500; }
 .sec-lead { margin-top: 20px; max-width: 40em; color: var(--color-sub); font-size: var(--fs-lead); }
 @media (max-width: 640px) {
   .sec-title { gap: 10px; }
@@ -175,27 +176,94 @@ button { font: inherit; }
 .pill.on { border-color: var(--color-accent); color: var(--color-accent-text); }
 kbd { font-size: var(--fs-caption); border: 1px solid var(--color-line); border-bottom-width: 2px; border-radius: var(--radius); padding: 1px 6px; background: var(--color-surface); color: var(--color-ink); white-space: nowrap; }
 
-/* ---------- hero ---------- */
-.hero { padding-top: 64px; }
-.hero h1 {
-  margin-top: 28px;
-  /* 最長行（14字）が 1 行に収まる: (幅 - 余白) / 14.6。640px 以下は 2 行ずつに割るので 8.6 で割る */
-  font-size: clamp(28px, calc((100vw - var(--gutter) * 2) / 14.6), 72px);
-  line-height: 1.16;
-  letter-spacing: 0;
+/* ---------- hero ----------
+  最初の 1 画面に置くのは 5 つだけ: 見出し / 副題 / 主ボタン / 要件の行 / 作業画面の絵。
+  --W = 見出しと絵の共通の幅。見出しは 12 字（集中のノイズを、消した。）。palt で句読点が詰まるので
+  実効はおよそ 11 字幅だが、スクロールバーと字面の余裕を見て W / 12.4 にする。
+  720px 以下は「集中のノイズを、 / 消した。」の 2 行に割り、8 字基準（W / 8.4）。
+*/
+.hero {
+  --W: min(100vw - var(--gutter) * 2, 1280px);
+  padding: clamp(56px, 8svh, 88px) var(--gutter) 0;
+  text-align: center;
 }
-.hero h1 .l { display: block; transition: color .8s ease; }
-.hero.is-quiet h1 .l1 { color: var(--color-sub); }
-@media (max-width: 640px) { .hero h1 { font-size: calc((100vw - var(--gutter) * 2) / 8.6); line-height: 1.2; } }
-.hero-row { display: flex; gap: 24px 48px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; margin-top: 28px; }
-.hero-lead { max-width: 30em; font-size: var(--fs-lead); color: var(--color-sub); }
-.hero-lead strong { color: var(--color-ink); font-weight: 500; }
-.cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
-.hero-cta .req-line { text-align: right; }
-@media (max-width: 760px) { .hero-cta .req-line { text-align: left; } }
+.hero h1 {
+  font-size: min(calc(var(--W) / 12.4), 92px);
+  line-height: 1.12;
+  /* Zen Old Mincho は大きく組むと仮名の字間が空いて見えるので、見出しだけ少し詰める（フィットには余裕が増える側） */
+  letter-spacing: -0.03em;
+  text-wrap: nowrap;
+}
+.hero-sub {
+  margin-top: 14px;
+  font-family: var(--font-serif-stack); font-weight: 700; font-feature-settings: "palt";
+  font-size: clamp(18px, calc(var(--W) / 15), 28px); line-height: 1.5; letter-spacing: 0;
+  color: var(--color-sub);
+  word-break: keep-all;
+}
+.hero-cta { margin-top: 40px; display: flex; flex-direction: column; align-items: center; }
+.hero-cta .req-line { margin-top: 14px; }
+/* 折り返すときは言葉のまとまりごとに（「Apple / Silicon」のように割らない） */
+.hero-cta .req-line span { white-space: nowrap; }
+.hero-cta .req-line span + span::before { content: " · "; }
+@media (max-width: 720px) {
+  .hero-cta .req-line span { display: block; }
+  .hero-cta .req-line span + span::before { content: none; }
+}
+.br-m { display: none; }
+@media (max-width: 720px) {
+  .br-m { display: inline; }
+  .hero-sub { margin-top: 20px; }
+  /* スマホは「集中の／ノイズを、／消した。」の3行。最長5字が1行に収まる大きさまで上げて、巨大さを保つ */
+  .hero h1 { font-size: min(calc(var(--W) / 5.4), 120px); }
+  .hero-cta { margin-top: 32px; }
+}
+
+/* the art: 白い紙と罫線だけで描いた「静かな作業画面」。影を持つのは上に浮かぶパネルだけ */
+.art {
+  position: relative; width: var(--W); margin: 72px auto 0;
+  height: clamp(380px, calc(var(--W) * .42), 540px);
+  /* 枠は inset の影で引く。border だと下端のフェードが枠線だけ覆えずに残る */
+  box-shadow: inset 0 0 0 1px var(--color-line);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  background: var(--color-surface);
+  overflow: clip; text-align: left;
+}
+/* 下端は背景色のグラデを上掛けして紙に溶かす（mask は使わない） */
+.art::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 42%; background: linear-gradient(rgba(250, 251, 252, 0), var(--color-bg)); pointer-events: none; z-index: 2; }
+.art-bar { display: flex; align-items: center; gap: 7px; height: 38px; padding: 0 16px; border-bottom: 1px solid var(--color-line); }
+.art-bar i { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #cfd6dd; }
+.art-bar b { display: block; width: 92px; height: 6px; border-radius: 3px; background: var(--color-code-bg); margin: 0 auto; transform: translateX(-24px); }
+.art-body { position: absolute; top: 39px; left: 1px; right: 1px; bottom: 0; display: grid; grid-template-columns: 208px minmax(0, 1fr); }
+.art-side { border-right: 1px solid var(--color-line); padding: 28px 24px; }
+.art-side i { display: block; height: 6px; border-radius: 3px; background: var(--color-code-bg); margin-bottom: 20px; }
+.art-side i.on { background: #dfe5ea; }
+.art-lines { list-style: none; margin: 0; padding: 28px 0; counter-reset: ln; }
+.art-lines li { counter-increment: ln; display: flex; align-items: center; height: 30px; }
+.art-lines li::before { content: counter(ln); width: 64px; flex: none; text-align: right; padding-right: 24px; font-family: var(--font-mono); font-size: 11px; color: #c3cad2; letter-spacing: 0; }
+.art-lines li i { display: block; height: 7px; border-radius: 4px; background: var(--color-code-bg); margin-left: calc(var(--i, 0) * 28px); width: var(--w, 40%); }
+.art-lines li i + i { margin-left: 10px; }
+/* 書きかけの行の先にキャレット（点滅させない） */
+.art-lines li .caret { width: 1.5px; height: 18px; border-radius: 0; background: var(--color-ink); margin-left: 6px; }
+.art .panel { top: 72px; right: 9%; z-index: 3; transform: scale(1.5); transform-origin: top right; }
+.art .panel .p-controls { height: 0; margin-bottom: 0; overflow: hidden; }
+.art .panel .p-mid { gap: 6px; padding-bottom: 14px; }
+@media (max-width: 1100px) { .art .panel { top: 56px; right: 7%; transform: scale(1.25); } }
+@media (max-width: 860px) {
+  .art-body { grid-template-columns: minmax(0, 1fr); }
+  .art-side { display: none; }
+}
+@media (max-width: 640px) {
+  .art { margin-top: 48px; height: 400px; }
+  .art-lines { padding: 20px 0; }
+  .art-lines li { height: 26px; }
+  .art-lines li::before { width: 36px; padding-right: 12px; }
+  .art-lines li i { margin-left: calc(var(--i, 0) * 16px); }
+  .art .panel { top: 40px; right: 50%; transform: translateX(50%) scale(1.08); transform-origin: top center; }
+}
 
 /* ---------- stage (signature) ---------- */
-.stage-wrap { margin-top: 48px; }
+.stage-wrap { margin-top: 0; }
 .stage-bar {
   display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
   border: 1px solid var(--color-line); border-bottom: 0;
@@ -205,7 +273,7 @@ kbd { font-size: var(--fs-caption); border: 1px solid var(--color-line); border-
 .stage-count { font-size: var(--fs-caption); color: var(--color-sub); display: flex; align-items: center; gap: 8px; letter-spacing: 0.04em; }
 .stage-count .n { font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--color-ink); }
 .stage-count .dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--color-sub); transition: background .4s ease, border-color .4s ease; }
-.hero.is-quiet .stage-count .dot { background: var(--color-accent); border-color: var(--color-accent); }
+#try.is-quiet .stage-count .dot { background: var(--color-accent); border-color: var(--color-accent); }
 .erase-btn {
   display: inline-flex; align-items: center; gap: 8px;
   font-size: var(--fs-ui); font-weight: 500; letter-spacing: 0.04em;
@@ -283,7 +351,7 @@ button.cbtn:hover { background: rgba(255, 255, 255, .9); }
 .stage .panel .p-controls { overflow: hidden; transition: opacity .45s ease-out, height .3s var(--ease), margin .3s var(--ease); }
 .stage .panel.hide-controls .p-controls { height: 0; margin-bottom: 0; }
 .stage .panel.hide-controls .p-mid { padding-bottom: 17px; }
-.hero.is-quiet .stage .panel { transform: translateY(-34px) scale(1.18); }
+#try.is-quiet .stage .panel { transform: translateY(-34px) scale(1.18); }
 
 /* noise cards: 傾けない・影を付けない。線と文字だけ */
 .noise {
@@ -336,14 +404,14 @@ button.cbtn:hover { background: rgba(255, 255, 255, .9); }
 }
 .quiet-cap p { font-family: var(--font-serif-stack); font-weight: 700; font-size: 1.45rem; line-height: 1.5; font-feature-settings: "palt"; word-break: keep-all; overflow-wrap: anywhere; }
 .quiet-cap p em { font-style: normal; color: var(--color-accent); }
-.hero.is-quiet .quiet-cap { opacity: 1; transform: none; }
+#try.is-quiet .quiet-cap { opacity: 1; transform: none; }
 .stage-hint { font-size: var(--fs-caption); color: var(--color-sub); margin-top: 10px; min-height: 1.85em; }
 
 @media (max-width: 640px) {
   .stage { height: 616px; }
   .doc { inset: 20px 16px; }
   .stage .panel { left: calc(50% - 98px); top: 236px; transform: none; }
-  .hero.is-quiet .stage .panel { transform: translateY(-40px); }
+  #try.is-quiet .stage .panel { transform: translateY(-40px); }
   .n-big { font-size: 20px; }
   .n-q { font-size: 15px; }
   .n-body { padding: 8px 10px 10px; }
@@ -625,21 +693,39 @@ details.more p { font-size: var(--fs-ui); color: var(--color-sub); margin-top: 8
 
 <main id="main">
   <!-- ========== hero ========== -->
-  <section class="hero wrap" id="hero" aria-labelledby="hero-title">
-    <p class="eyebrow enter">( quiet / a flow timer for mac )</p>
-    <h1 id="hero-title" class="enter d1"><span class="l l1">集中のノイズを、<br class="br-sp">消した。</span><span class="l l2">残ったのは、<br class="br-sp">いまの時間だけ。</span></h1>
-    <div class="hero-row enter d2">
-      <p class="hero-lead">Mac の画面の端に、静かに浮かぶ小さなタイマー。数えるのは、<strong>いま、どれだけ続けているか</strong>だけです。</p>
-      <div class="hero-cta">
-        <div class="cta-row">
-          <a class="btn btn-primary" href="#install">Mac に入れる <span class="arrow" aria-hidden="true">→</span></a>
-          <a class="btn" href="#erased">何を消したか</a>
-        </div>
-        <p class="req-line">無料 · MIT · macOS 14+ · Apple Silicon</p>
-      </div>
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <h1 id="hero-title" class="enter">集中の<br class="br-m">ノイズを、<br class="br-m">消した。</h1>
+    <p class="hero-sub enter d1">残ったのは、いまの時間だけ。</p>
+    <div class="hero-cta enter d2">
+      <a class="btn btn-primary" href="#install">Mac に入れる <span class="arrow" aria-hidden="true">→</span></a>
+      <p class="req-line"><span>Mac のフロータイマー</span><span>無料 · macOS 14+ · Apple Silicon</span></p>
     </div>
 
-    <div class="stage-wrap enter d3">
+    <div class="art enter d3" role="img" aria-label="静かな作業画面の端に、Quiet のパネルがひとつ浮かんでいる。表示は今回の経過時間と、貯まった休憩の長さだけ">
+      <div class="art-bar" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+      <div class="art-body" aria-hidden="true">
+        <div class="art-side"><i style="width:58%"></i><i style="width:72%" class="on"></i><i style="width:46%"></i><i style="width:64%"></i><i style="width:38%"></i><i style="width:70%"></i><i style="width:52%"></i></div>
+        <ol class="art-lines"><li><i style="--i:0;--w:34%"></i></li><li><i style="--i:0;--w:62%"></i></li><li><i style="--i:1;--w:48%"></i></li><li><i style="--i:1;--w:30%"></i><i class="caret"></i></li><li><i style="--i:1;--w:26%"></i></li><li></li><li><i style="--i:0;--w:54%"></i></li><li><i style="--i:1;--w:66%"></i></li><li><i style="--i:2;--w:38%"></i></li><li><i style="--i:2;--w:58%"></i></li><li><i style="--i:1;--w:44%"></i></li><li></li><li><i style="--i:0;--w:72%"></i></li><li><i style="--i:1;--w:50%"></i></li><li><i style="--i:1;--w:36%"></i></li></ol>
+      </div>
+      <div class="panel" aria-hidden="true">
+        <div class="p-bar"><b style="width:84%"></b></div>
+        <div class="p-mid">
+          <div class="p-time">38:12</div>
+          <div class="p-pill"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 4h9v4.5A3.5 3.5 0 017.5 12h-2A3.5 3.5 0 012 8.5zM11 5h1.2A1.8 1.8 0 0114 6.8v.4A1.8 1.8 0 0112.2 9H11V8h1.2a.8.8 0 00.8-.8v-.4a.8.8 0 00-.8-.8H11zM1 13.2h11v1H1z"/></svg><span>休憩 +07:38</span></div>
+        </div>
+        <div class="p-controls"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== try: erase the noise ========== -->
+  <section class="sec wrap try" id="try" aria-labelledby="try-title">
+    <div class="sec-head">
+      <p class="eyebrow">( try / erase the noise )</p>
+      <div class="sec-title"><h2 id="try-title">押して、消してみる。</h2></div>
+      <p class="sec-lead">Mac の画面の端に、静かに浮かぶ小さなタイマー。数えるのは、<strong>いま、どれだけ続けているか</strong>だけです。</p>
+    </div>
+    <div class="stage-wrap">
       <div class="stage-bar">
         <span class="stage-count"><span class="dot" aria-hidden="true"></span><span id="noise-count">画面のノイズ <span class="n">6</span></span></span>
         <button class="erase-btn" id="erase-all" type="button">
@@ -1037,7 +1123,7 @@ bash quiet-install.sh</code></pre>
   })();
 
   /* ================= signature: erase the noise ================= */
-  var hero = $("hero");
+  var hero = $("try");
   var noises = Array.prototype.slice.call(document.querySelectorAll("[data-noise]"));
   var countEl = $("noise-count");
   var eraseBtn = $("erase-all");
@@ -1106,8 +1192,8 @@ bash quiet-install.sh</code></pre>
     if (hero.classList.contains("is-quiet")) { restore(); return; }
     eraseAll();
   });
-  /* 初回ロードの入場として一度だけ、ノイズを消して見せる（触れたら止める） */
-  autoTimer = setTimeout(function () { if (!touched && !busy && left() === noises.length) eraseAll(); }, reduce ? 0 : 1400);
+  /* 自動で消して見せる演出は持たない。この節はヒーローの下にあり、読み込み時には見えていないので、
+     自動で消すと読み手が来たときには消え終わっている。ここでは読み手が自分の手で消す */
 
   /* ================= 02: touchable model + break overlay ================= */
   var ICON = {
