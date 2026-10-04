@@ -961,7 +961,7 @@
       "type": "caption-in",
       "scene": "zone",
       "note": "コピー「いま、いいところ。」が浮かび始める（15f）",
-      "source": "src/scenes/Zone.tsx:13 COPY_FROM"
+      "source": "src/scenes/Zone.tsx:23 COPY_FROM"
     },
     {
       "frame": 236,
@@ -1024,7 +1024,7 @@
       "type": "caption-out-end",
       "scene": "zone",
       "note": "コピー「いま、いいところ。」が消えきる",
-      "source": "src/scenes/Zone.tsx:14 COPY_TO"
+      "source": "src/scenes/Zone.tsx:24 COPY_TO"
     },
     {
       "frame": 300,
@@ -3110,189 +3110,189 @@
       "type": "camera-start",
       "scene": "flowBreak",
       "note": "書いている本文とパネルが収まる構図へ寄り始める",
-      "source": "src/scenes/FlowBreak.tsx:53 CAM_PUSH"
+      "source": "src/scenes/FlowBreak.tsx:61 CAM_PUSH"
     },
     {
       "frame": 1442,
       "type": "editor-typing-start",
       "scene": "flowBreak",
       "note": "文書（提案書）がタイプされ始める（147f で 117 字、約 0.80 字/f。字が増えるのは 107 フレーム）",
-      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+      "source": "src/scenes/FlowBreak.tsx:108 TYPED_KEYS"
     },
     {
       "frame": 1497,
       "type": "kpi-cell",
       "scene": "flowBreak",
       "note": "期待効果の数字「月の対応時間 40時間」が出る",
-      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+      "source": "src/scenes/FlowBreak.tsx:108 TYPED_KEYS"
     },
     {
       "frame": 1504,
       "type": "caption-in",
       "scene": "flowBreak",
       "note": "コピー「25分で、切らない。」が浮かび始める（18f で読める濃さ）",
-      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_SATURATE"
+      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_SATURATE"
     },
     {
       "frame": 1507,
       "type": "kpi-cell",
       "scene": "flowBreak",
       "note": "期待効果の数字「待ち時間 半分」が出る",
-      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+      "source": "src/scenes/FlowBreak.tsx:108 TYPED_KEYS"
     },
     {
       "frame": 1510,
       "type": "reach",
       "scene": "flowBreak",
       "note": "25:00 に到達。進捗バーが満ちて薄まる（止まらない。冒頭なら止められていたところ）",
-      "source": "src/scenes/FlowBreak.tsx:40 SATURATE"
+      "source": "src/scenes/FlowBreak.tsx:41 SATURATE"
     },
     {
       "frame": 1521,
       "type": "written",
       "scene": "flowBreak",
       "note": "提案書の肝が書き上がる（期待効果の数字の最後「自動で返せる 6割」が出そろう）",
-      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+      "source": "src/scenes/FlowBreak.tsx:108 TYPED_KEYS"
     },
     {
       "frame": 1522,
       "type": "caption-full",
       "scene": "flowBreak",
       "note": "コピー「25分で、切らない。」が出きる",
-      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_SATURATE"
+      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_SATURATE"
     },
     {
       "frame": 1582,
       "type": "caption-out-start",
       "scene": "flowBreak",
       "note": "コピー「25分で、切らない。」が消え始める",
-      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_SATURATE"
+      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_SATURATE"
     },
     {
       "frame": 1588,
       "type": "editor-typing-end",
       "scene": "flowBreak",
       "note": "エディタのタイプが止まる（最後に字が増えるフレーム）",
-      "source": "src/scenes/FlowBreak.tsx:100 TYPED_KEYS"
+      "source": "src/scenes/FlowBreak.tsx:108 TYPED_KEYS"
     },
     {
       "frame": 1590,
       "type": "cursor-in",
       "scene": "flowBreak",
       "note": "手を止めてマウスへ。ポインタが現れてパネルへ向かう",
-      "source": "src/scenes/FlowBreak.tsx:205 pointerOpacity"
+      "source": "src/scenes/FlowBreak.tsx:299 pointerOpacity"
     },
     {
       "frame": 1594,
       "type": "caption-out-end",
       "scene": "flowBreak",
       "note": "コピー「25分で、切らない。」が消えきる",
-      "source": "src/scenes/FlowBreak.tsx:45 CAPTION_SATURATE"
+      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_SATURATE"
     },
     {
       "frame": 1594,
       "type": "caption-in",
       "scene": "flowBreak",
       "note": "コピー「区切りは、止めたところ。」が浮かび始める（18f で読める濃さ）",
-      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_STOP"
+      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_STOP"
     },
     {
       "frame": 1606,
       "type": "hover-in",
       "scene": "flowBreak",
       "note": "手を乗せる → 30%→100%（14f）",
-      "source": "src/scenes/FlowBreak.tsx:73 HOVER_IN"
+      "source": "src/scenes/FlowBreak.tsx:81 HOVER_IN"
     },
     {
       "frame": 1612,
       "type": "caption-full",
       "scene": "flowBreak",
       "note": "コピー「区切りは、止めたところ。」が出きる",
-      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_STOP"
+      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_STOP"
     },
     {
       "frame": 1614,
       "type": "cursor-arrive",
       "scene": "flowBreak",
       "note": "ポインタがパネル右の余白で止まる",
-      "source": "src/scenes/FlowBreak.tsx:63 CURSOR_PATH"
+      "source": "src/scenes/FlowBreak.tsx:71 CURSOR_PATH"
     },
     {
       "frame": 1622,
       "type": "cursor-move",
       "scene": "flowBreak",
       "note": "ポインタが休憩チップへ動き出す",
-      "source": "src/scenes/FlowBreak.tsx:63 CURSOR_PATH"
+      "source": "src/scenes/FlowBreak.tsx:71 CURSOR_PATH"
     },
     {
       "frame": 1630,
       "type": "camera-start",
       "scene": "flowBreak",
       "note": "押す少し前からカメラが全景へ引き始める",
-      "source": "src/scenes/FlowBreak.tsx:58 CAM_PULL"
+      "source": "src/scenes/FlowBreak.tsx:66 CAM_PULL"
     },
     {
       "frame": 1634,
       "type": "reach",
       "scene": "flowBreak",
       "note": "52:10 に到達し、ポインタが休憩チップに着く",
-      "source": "src/scenes/FlowBreak.tsx:85 WORKED_KEYS 52:10"
+      "source": "src/scenes/FlowBreak.tsx:93 WORKED_KEYS 52:10"
     },
     {
       "frame": 1636,
       "type": "chip-hover",
       "scene": "flowBreak",
       "note": "チップの塗りが 22%→40% に濃くなる（ホバー）",
-      "source": "src/scenes/FlowBreak.tsx:207 chipHover"
+      "source": "src/scenes/FlowBreak.tsx:301 chipHover"
     },
     {
       "frame": 1642,
       "type": "press",
       "scene": "flowBreak",
       "note": "チップを押し込む（mouse down）",
-      "source": "src/scenes/FlowBreak.tsx:41 PRESS"
+      "source": "src/scenes/FlowBreak.tsx:42 PRESS"
     },
     {
       "frame": 1646,
       "type": "break-start",
       "scene": "flowBreak",
       "note": "離した瞬間に作業終了 → 休憩開始。全画面の休憩が現れ始める",
-      "source": "src/scenes/FlowBreak.tsx:42 BREAK_START"
+      "source": "src/scenes/FlowBreak.tsx:43 BREAK_START"
     },
     {
       "frame": 1648,
       "type": "caption-out-start",
       "scene": "flowBreak",
       "note": "コピー「区切りは、止めたところ。」が消え始める",
-      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_STOP"
+      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_STOP"
     },
     {
       "frame": 1660,
       "type": "caption-out-end",
       "scene": "flowBreak",
       "note": "コピー「区切りは、止めたところ。」が消えきる",
-      "source": "src/scenes/FlowBreak.tsx:46 CAPTION_STOP"
-    },
-    {
-      "frame": 1660,
-      "type": "caption-in",
-      "scene": "flowBreak",
-      "note": "コピー「休憩は、義務ではなく報酬。」が浮かび始める（18f で読める濃さ）",
-      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_REWARD"
+      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_STOP"
     },
     {
       "frame": 1664,
       "type": "overlay-full",
       "scene": "flowBreak",
       "note": "休憩画面が濃くなりきる（0.6 秒）",
-      "source": "src/scenes/FlowBreak.tsx:49 OVERLAY_FADE"
+      "source": "src/scenes/FlowBreak.tsx:57 OVERLAY_FADE"
+    },
+    {
+      "frame": 1666,
+      "type": "caption-in",
+      "scene": "flowBreak",
+      "note": "コピー「休憩は、義務ではなく報酬。」が浮かび始める（18f で読める濃さ）",
+      "source": "src/scenes/FlowBreak.tsx:48 CAPTION_REWARD"
     },
     {
       "frame": 1672,
       "type": "camera-end",
       "scene": "flowBreak",
       "note": "カメラが等倍の全景に引ききる",
-      "source": "src/scenes/FlowBreak.tsx:58 CAM_PULL"
+      "source": "src/scenes/FlowBreak.tsx:66 CAM_PULL"
     },
     {
       "frame": 1676,
@@ -3302,11 +3302,11 @@
       "source": "src/scenes/DesktopShared.tsx:37 breakRemaining"
     },
     {
-      "frame": 1678,
+      "frame": 1684,
       "type": "caption-full",
       "scene": "flowBreak",
       "note": "コピー「休憩は、義務ではなく報酬。」が出きる",
-      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_REWARD"
+      "source": "src/scenes/FlowBreak.tsx:48 CAPTION_REWARD"
     },
     {
       "frame": 1706,
@@ -3316,32 +3316,32 @@
       "source": "src/scenes/DesktopShared.tsx:37 breakRemaining"
     },
     {
-      "frame": 1716,
+      "frame": 1724,
       "type": "caption-out-start",
       "scene": "flowBreak",
       "note": "コピー「休憩は、義務ではなく報酬。」が消え始める",
-      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_REWARD"
+      "source": "src/scenes/FlowBreak.tsx:48 CAPTION_REWARD"
     },
     {
       "frame": 1726,
       "type": "washi-start",
       "scene": "flowBreak",
       "note": "休憩画面ごと washi へ抜け始める",
-      "source": "src/scenes/FlowBreak.tsx:48 WASHI_OUT"
+      "source": "src/scenes/FlowBreak.tsx:56 WASHI_OUT"
     },
     {
-      "frame": 1728,
+      "frame": 1736,
       "type": "caption-out-end",
       "scene": "flowBreak",
       "note": "コピー「休憩は、義務ではなく報酬。」が消えきる",
-      "source": "src/scenes/FlowBreak.tsx:47 CAPTION_REWARD"
+      "source": "src/scenes/FlowBreak.tsx:48 CAPTION_REWARD"
     },
     {
       "frame": 1740,
       "type": "washi-end",
       "scene": "flowBreak",
       "note": "washi 一色（ここから Modes のフェードの下に隠れる）",
-      "source": "src/scenes/FlowBreak.tsx:48 WASHI_OUT"
+      "source": "src/scenes/FlowBreak.tsx:56 WASHI_OUT"
     },
     {
       "frame": 1740,
